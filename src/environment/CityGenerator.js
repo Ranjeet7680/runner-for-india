@@ -1,13 +1,12 @@
-// CityGenerator.js - 8 Distinct Procedural Landmarks (Station, City, Warehouse, Coal Mine, Bridge, Tokyo Tower, Village, Hyperloop)
+// CityGenerator.js - 8 Location Landmarks & Real-time Dynamic Day-Night Cycle
 import * as THREE from 'three';
 
 export class CityGenerator {
   constructor(scene) {
     this.scene = scene;
-    this.currentMap = 'NIGHT_METRO';
-    this.buildings = [];
+    this.currentMap = 'DYNAMIC_DAY_NIGHT';
     this.landmarks = [];
-    this.activeChunkZ = 0;
+    this.cycleTime = 0;
 
     this.initTextures();
     this.initEnvironmentLighting();
@@ -15,7 +14,6 @@ export class CityGenerator {
   }
 
   initTextures() {
-    // Window Grid Texture (Skyscrapers)
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
@@ -32,7 +30,6 @@ export class CityGenerator {
     this.buildingTextureCyan.wrapT = THREE.RepeatWrapping;
     this.buildingTextureCyan.repeat.set(2, 8);
 
-    // Red Warehouse Brick Texture
     const canvasWh = document.createElement('canvas');
     canvasWh.width = 64; canvasWh.height = 64;
     const ctxWh = canvasWh.getContext('2d');
@@ -59,6 +56,9 @@ export class CityGenerator {
     if (mapType === 'DAY_METRO') {
       this.skyColor.setHex(0x3a86ff);
       this.scene.fog.color.setHex(0x3a86ff);
+    } else if (mapType === 'NIGHT_METRO') {
+      this.skyColor.setHex(0x0c1b40);
+      this.scene.fog.color.setHex(0x0c1b40);
     } else if (mapType === 'MUMBAI_METRO') {
       this.skyColor.setHex(0x0a2472);
       this.scene.fog.color.setHex(0x0a2472);
@@ -66,10 +66,24 @@ export class CityGenerator {
       this.skyColor.setHex(0x1a120b);
       this.scene.fog.color.setHex(0x1a120b);
     } else {
+      // Dynamic Day-Night
       this.skyColor.setHex(0x0c1b40);
       this.scene.fog.color.setHex(0x0c1b40);
     }
     this.scene.background = this.skyColor;
+  }
+
+  toggleDayNightMode() {
+    if (this.currentMap === 'NIGHT_METRO') {
+      this.setMap('DAY_METRO');
+      return 'DAY';
+    } else if (this.currentMap === 'DAY_METRO') {
+      this.setMap('DYNAMIC_DAY_NIGHT');
+      return 'DYNAMIC';
+    } else {
+      this.setMap('NIGHT_METRO');
+      return 'NIGHT';
+    }
   }
 
   buildInitialCity() {
@@ -81,41 +95,31 @@ export class CityGenerator {
   spawnChunkLandmarks(z) {
     const sideLeft = -18;
     const sideRight = 18;
-
-    // Pick location landmark based on depth index
     const locationType = Math.abs(Math.floor(z / 70)) % 8;
 
     if (locationType === 0) {
-      // 1. METRO STATION PLATFORM
       this.createStationPlatform(sideLeft, z);
       this.createStationPlatform(sideRight, z);
     } else if (locationType === 1) {
-      // 2. MODERN CITY SKYSCRAPERS & NEON BILLBOARDS
       this.createSkyscraper(sideLeft, z, 35, 0x00f3ff);
       this.createSkyscraper(sideRight, z, 45, 0xff007f);
       if (Math.random() > 0.4) this.createBillboard(0, z, 'NEXORA METRO');
     } else if (locationType === 2) {
-      // 3. WAREHOUSE & CARGO CONTAINERS
       this.createWarehouse(sideLeft, z);
       this.createCargoContainers(sideRight, z);
     } else if (locationType === 3) {
-      // 4. COAL MINE & ORE MOUNTAINS
       this.createCoalMountain(sideLeft, z);
       this.createMineTrestle(sideRight, z);
     } else if (locationType === 4) {
-      // 5. MUMBAI SEA LINK SUSPENSION BRIDGE
       this.createBridgePylon(sideLeft, z);
       this.createBridgePylon(sideRight, z);
     } else if (locationType === 5) {
-      // 6. TOKYO TOWER LANDMARK
       this.createTokyoTower(sideRight + 8, z);
       this.createSkyscraper(sideLeft, z, 28, 0x00ff88);
     } else if (locationType === 6) {
-      // 7. VILLAGE HUTS & TREES
       this.createVillageHut(sideLeft, z);
       this.createTreesAndFences(sideRight, z);
     } else {
-      // 8. HYPERLOOP TUNNEL TUBE
       this.createHyperloopTube(0, z);
     }
   }
@@ -347,8 +351,28 @@ export class CityGenerator {
     this.landmarks.push(group);
   }
 
-  update(playerZ) {
-    // Recycle landmarks far behind player for infinite track generation
+  update(playerZ, delta) {
+    if (this.currentMap === 'DYNAMIC_DAY_NIGHT') {
+      this.cycleTime += delta * 0.05;
+      const phase = Math.sin(this.cycleTime);
+
+      // Smooth Sky Color lerp (Day Blue -> Sunset Pink -> Night Dark)
+      const dayColor = new THREE.Color(0x3a86ff);
+      const nightColor = new THREE.Color(0x0c1b40);
+      const sunsetColor = new THREE.Color(0xff007f);
+
+      if (phase > 0.3) {
+        this.skyColor.lerpColors(sunsetColor, dayColor, (phase - 0.3) / 0.7);
+      } else if (phase > -0.3) {
+        this.skyColor.lerpColors(nightColor, sunsetColor, (phase + 0.3) / 0.6);
+      } else {
+        this.skyColor.copy(nightColor);
+      }
+
+      this.scene.background = this.skyColor;
+      this.scene.fog.color.copy(this.skyColor);
+    }
+
     this.landmarks.forEach(lm => {
       if (lm.position.z > playerZ + 25) {
         lm.position.z -= 450;

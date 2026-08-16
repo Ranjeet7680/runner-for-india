@@ -1,4 +1,4 @@
-// UIManager.js - Realtime Achievement Toasts, Music Track Selector & Continuous Audio
+// UIManager.js - Realtime Achievement Toasts, Day/Night Mode Toggle & Music Changer
 import { soundEngine } from '../audio/SoundEngine.js';
 import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
@@ -52,6 +52,21 @@ export class UIManager {
   }
 
   initListeners() {
+    // Day / Night Toggle Buttons
+    const toggleDN = () => {
+      soundEngine.playClick();
+      const mode = this.game.cityGenerator.toggleDayNightMode();
+      const icons = { DAY: '☀️', NIGHT: '🌙', DYNAMIC: '🌅' };
+      const icon = icons[mode] || '☀️';
+      const btn1 = document.getElementById('btn-daynight-toggle');
+      const btn2 = document.getElementById('btn-hud-daynight');
+      if (btn1) btn1.textContent = icon;
+      if (btn2) btn2.textContent = icon;
+    };
+
+    document.getElementById('btn-daynight-toggle')?.addEventListener('click', toggleDN);
+    document.getElementById('btn-hud-daynight')?.addEventListener('click', toggleDN);
+
     // Fullscreen Toggle Buttons
     const toggleFS = () => {
       soundEngine.playClick();

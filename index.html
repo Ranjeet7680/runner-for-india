@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NEXORA METRO RUNNER - CID Detective Moonlight Adventure</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <!-- 3D Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- UI Overlay -->
+  <div id="ui-container">
+
+    <!-- 1. LOADING SCREEN -->
+    <div id="screen-loading" class="ui-screen active">
+      <div class="loading-content">
+        <div class="brand-badge">
+          <span class="brand-dot"></span>
+          <span class="brand-text">NEXORA TEAM • INNOVATION</span>
+        </div>
+        <h1 class="game-title">NEXORA</h1>
+        <div class="game-subtitle">METRO RUNNER</div>
+        <p class="tagline">CID Detective Moonlight Metropolis</p>
+
+        <div class="loading-icon-container">
+          <svg class="rotating-train-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 12C16 9.79086 17.7909 8 20 8H44C46.2091 8 48 9.79086 48 12V44C48 48.4183 44.4183 52 40 52H24C19.5817 52 16 48.4183 16 44V12Z" stroke="#00f3ff" stroke-width="3"/>
+            <rect x="22" y="16" width="20" height="12" rx="2" fill="#00f3ff" fill-opacity="0.3" stroke="#00f3ff" stroke-width="2"/>
+            <circle cx="24" cy="40" r="4" fill="#ff007f"/>
+            <circle cx="40" cy="40" r="4" fill="#ff007f"/>
+          </svg>
+          <div class="rail-signal-lights">
+            <span class="signal-dot red active"></span>
+            <span class="signal-dot yellow active"></span>
+            <span class="signal-dot green active"></span>
+          </div>
+        </div>
+
+        <div class="progress-box">
+          <div class="progress-bar-bg">
+            <div id="loading-progress-fill" class="progress-bar-fill"></div>
+          </div>
+          <div class="progress-labels">
+            <span id="loading-status-text">Initialising Metro Cities…</span>
+            <span id="loading-percentage">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. WELCOME SCREEN -->
+    <div id="screen-welcome" class="ui-screen hidden">
+      <div class="welcome-header">
+        <div class="player-profile-badge">
+          <span id="welcome-lvl-badge" class="lvl-badge">LVL 1</span>
+          <div class="profile-info">
+            <span class="profile-name">METRO RUNNER</span>
+            <div class="xp-bar-bg"><div id="welcome-xp-fill" class="xp-bar-fill" style="width: 25%"></div></div>
+          </div>
+        </div>
+        <div class="header-coins">
+          <span>🪙</span>
+          <span id="welcome-coins-val">0</span>
+        </div>
+      </div>
+
+      <div class="welcome-hero">
+        <h1 class="hero-title">NEXORA</h1>
+        <div class="hero-sub">METRO RUNNER</div>
+        <p class="hero-desc">CID DETECTIVE ADVENTURE • MOONLIGHT METROPOLIS</p>
+      </div>
+
+      <div class="nav-menu-grid">
+        <button id="btn-nav-start" class="btn-primary glow-pulse">START RUN ➔</button>
+        <div class="nav-sub-row">
+          <button id="btn-nav-chars" class="btn-nav">🎭 CHARACTERS</button>
+          <button id="btn-nav-maps" class="btn-nav">🗺️ MAPS</button>
+          <button id="btn-nav-missions" class="btn-nav">📋 MISSIONS</button>
+        </div>
+        <div class="nav-sub-row">
+          <button id="btn-nav-rewards" class="btn-nav">🎁 REWARDS</button>
+          <button id="btn-nav-achievements" class="btn-nav">🏆 BADGES</button>
+          <button id="btn-nav-settings" class="btn-nav">⚙️ SETTINGS</button>
+        </div>
+      </div>
+
+      <div class="welcome-footer">
+        Designed & Developed by <strong>Nexora Team</strong> • "Building innovative digital experiences"
+      </div>
+    </div>
+
+    <!-- 3. CHARACTER SELECTION SCREEN -->
+    <div id="screen-characters" class="ui-screen full-menu-screen hidden">
+      <div class="menu-top-bar">
+        <h2>CHARACTER SELECT (7 ROSTER)</h2>
+        <button id="btn-close-chars" class="close-btn">✕</button>
+      </div>
+      <div class="char-select-layout">
+        <div class="preview-card">
+          <div id="char-preview-container"></div>
+          <span id="preview-char-name" class="char-preview-title">BOY</span>
+        </div>
+        <div class="char-cards-list">
+          <div class="char-card active" data-char="BOY">
+            <span class="char-icon">🏃‍♂️</span>
+            <div class="char-info">
+              <span class="name">BOY RUNNER</span>
+              <span class="desc">Agile urban runner with smooth jumps</span>
+            </div>
+            <span class="status-tag unlocked">DEFAULT</span>
+          </div>
+          <div class="char-card" data-char="GIRL">
+            <span class="char-icon">🏃‍♀️</span>
+            <div class="char-info">
+              <span class="name">GIRL RUNNER</span>
+              <span class="desc">Speed specialist with quick lane switches</span>
+            </div>
+            <span id="tag-char-GIRL" class="status-tag">200 COINS</span>
+          </div>
+          <div class="char-card" data-char="ALIEN">
+            <span class="char-icon">👽</span>
+            <div class="char-info">
+              <span class="name">CYBER ALIEN</span>
+              <span class="desc">Futuristic suit with zero-gravity jump</span>
+            </div>
+            <span id="tag-char-ALIEN" class="status-tag">500 COINS</span>
+          </div>
+          <div class="char-card" data-char="DOG">
+            <span class="char-icon">🐕</span>
+            <div class="char-info">
+              <span class="name">CYBER DOG</span>
+              <span class="desc">Fast 4-leg runner with barking effects</span>
+            </div>
+            <span id="tag-char-DOG" class="status-tag">800 COINS</span>
+          </div>
+          <div class="char-card" data-char="CAT">
+            <span class="char-icon">🐈</span>
+            <div class="char-info">
+              <span class="name">CYBER CAT</span>
+              <span class="desc">Super acrobatic jumper with meow sound</span>
+            </div>
+            <span id="tag-char-CAT" class="status-tag">1200 COINS</span>
+          </div>
+          <div class="char-card" data-char="ROBOT">
+            <span class="char-icon">🤖</span>
+            <div class="char-info">
+              <span class="name">CYBER DROID</span>
+              <span class="desc">Titanium robot with glowing cyan core reactor</span>
+            </div>
+            <span id="tag-char-ROBOT" class="status-tag">1500 COINS</span>
+          </div>
+          <div class="char-card" data-char="POLICE">
+            <span class="char-icon">👮‍♂️</span>
+            <div class="char-info">
+              <span class="name">CID DETECTIVE</span>
+              <span class="desc">Squad leader detective with aviator glasses & badge</span>
+            </div>
+            <span id="tag-char-POLICE" class="status-tag">2000 COINS</span>
+          </div>
+        </div>
+      </div>
+      <button id="btn-select-character" class="btn-primary">SELECT CHARACTER</button>
+    </div>
+
+    <!-- 4. MAP SELECTION SCREEN -->
+    <div id="screen-maps" class="ui-screen full-menu-screen hidden">
+      <div class="menu-top-bar">
+        <h2>CITY MAPS SELECT</h2>
+        <button id="btn-close-maps" class="close-btn">✕</button>
+      </div>
+      <div class="maps-grid">
+        <div class="map-card active" data-map="NIGHT_METRO">
+          <div class="map-thumb night-bg"></div>
+          <div class="map-details">
+            <h3>NIGHT METRO</h3>
+            <p>Futuristic cyber city moonlight</p>
+            <span class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+        <div class="map-card" data-map="DAY_METRO">
+          <div class="map-thumb day-bg"></div>
+          <div class="map-details">
+            <h3>DAY METRO</h3>
+            <p>Bright sunny Indian railway tracks</p>
+            <span id="tag-map-DAY_METRO" class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+        <div class="map-card" data-map="DYNAMIC_DAY_NIGHT">
+          <div class="map-thumb dynamic-bg"></div>
+          <div class="map-details">
+            <h3>DYNAMIC DAY-NIGHT</h3>
+            <p>Realtime sunset dawn sky cycle</p>
+            <span id="tag-map-DYNAMIC_DAY_NIGHT" class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+        <div class="map-card" data-map="MUMBAI_METRO">
+          <div class="map-thumb mumbai-bg"></div>
+          <div class="map-details">
+            <h3>MUMBAI LOCAL</h3>
+            <p>Suburban express tracks & sea bridge</p>
+            <span id="tag-map-MUMBAI_METRO" class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+        <div class="map-card" data-map="CHENNAI_METRO">
+          <div class="map-thumb chennai-bg"></div>
+          <div class="map-details">
+            <h3>CHENNAI METRO</h3>
+            <p>Modern elevated rail corridor</p>
+            <span id="tag-map-CHENNAI_METRO" class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+        <div class="map-card" data-map="DHANBAD_RAIL">
+          <div class="map-thumb dhanbad-bg"></div>
+          <div class="map-details">
+            <h3>DHANBAD RAILWAY</h3>
+            <p>Coal belt heavy freight line</p>
+            <span id="tag-map-DHANBAD_RAIL" class="status-tag unlocked">UNLOCKED</span>
+          </div>
+        </div>
+      </div>
+      <button id="btn-select-map" class="btn-primary">CONFIRM CITY MAP</button>
+    </div>
+
+    <!-- 5. MISSIONS SCREEN -->
+    <div id="screen-missions" class="ui-screen full-menu-screen hidden">
+      <div class="menu-top-bar">
+        <h2>CID INVESTIGATION MISSIONS</h2>
+        <button id="btn-close-missions" class="close-btn">✕</button>
+      </div>
+      <div class="missions-tab-row">
+        <button id="tab-daily" class="tab-btn active">DAILY MISSIONS</button>
+        <button id="tab-weekly" class="tab-btn">WEEKLY CAMPAIGN</button>
+      </div>
+      <div id="missions-list-container" class="missions-list"></div>
+    </div>
+
+    <!-- 6. DAILY REWARDS SCREEN -->
+    <div id="screen-rewards" class="ui-screen full-menu-screen hidden">
+      <div class="menu-top-bar">
+        <h2>DAILY LOGIN REWARDS</h2>
+        <button id="btn-close-rewards" class="close-btn">✕</button>
+      </div>
+      <div class="daily-calendar-grid">
+        <div class="login-day-tile" id="day-tile-1"><span class="day-lbl">DAY 1</span><span class="icon">🪙</span><span>100 Coins</span></div>
+        <div class="login-day-tile" id="day-tile-2"><span class="day-lbl">DAY 2</span><span class="icon">🪙</span><span>250 Coins</span></div>
+        <div class="login-day-tile" id="day-tile-3"><span class="day-lbl">DAY 3</span><span class="icon">🛡️</span><span>1 Revive Token</span></div>
+        <div class="login-day-tile" id="day-tile-4"><span class="day-lbl">DAY 4</span><span class="icon">🪙</span><span>500 Coins</span></div>
+        <div class="login-day-tile" id="day-tile-5"><span class="day-lbl">DAY 5</span><span class="icon">🚀</span><span>Rocket Boost</span></div>
+        <div class="login-day-tile" id="day-tile-6"><span class="day-lbl">DAY 6</span><span class="icon">🪙</span><span>1000 Coins</span></div>
+        <div class="login-day-tile highlight" id="day-tile-7"><span class="day-lbl">DAY 7</span><span class="icon">👑</span><span>MYSTERY BOX</span></div>
+      </div>
+      <button id="btn-claim-daily" class="btn-primary">CLAIM DAILY REWARD</button>
+    </div>
+
+    <!-- 7. ACHIEVEMENTS SCREEN -->
+    <div id="screen-achievements" class="ui-screen full-menu-screen hidden">
+      <div class="menu-top-bar">
+        <h2>HONOR BADGES</h2>
+        <button id="btn-close-achievements" class="close-btn">✕</button>
+      </div>
+      <div id="achievements-list-container" class="missions-list"></div>
+    </div>
+
+    <!-- 8. COUNTDOWN OVERLAY -->
+    <div id="screen-countdown" class="ui-screen center-overlay hidden">
+      <div id="countdown-number" class="countdown-pop">3</div>
+      <div id="countdown-subtext" class="countdown-sub">GET READY</div>
+    </div>
+
+    <!-- 9. IN-GAME HUD SCREEN -->
+    <div id="screen-hud" class="ui-screen pointer-through hidden">
+      <div class="hud-top-bar pointer-auto">
+        <div class="hud-card">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score-val" class="hud-val">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">DISTANCE</span>
+          <span id="hud-distance-val" class="hud-val">0 m</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">COINS</span>
+          <div class="coin-val-wrap">
+            <span>🪙</span>
+            <span id="hud-coins-val" class="hud-val">0</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-hud-pause" class="btn-secondary" style="width: 44px; height: 44px; padding:0;">⏸️</button>
+          <button id="btn-hud-sound" class="btn-secondary" style="width: 44px; height: 44px; padding:0;">🔊</button>
+        </div>
+      </div>
+
+      <!-- Active Powerups List -->
+      <div id="hud-powerups-list" class="hud-powerups"></div>
+
+      <!-- Touch Control Buttons Overlay for Mobile -->
+      <div class="mobile-touch-overlay pointer-auto">
+        <button id="touch-btn-left" class="touch-btn touch-left">◀</button>
+        <button id="touch-btn-up" class="touch-btn touch-up">▲</button>
+        <button id="touch-btn-down" class="touch-btn touch-down">▼</button>
+        <button id="touch-btn-right" class="touch-btn touch-right">▶</button>
+      </div>
+    </div>
+
+    <!-- PAUSE MODAL -->
+    <div id="modal-pause" class="ui-modal hidden">
+      <div class="modal-card">
+        <h2 class="modal-title">RUN PAUSED</h2>
+        <div class="modal-divider"></div>
+        <div class="pause-stats">
+          <div class="stat-box"><span class="lbl">CURRENT SCORE</span><span id="pause-score" class="val">0</span></div>
+          <div class="stat-box"><span class="lbl">DISTANCE</span><span id="pause-distance" class="val">0 m</span></div>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-pause-resume" class="btn-primary">RESUME RUN</button>
+          <button id="btn-pause-restart" class="btn-secondary">RESTART RUN</button>
+          <button id="btn-pause-settings" class="btn-secondary">SETTINGS</button>
+          <button id="btn-pause-main" class="btn-danger">QUIT TO MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIVE MODAL -->
+    <div id="modal-revive" class="ui-modal hidden">
+      <div class="modal-card">
+        <h2 class="modal-title alert-red">CONTINUE RUN?</h2>
+        <p class="revive-sub">Use 1 Revive Token to shield & resume!</p>
+        <div class="modal-divider"></div>
+        <div class="revive-token-count">
+          <span>AVAILABLE TOKENS:</span>
+          <span id="revive-token-val">1 🛡️</span>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-revive-yes" class="btn-primary">USE TOKEN & REVIVE</button>
+          <button id="btn-revive-no" class="btn-danger">NO THANKS (GIVE UP)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER LOBBY MODAL -->
+    <div id="modal-gameover" class="ui-modal hidden">
+      <div class="modal-card">
+        <h2 class="modal-title alert-red">RUN FINISHED</h2>
+        <p style="text-align:center; font-size:0.85rem; color:#8a99ad;">NEXORA CENTRAL LOBBY</p>
+        <div class="modal-divider"></div>
+        <div id="high-score-banner" class="high-score-banner hidden">🎉 NEW RECORD HIGH SCORE! 🎉</div>
+        <div class="results-grid">
+          <div class="result-tile"><span class="lbl">FINAL SCORE</span><span id="go-score" class="val">0</span></div>
+          <div class="result-tile"><span class="lbl">DISTANCE</span><span id="go-distance" class="val">0 m</span></div>
+          <div class="result-tile"><span class="lbl">COINS COLLECTED</span><span id="go-coins" class="val">0</span></div>
+          <div class="result-tile"><span class="lbl">XP GAINED</span><span id="go-xp" class="val">+0 XP</span></div>
+        </div>
+        <div class="modal-buttons">
+          <button id="btn-go-again" class="btn-primary">RUN AGAIN ➔</button>
+          <button id="btn-go-missions" class="btn-secondary">CID MISSIONS</button>
+          <button id="btn-go-rewards" class="btn-secondary">DAILY REWARDS</button>
+          <button id="btn-go-main" class="btn-danger">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div id="modal-settings" class="ui-modal hidden">
+      <div class="modal-card">
+        <h2 class="modal-title">SETTINGS</h2>
+        <div class="modal-divider"></div>
+        <div class="settings-list">
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">MUTE ALL AUDIO</span>
+              <span class="setting-desc">Silence sound effects & music</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-mute-all">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">CID VOICE MODE</span>
+              <span class="setting-desc">Hindi/English Detective voice</span>
+            </div>
+            <select id="setting-voice-mode" class="select-input">
+              <option value="HINDI">HINDI</option>
+              <option value="ENGLISH">ENGLISH</option>
+              <option value="HINDI_ENGLISH" selected>HINDI + ENGLISH</option>
+            </select>
+          </div>
+
+          <!-- Volume Sliders -->
+          <div class="volume-slider-group">
+            <div class="slider-row"><span>Master Vol</span><input type="range" id="vol-master" min="0" max="1" step="0.05" value="0.8"></div>
+            <div class="slider-row"><span>Music Vol</span><input type="range" id="vol-music" min="0" max="1" step="0.05" value="0.7"></div>
+            <div class="slider-row"><span>Train Vol</span><input type="range" id="vol-train" min="0" max="1" step="0.05" value="0.8"></div>
+            <div class="slider-row"><span>Voice Vol</span><input type="range" id="vol-voice" min="0" max="1" step="0.05" value="1.0"></div>
+            <div class="slider-row"><span>SFX Vol</span><input type="range" id="vol-sfx" min="0" max="1" step="0.05" value="0.8"></div>
+            <div class="slider-row"><span>Ambience Vol</span><input type="range" id="vol-ambience" min="0" max="1" step="0.05" value="0.6"></div>
+          </div>
+
+          <div class="about-credits">
+            <h3>NEXORA METRO RUNNER</h3>
+            <p>Developed with Innovation by Nexora Team</p>
+            <p style="font-size:0.75rem; margin-top:4px;">V2.0 • Indian Metro Edition</p>
+          </div>
+        </div>
+        <button id="btn-close-settings" class="btn-primary">SAVE & CLOSE</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

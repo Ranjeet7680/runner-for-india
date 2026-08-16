@@ -19,6 +19,15 @@
   <!-- UI Overlay -->
   <div id="ui-container">
 
+    <!-- REAL-TIME IN-GAME ACHIEVEMENT TOAST POPUP -->
+    <div id="ui-achievement-toast" class="achievement-toast hidden">
+      <span id="toast-icon" class="toast-icon">🏆</span>
+      <div class="toast-text">
+        <span class="toast-subtitle">ACHIEVEMENT UNLOCKED!</span>
+        <span id="toast-title" class="toast-title">FIRST METRO RUN</span>
+      </div>
+    </div>
+
     <!-- 1. LOADING SCREEN -->
     <div id="screen-loading" class="ui-screen active">
       <div class="loading-content">
@@ -389,6 +398,21 @@
               <span class="slider"></span>
             </label>
           </div>
+          
+          <!-- Music Track Changer -->
+          <div class="setting-item">
+            <div class="setting-info">
+              <span class="setting-name">BACKGROUND MUSIC TRACK</span>
+              <span class="setting-desc">Select background rhythm</span>
+            </div>
+            <select id="setting-music-track" class="select-input">
+              <option value="CYBER_PUNK_SYNTH" selected>CYBER PUNK SYNTH</option>
+              <option value="INDIAN_METRO_BEAT">INDIAN METRO BEAT</option>
+              <option value="CID_MYSTERY_THEME">CID MYSTERY THEME</option>
+              <option value="SPEED_RUNNER_EDM">SPEED RUNNER EDM</option>
+            </select>
+          </div>
+
           <div class="setting-item">
             <div class="setting-info">
               <span class="setting-name">CID VOICE MODE</span>

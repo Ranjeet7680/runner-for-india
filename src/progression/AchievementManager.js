@@ -1,81 +1,64 @@
-// AchievementManager.js - Trophies & Achievement Badges
+// AchievementManager.js - Realtime In-Game Achievement Unlocks & Toast Triggers
 import { progressManager } from './ProgressManager.js';
 import { soundEngine } from '../audio/SoundEngine.js';
 
 export class AchievementManager {
   constructor() {
     this.achievements = [
-      { id: 'first_run', title: 'FIRST RUN', desc: 'Complete your first metro run', icon: '🏃', unlocked: false },
-      { id: 'coin_master', title: 'COIN MASTER', desc: 'Collect 1,000 coins in total', icon: '🪙', unlocked: false },
-      { id: 'sky_runner', title: 'SKY RUNNER', desc: 'Fly with Rocket Boost', icon: '🚀', unlocked: false },
-      { id: 'high_jumper', title: 'HIGH JUMPER', desc: 'Perform 100 jumps', icon: '👟', unlocked: false },
-      { id: 'metro_master', title: 'METRO MASTER', desc: 'Complete 10 metro runs', icon: '🚇', unlocked: false },
-      { id: 'city_explorer', title: 'CITY EXPLORER', desc: 'Unlock three city maps', icon: '🏙️', unlocked: false },
-      { id: 'nexora_champion', title: 'NEXORA CHAMPION', desc: 'Reach Player Level 50', icon: '🏆', unlocked: false }
+      { id: 'first_run', title: 'FIRST METRO RUN', desc: 'Complete your first metro track run', icon: '🏃', unlocked: false },
+      { id: 'coin_100', title: 'COIN COLLECTOR', desc: 'Collect 100 total coins', icon: '🪙', unlocked: false },
+      { id: 'jump_50', title: 'AIRBORNE JUMPER', desc: 'Perform 50 jumps over track barriers', icon: '👟', unlocked: false },
+      { id: 'dist_1k', title: 'KM MILESTONE', desc: 'Run 1,000 meters in a single run', icon: '🚉', unlocked: false },
+      { id: 'char_unlock', title: 'ROSTER EXPANDER', desc: 'Unlock any new playable character', icon: '🎭', unlocked: false },
+      { id: 'high_flyer', title: 'JETPACK BOOST', desc: 'Activate Rocket Boost sky flight', icon: '🚀', unlocked: false }
     ];
 
-    this.jumpsCount = 0;
-    this.runsCount = 0;
-    this.load();
+    this.stats = {
+      jumps: parseInt(localStorage.getItem('nexora_stat_jumps') || '0', 10),
+    };
+
+    this.loadUnlocked();
   }
 
-  load() {
-    try {
-      const data = localStorage.getItem('NEXORA_ACHIEVEMENTS_V2');
-      if (data) {
-        const parsed = JSON.parse(data);
-        this.jumpsCount = parsed.jumpsCount || 0;
-        this.runsCount = parsed.runsCount || 0;
-        if (parsed.unlocked) {
-          parsed.unlocked.forEach(id => {
-            const a = this.achievements.find(ach => ach.id === id);
-            if (a) a.unlocked = true;
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load achievements', e);
+  loadUnlocked() {
+    const saved = localStorage.getItem('nexora_achievements');
+    if (saved) {
+      const unlockedIds = JSON.parse(saved);
+      this.achievements.forEach(a => {
+        if (unlockedIds.includes(a.id)) a.unlocked = true;
+      });
     }
   }
 
   save() {
-    try {
-      const data = {
-        jumpsCount: this.jumpsCount,
-        runsCount: this.runsCount,
-        unlocked: this.achievements.filter(a => a.unlocked).map(a => a.id)
-      };
-      localStorage.setItem('NEXORA_ACHIEVEMENTS_V2', JSON.stringify(data));
-    } catch (e) {
-      console.warn('Failed to save achievements', e);
-    }
-  }
-
-  trigger(id) {
-    const a = this.achievements.find(ach => ach.id === id);
-    if (a && !a.unlocked) {
-      a.unlocked = true;
-      progressManager.addXp(500);
-      progressManager.addCoins(300);
-      soundEngine.playPowerup();
-      this.save();
-    }
-  }
-
-  checkStats() {
-    this.runsCount++;
-    this.trigger('first_run');
-    if (this.runsCount >= 10) this.trigger('metro_master');
-    if (progressManager.totalCoins >= 1000) this.trigger('coin_master');
-    if (progressManager.unlockedMaps.length >= 3) this.trigger('city_explorer');
-    if (progressManager.level >= 50) this.trigger('nexora_champion');
-    this.save();
+    const unlockedIds = this.achievements.filter(a => a.unlocked).map(a => a.id);
+    localStorage.setItem('nexora_achievements', JSON.stringify(unlockedIds));
+    localStorage.setItem('nexora_stat_jumps', this.stats.jumps.toString());
   }
 
   addJump() {
-    this.jumpsCount++;
-    if (this.jumpsCount >= 100) this.trigger('high_jumper');
+    this.stats.jumps++;
+    if (this.stats.jumps >= 50) this.unlock('jump_50');
     this.save();
+  }
+
+  checkStats() {
+    if (progressManager.totalCoins >= 100) this.unlock('coin_100');
+    if (progressManager.bestDistance >= 1000) this.unlock('dist_1k');
+    if (progressManager.unlockedCharacters.length > 1) this.unlock('char_unlock');
+    this.unlock('first_run');
+  }
+
+  unlock(id) {
+    const ach = this.achievements.find(a => a.id === id);
+    if (ach && !ach.unlocked) {
+      ach.unlocked = true;
+      this.save();
+      soundEngine.playPowerup();
+      if (window.uiManager && typeof window.uiManager.showAchievementToast === 'function') {
+        window.uiManager.showAchievementToast(ach);
+      }
+    }
   }
 }
 

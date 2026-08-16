@@ -42,6 +42,30 @@ html, body {
 .pointer-through { pointer-events: none; }
 .pointer-auto { pointer-events: auto; }
 
+/* IN-GAME ACHIEVEMENT TOAST NOTIFICATION */
+.achievement-toast {
+  position: absolute; top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(10, 20, 48, 0.95);
+  border: 1px solid var(--accent-gold);
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.4), inset 0 0 15px rgba(255, 215, 0, 0.1);
+  border-radius: 16px; padding: 12px 24px;
+  display: flex; align-items: center; gap: 14px;
+  z-index: 30; pointer-events: none;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+  opacity: 0; backdrop-filter: blur(12px);
+}
+
+.achievement-toast.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast-icon { font-size: 2rem; filter: drop-shadow(0 0 10px var(--accent-gold)); }
+.toast-text { display: flex; flex-direction: column; gap: 2px; }
+.toast-subtitle { font-family: var(--font-heading); font-size: 0.7rem; color: var(--accent-gold); letter-spacing: 1.5px; }
+.toast-title { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 900; color: #ffffff; letter-spacing: 1px; }
+
 /* GPU Hardware-Accelerated Mobile Screens */
 .ui-screen {
   position: absolute; top: 0; left: 0;

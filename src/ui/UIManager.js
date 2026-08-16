@@ -1,4 +1,4 @@
-// UIManager.js - Automatic Mobile Fullscreen System & Smooth Screen Flows
+// UIManager.js - Realtime Achievement Toasts, Music Track Selector & Continuous Audio
 import { soundEngine } from '../audio/SoundEngine.js';
 import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
@@ -9,6 +9,7 @@ import { CharacterPreviewRenderer } from './CharacterPreviewRenderer.js';
 export class UIManager {
   constructor(game) {
     this.game = game;
+    window.uiManager = this; // Global ref for realtime achievement toasts
 
     // Screens
     this.screenLoading = document.getElementById('screen-loading');
@@ -26,6 +27,11 @@ export class UIManager {
     this.modalRevive = document.getElementById('modal-revive');
     this.modalGameOver = document.getElementById('modal-gameover');
     this.modalSettings = document.getElementById('modal-settings');
+
+    // Toast
+    this.achievementToast = document.getElementById('ui-achievement-toast');
+    this.toastTitle = document.getElementById('toast-title');
+    this.toastIcon = document.getElementById('toast-icon');
 
     // HUD Elements
     this.hudScoreVal = document.getElementById('hud-score-val');
@@ -58,12 +64,7 @@ export class UIManager {
     document.getElementById('btn-nav-start')?.addEventListener('click', () => {
       soundEngine.playClick();
       voiceSystem.speak('START');
-      
-      // Automatic Fullscreen Trigger for Mobile
-      if (this.isMobileDevice) {
-        this.requestFullscreenAuto();
-      }
-
+      if (this.isMobileDevice) this.requestFullscreenAuto();
       this.game.startCountdownFlow();
     });
 
@@ -130,6 +131,11 @@ export class UIManager {
 
     // Settings Modal Close
     document.getElementById('btn-close-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.hideModal(this.modalSettings); });
+
+    // Music Track Changer Selector
+    document.getElementById('setting-music-track')?.addEventListener('change', (e) => {
+      soundEngine.setMusicTrack(e.target.value);
+    });
 
     // Voice Mode & Granular Sliders
     document.getElementById('setting-voice-mode')?.addEventListener('change', (e) => {
@@ -227,15 +233,27 @@ export class UIManager {
     });
   }
 
+  showAchievementToast(ach) {
+    if (!this.achievementToast) return;
+    if (this.toastTitle) this.toastTitle.textContent = ach.title;
+    if (this.toastIcon) this.toastIcon.textContent = ach.icon || '🏆';
+
+    this.achievementToast.classList.remove('hidden');
+    this.achievementToast.classList.add('active');
+
+    setTimeout(() => {
+      this.achievementToast.classList.remove('active');
+      this.achievementToast.classList.add('hidden');
+    }, 3200);
+  }
+
   requestFullscreenAuto() {
     const doc = window.document;
     const docEl = doc.documentElement;
     if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
       const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
       if (req) {
-        req.call(docEl).catch(() => {
-          // Ignore automatic fullscreen rejection if browser blocks unprompted requests
-        });
+        req.call(docEl).catch(() => {});
       }
     }
   }

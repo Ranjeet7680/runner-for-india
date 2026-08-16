@@ -1,8 +1,8 @@
 # NEXORA METRO RUNNER - CID Detective Indian Metro Runner 🎮🏃‍♂️
 
-**NEXORA METRO RUNNER** is a polished, high-performance, 3D endless-runner web game built with **Three.js**, **Web Audio API**, **Web Speech Synthesis**, and **Vite**.
+**NEXORA METRO RUNNER** is a high-performance, 3D endless-runner web game built by **Nexora Team** using **Three.js**, **Web Audio API**, **Web Speech Synthesis**, and **Vite**.
 
-Designed with an original futuristic Indian metro-city identity, featuring multiple playable characters, authentic Indian city maps (Mumbai, Chennai, Dhanbad, Night Metro), CID detective voice guidance, 3D spatial audio, and responsive touch controls.
+- **Official Company Website**: [https://nexora-financial-intelligence-reima.vercel.app/](https://nexora-financial-intelligence-reima.vercel.app/)
 
 ---
 
@@ -17,70 +17,34 @@ Designed with an original futuristic Indian metro-city identity, featuring multi
   - 🤖 **Cyber Droid (Robot)**: Titanium robot with pulsing cyan core reactor.
   - 👮‍♂️ **CID Detective**: Detective squad leader with aviator glasses & gold badge.
 
-- **Indian Metro City Environments**:
-  - 🏙️ **Night Metro**: Cyberpunk metropolis under a glowing moon.
-  - ☀️ **Day Metro**: Bright sunny Indian railway tracks.
-  - 🌅 **Dynamic Day-Night**: Realtime 4-phase sky transitions (`Day → Sunset → Night → Dawn`).
-  - 🚆 **Mumbai Local**: Suburban express tracks & sea link bridge.
-  - 🚉 **Chennai Metro**: Modern elevated rail corridor.
-  - 🚂 **Dhanbad Railway**: Industrial coal belt freight corridor.
+- **100+ Procedural Location Landmarks**:
+  - 🏛️ Red Fort, Taj Mahal, Varanasi Ghats, India Gate, Golden Temple.
+  - 🏙️ Delhi Cyber Hub, Marine Drive Mumbai, Howrah Bridge Kolkata, Bandra Streets.
+  - 🏔️ Himalayan Snow Passes, Kashmir Dal Lake, Kerala Backwaters, Rajasthan Desert.
+  - 🚀 Tokyo Tower, Dubai Burj Towers, NASA Space Center, Mars Base, NEXORA Future City.
 
-- **Original CID Detective Dialogue System**:
+- **Original CID Detective Voice System**:
   - Speech synthesis dialogues in **Hindi**, **English**, and **Hindi + English** (Bilingual) modes.
-  - Interactive voice calls for *Mission Start*, *Police Warning*, *Train Alert*, *Powerups*, *High Scores*, and *Game Over*.
 
-- **3D Metro Station Lobby (`NEXORA CENTRAL`)**:
-  - 3D station interior with departure boards, ticket gates, escalators, and passenger/police NPCs.
-  - Continue / Revive system using earned Revive Tokens.
+- **4-Track Web Audio Synthesizer Music**:
+  - Selectable tracks: `CYBER PUNK SYNTH`, `INDIAN METRO BEAT`, `CID MYSTERY THEME`, `SPEED RUNNER EDM`.
 
-- **3D Spatial Audio & Volume Controls**:
-  - Web Audio API `StereoPannerNode` for 3D positional train audio.
-  - Sliders for Master, Music, Train, Voice, SFX, and Ambience.
-
-- **Responsive Touch & Keyboard Controls**:
-  - Touch swipe gestures + Ergonomic D-Pad overlay for mobile devices.
-  - Keyboard Arrow keys / WASD for desktop browser play.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Ranjeet7680/runner-for-india.git
-   cd runner-for-india
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser at `http://127.0.0.1:3000/`.
+- **Responsive Touch & Fullscreen**:
+  - Automatic Mobile Fullscreen on START RUN.
+  - Low-latency 4-way finger swipe gestures + D-Pad overlay.
 
 ---
 
 ## 🛠️ Built With
 
-- **Three.js**: Procedural 3D WebGL rendering, lighting, shadows, and particle systems.
-- **Web Audio API**: Synthesized SFX, spatial 3D panning audio, and ambient track loops.
+- **Three.js**: Procedural 3D WebGL rendering, lighting, and particle systems.
+- **Web Audio API**: Synthesized SFX, 4 music tracks, spatial 3D audio.
 - **Web Speech Synthesis**: Voice speech engine for CID detective dialogues.
 - **Vite**: Ultra-fast frontend bundler.
-- **HTML5 & CSS3**: Glassmorphism UI design system.
 
 ---
 
-## 📜 Developer
+## 📜 Developer & Official Company Link
 
-Designed & Developed with Innovation by **Nexora Team**.
+Designed & Developed by **Nexora Team**.  
+🌐 **Company Website**: [https://nexora-financial-intelligence-reima.vercel.app/](https://nexora-financial-intelligence-reima.vercel.app/)

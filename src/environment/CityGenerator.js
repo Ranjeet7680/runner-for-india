@@ -1,4 +1,4 @@
-// CityGenerator.js - 100+ Procedural Landmark Generator Engine (Bright & Alive Environment)
+// CityGenerator.js - 100+ Procedural Landmark Generator Engine (Cyberpunk Sky & Rich Architectural Textures)
 import * as THREE from 'three';
 
 export class CityGenerator {
@@ -10,20 +10,26 @@ export class CityGenerator {
     this.landmarkCounter = 0;
 
     this.initTextures();
-    this.initEnvironmentLighting();
+    this.initCelestialSkyBody();
     this.buildInitialCity();
   }
 
   initTextures() {
+    // Cyberpunk Window Grid Texture
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#102040';
+    ctx.fillStyle = '#0a1428';
     ctx.fillRect(0, 0, 128, 128);
-    ctx.fillStyle = '#00f3ff';
+    
+    // Glowing Blue/Yellow Windows
     for (let y = 8; y < 128; y += 16) {
       for (let x = 8; x < 128; x += 16) {
-        if (Math.random() > 0.25) ctx.fillRect(x, y, 10, 10);
+        const rand = Math.random();
+        if (rand > 0.4) {
+          ctx.fillStyle = (rand > 0.85 ? '#ffd700' : (rand > 0.7 ? '#ff007f' : '#00f3ff'));
+          ctx.fillRect(x, y, 10, 10);
+        }
       }
     }
     this.buildingTextureCyan = new THREE.CanvasTexture(canvas);
@@ -31,6 +37,7 @@ export class CityGenerator {
     this.buildingTextureCyan.wrapT = THREE.RepeatWrapping;
     this.buildingTextureCyan.repeat.set(2, 8);
 
+    // Red Fort Sandstone Texture
     const canvasRf = document.createElement('canvas');
     canvasRf.width = 64; canvasRf.height = 64;
     const ctxRf = canvasRf.getContext('2d');
@@ -40,6 +47,7 @@ export class CityGenerator {
     for (let i = 0; i < 64; i += 8) ctxRf.fillRect(0, i, 64, 2);
     this.redSandstoneTexture = new THREE.CanvasTexture(canvasRf);
 
+    // Marble Texture (Taj Mahal / Victoria Memorial)
     const canvasMb = document.createElement('canvas');
     canvasMb.width = 64; canvasMb.height = 64;
     const ctxMb = canvasMb.getContext('2d');
@@ -50,29 +58,63 @@ export class CityGenerator {
     this.marbleTexture = new THREE.CanvasTexture(canvasMb);
   }
 
-  initEnvironmentLighting() {
-    this.skyColor = new THREE.Color(0x1a428a);
+  initCelestialSkyBody() {
+    // Massive Glowing Moon / Sun Sphere in the Background Sky
+    const moonGeo = new THREE.SphereGeometry(18, 32, 32);
+    const moonMat = new THREE.MeshBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.85
+    });
+    this.moonSphere = new THREE.Mesh(moonGeo, moonMat);
+    this.moonSphere.position.set(0, 75, 320);
+    this.scene.add(this.moonSphere);
+
+    // Volumetric Atmospheric Halo Ring
+    const haloGeo = new THREE.RingGeometry(18.5, 32, 32);
+    const haloMat = new THREE.MeshBasicMaterial({
+      color: 0x00f3ff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending
+    });
+    this.moonHalo = new THREE.Mesh(haloGeo, haloMat);
+    this.moonHalo.position.set(0, 75, 319);
+    this.scene.add(this.moonHalo);
+
+    this.skyColor = new THREE.Color(0x0c1a3a);
     this.scene.background = this.skyColor;
-    this.scene.fog = new THREE.FogExp2(0x1a428a, 0.0035);
+    this.scene.fog = new THREE.FogExp2(0x0c1a3a, 0.0035);
   }
 
   setMap(mapType) {
     this.currentMap = mapType;
     if (mapType === 'DAY_METRO') {
-      this.skyColor.setHex(0x3a86ff);
-      this.scene.fog.color.setHex(0x3a86ff);
+      this.skyColor.setHex(0x2a75d3);
+      this.scene.fog.color.setHex(0x2a75d3);
+      this.moonSphere.material.color.setHex(0xffea00);
+      this.moonHalo.material.color.setHex(0xffaa00);
     } else if (mapType === 'NIGHT_METRO') {
-      this.skyColor.setHex(0x12244e);
-      this.scene.fog.color.setHex(0x12244e);
+      this.skyColor.setHex(0x0c1a3a);
+      this.scene.fog.color.setHex(0x0c1a3a);
+      this.moonSphere.material.color.setHex(0x00ffff);
+      this.moonHalo.material.color.setHex(0x00f3ff);
     } else if (mapType === 'MUMBAI_METRO') {
-      this.skyColor.setHex(0x0a3b8c);
-      this.scene.fog.color.setHex(0x0a3b8c);
+      this.skyColor.setHex(0x092b66);
+      this.scene.fog.color.setHex(0x092b66);
+      this.moonSphere.material.color.setHex(0xff007f);
+      this.moonHalo.material.color.setHex(0xff007f);
     } else if (mapType === 'DHANBAD_RAIL') {
-      this.skyColor.setHex(0x332211);
-      this.scene.fog.color.setHex(0x332211);
+      this.skyColor.setHex(0x2b1c10);
+      this.scene.fog.color.setHex(0x2b1c10);
+      this.moonSphere.material.color.setHex(0xff6600);
+      this.moonHalo.material.color.setHex(0xffaa00);
     } else {
-      this.skyColor.setHex(0x1a428a);
-      this.scene.fog.color.setHex(0x1a428a);
+      this.skyColor.setHex(0x0c1a3a);
+      this.scene.fog.color.setHex(0x0c1a3a);
+      this.moonSphere.material.color.setHex(0x00ffff);
+      this.moonHalo.material.color.setHex(0x00f3ff);
     }
     this.scene.background = this.skyColor;
   }
@@ -184,6 +226,27 @@ export class CityGenerator {
         this.createHyperloopTube(0, z);
         break;
     }
+
+    // Street Lamps along side walk
+    this.createStreetLamp(sideLeft + 4, z);
+    this.createStreetLamp(sideRight - 4, z);
+  }
+
+  createStreetLamp(x, z) {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x223344 });
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 6), mat);
+    pole.position.y = 3;
+    group.add(pole);
+
+    const lightMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), lightMat);
+    bulb.position.set(0, 6.1, 0);
+    group.add(bulb);
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createRedFortGate(x, z) {
@@ -233,7 +296,7 @@ export class CityGenerator {
   createCyberHubTower(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x00c8ff, metalness: 0.9, roughness: 0.1 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x00c8ff, metalness: 0.9, roughness: 0.1, map: this.buildingTextureCyan });
     const glass = new THREE.Mesh(new THREE.BoxGeometry(14, 40, 14), mat); glass.position.y = 20;
     group.add(glass);
     this.scene.add(group); this.landmarks.push(group);
@@ -531,8 +594,8 @@ export class CityGenerator {
       this.cycleTime += delta * 0.05;
       const phase = Math.sin(this.cycleTime);
 
-      const dayColor = new THREE.Color(0x3a86ff);
-      const nightColor = new THREE.Color(0x1a428a);
+      const dayColor = new THREE.Color(0x2a75d3);
+      const nightColor = new THREE.Color(0x0c1a3a);
       const sunsetColor = new THREE.Color(0xff007f);
 
       if (phase > 0.3) {
@@ -546,6 +609,10 @@ export class CityGenerator {
       this.scene.background = this.skyColor;
       this.scene.fog.color.copy(this.skyColor);
     }
+
+    // Keep moon sphere & halo following player Z
+    if (this.moonSphere) this.moonSphere.position.z = playerZ + 320;
+    if (this.moonHalo) this.moonHalo.position.z = playerZ + 319;
 
     this.landmarks.forEach(lm => {
       if (lm.position.z < playerZ - 40) {

@@ -1,4 +1,4 @@
-// Renderer.js - Bright Electric Lighting, Vibrant Sky & WebGL Optimization
+// Renderer.js - Cyberpunk Skybox, Starry Cosmos & Atmospheric Lighting
 import * as THREE from 'three';
 
 export class AppRenderer {
@@ -9,16 +9,16 @@ export class AppRenderer {
 
     this.isSmartTV = /TV|SmartTV|Tizen|WebOS|AndroidTV|NetCast|GoogleTV|AppleTV|BRAVIA/i.test(navigator.userAgent);
 
-    // Bright Electric Sky Background & Fog
-    this.skyColor = new THREE.Color(0x1a428a);
+    // Deep Cyberpunk Space Sky & Volumetric Fog
+    this.skyColor = new THREE.Color(0x0a1428);
     this.scene.background = this.skyColor;
-    this.scene.fog = new THREE.FogExp2(0x1a428a, 0.0035);
+    this.scene.fog = new THREE.FogExp2(0x0a1428, 0.0035);
 
     this.camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
       0.1,
-      400
+      450
     );
 
     this.renderer = new THREE.WebGLRenderer({
@@ -36,13 +36,13 @@ export class AppRenderer {
     }
     
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.8; // Bright vivid tone mapping exposure
+    this.renderer.toneMappingExposure = 1.6;
 
     // Prevent default touch scrolling on canvas
     this.renderer.domElement.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
     this.renderer.domElement.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 
-    // WebGL Context Lost & Restored
+    // WebGL Context Recovery
     this.renderer.domElement.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
       console.warn('WebGL context lost. Pausing rendering...');
@@ -56,28 +56,58 @@ export class AppRenderer {
     this.container.appendChild(this.renderer.domElement);
 
     this.initLights();
+    this.initStarrySky();
     window.addEventListener('resize', () => this.onWindowResize());
   }
 
+  initStarrySky() {
+    const starCount = 350;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(starCount * 3);
+    const colors = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 400;
+      pos[i * 3 + 1] = Math.random() * 150 + 20;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 400;
+
+      colors[i * 3] = 0.5 + Math.random() * 0.5;
+      colors[i * 3 + 1] = 0.8 + Math.random() * 0.2;
+      colors[i * 3 + 2] = 1.0;
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const mat = new THREE.PointsMaterial({
+      size: 1.2,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.stars = new THREE.Points(geo, mat);
+    this.scene.add(this.stars);
+  }
+
   initLights() {
-    // Ultra-Bright Ambient & Hemisphere Lights
-    this.ambientLight = new THREE.AmbientLight(0x7099cc, 3.2);
+    this.ambientLight = new THREE.AmbientLight(0x5577aa, 2.6);
     this.scene.add(this.ambientLight);
 
-    this.hemiLight = new THREE.HemisphereLight(0x00f3ff, 0x7928ca, 2.5);
+    this.hemiLight = new THREE.HemisphereLight(0x00f3ff, 0x7928ca, 2.0);
     this.scene.add(this.hemiLight);
 
-    // Bright Sun/Moon Directional Light
-    this.dirLight = new THREE.DirectionalLight(0xffffff, 3.8);
-    this.dirLight.position.set(25, 50, -20);
+    this.dirLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    this.dirLight.position.set(30, 60, -30);
     this.dirLight.castShadow = !this.isSmartTV;
     
     if (!this.isSmartTV) {
       this.dirLight.shadow.mapSize.width = 1024;
       this.dirLight.shadow.mapSize.height = 1024;
       this.dirLight.shadow.camera.near = 1;
-      this.dirLight.shadow.camera.far = 160;
-      const d = 45;
+      this.dirLight.shadow.camera.far = 180;
+      const d = 50;
       this.dirLight.shadow.camera.left = -d;
       this.dirLight.shadow.camera.right = d;
       this.dirLight.shadow.camera.top = d;
@@ -86,17 +116,16 @@ export class AppRenderer {
     }
     this.scene.add(this.dirLight);
 
-    // Glowing Neon Point Lights
-    this.cyanPointLight = new THREE.PointLight(0x00f3ff, 6.0, 90);
-    this.cyanPointLight.position.set(0, 8, 15);
+    this.cyanPointLight = new THREE.PointLight(0x00f3ff, 5.0, 100);
+    this.cyanPointLight.position.set(0, 10, 20);
     this.scene.add(this.cyanPointLight);
 
-    this.pinkPointLight = new THREE.PointLight(0xff007f, 5.0, 90);
-    this.pinkPointLight.position.set(-14, 12, 30);
+    this.pinkPointLight = new THREE.PointLight(0xff007f, 4.0, 100);
+    this.pinkPointLight.position.set(-15, 12, 40);
     this.scene.add(this.pinkPointLight);
 
-    this.goldPointLight = new THREE.PointLight(0xffd700, 5.0, 90);
-    this.goldPointLight.position.set(14, 12, 30);
+    this.goldPointLight = new THREE.PointLight(0xffd700, 4.0, 100);
+    this.goldPointLight.position.set(15, 12, 40);
     this.scene.add(this.goldPointLight);
   }
 

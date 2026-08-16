@@ -1,4 +1,4 @@
-// Renderer.js - WebGL Context Recovery, Smooth Retina Resizing & High Performance
+// Renderer.js - WebGL Context Recovery, Smart TV Optimization & Retina Support
 import * as THREE from 'three';
 
 export class AppRenderer {
@@ -6,6 +6,9 @@ export class AppRenderer {
     this.container = container;
     this.scene = new THREE.Scene();
     this.quality = 'HIGH';
+
+    // Detect Smart TV User Agent (Samsung Tizen, LG WebOS, Android TV, Fire TV)
+    this.isSmartTV = /TV|SmartTV|Tizen|WebOS|AndroidTV|NetCast|GoogleTV|AppleTV|BRAVIA/i.test(navigator.userAgent);
 
     this.scene.background = new THREE.Color(0x0c1b40);
     this.scene.fog = new THREE.FogExp2(0x0f2252, 0.005);
@@ -18,13 +21,20 @@ export class AppRenderer {
     );
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: !this.isSmartTV, // Turn off heavy AA on Smart TV GPUs for 60fps play
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    
+    // Pixel Ratio: Cap at 1.0 for Smart TVs, 2.0 for Desktop/Mobile Retina
+    const maxRatio = this.isSmartTV ? 1.0 : Math.min(window.devicePixelRatio, 2);
+    this.renderer.setPixelRatio(maxRatio);
+
+    this.renderer.shadowMap.enabled = !this.isSmartTV;
+    if (!this.isSmartTV) {
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    }
+    
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.45;
 
@@ -58,36 +68,38 @@ export class AppRenderer {
 
     this.dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
     this.dirLight.position.set(25, 45, -20);
-    this.dirLight.castShadow = true;
+    this.dirLight.castShadow = !this.isSmartTV;
     
-    this.dirLight.shadow.mapSize.width = 2048;
-    this.dirLight.shadow.mapSize.height = 2048;
-    this.dirLight.shadow.camera.near = 1;
-    this.dirLight.shadow.camera.far = 150;
-    const d = 40;
-    this.dirLight.shadow.camera.left = -d;
-    this.dirLight.shadow.camera.right = d;
-    this.dirLight.shadow.camera.top = d;
-    this.dirLight.shadow.camera.bottom = -d;
-    this.dirLight.shadow.bias = -0.0005;
+    if (!this.isSmartTV) {
+      this.dirLight.shadow.mapSize.width = 1024;
+      this.dirLight.shadow.mapSize.height = 1024;
+      this.dirLight.shadow.camera.near = 1;
+      this.dirLight.shadow.camera.far = 150;
+      const d = 40;
+      this.dirLight.shadow.camera.left = -d;
+      this.dirLight.shadow.camera.right = d;
+      this.dirLight.shadow.camera.top = d;
+      this.dirLight.shadow.camera.bottom = -d;
+      this.dirLight.shadow.bias = -0.0005;
+    }
     this.scene.add(this.dirLight);
 
-    this.cyanPointLight = new THREE.PointLight(0x00f3ff, 4.0, 80);
+    this.cyanPointLight = new THREE.PointLight(0x00f3ff, 3.5, 70);
     this.cyanPointLight.position.set(0, 6, 15);
     this.scene.add(this.cyanPointLight);
 
-    this.pinkPointLight = new THREE.PointLight(0xff007f, 3.5, 80);
+    this.pinkPointLight = new THREE.PointLight(0xff007f, 3.0, 70);
     this.pinkPointLight.position.set(-12, 10, 30);
     this.scene.add(this.pinkPointLight);
 
-    this.goldPointLight = new THREE.PointLight(0xffd700, 3.5, 80);
+    this.goldPointLight = new THREE.PointLight(0xffd700, 3.0, 70);
     this.goldPointLight.position.set(12, 10, 30);
     this.scene.add(this.goldPointLight);
   }
 
   setQuality(qualityMode) {
     this.quality = qualityMode;
-    if (qualityMode === 'LOW') {
+    if (qualityMode === 'LOW' || this.isSmartTV) {
       this.renderer.shadowMap.enabled = false;
       this.renderer.setPixelRatio(1);
       this.scene.fog.density = 0.004;
@@ -99,8 +111,8 @@ export class AppRenderer {
       this.scene.fog.density = 0.005;
     } else {
       this.renderer.shadowMap.enabled = true;
-      this.dirLight.shadow.mapSize.width = 2048;
-      this.dirLight.shadow.mapSize.height = 2048;
+      this.dirLight.shadow.mapSize.width = 1024;
+      this.dirLight.shadow.mapSize.height = 1024;
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.scene.fog.density = 0.005;
     }

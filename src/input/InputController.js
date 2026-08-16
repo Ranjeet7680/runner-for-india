@@ -1,4 +1,4 @@
-// InputController.js - Perfect Touchscreen Finger Swipe & D-Pad Control Engine
+// InputController.js - Smart TV Remote (Samsung Tizen, LG WebOS, Android TV) & Touch Control Engine
 export class InputController {
   constructor() {
     this.listeners = {};
@@ -6,10 +6,10 @@ export class InputController {
     this.touchStartY = 0;
     this.swipeTriggered = false;
 
-    // Responsive swipe distance threshold (18px)
+    // Minimum distance threshold in pixels for clean swipe registration
     this.minSwipeDistance = 18; 
 
-    this.initKeyboard();
+    this.initKeyboardAndSmartTVRemote();
     this.initTouchSwipes();
     this.initOnScreenButtons();
   }
@@ -25,30 +25,37 @@ export class InputController {
     }
   }
 
-  initKeyboard() {
+  initKeyboardAndSmartTVRemote() {
     window.addEventListener('keydown', (e) => {
-      switch (e.code) {
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.emit('left');
-          break;
-        case 'ArrowRight':
-        case 'KeyD':
-          this.emit('right');
-          break;
-        case 'ArrowUp':
-        case 'KeyW':
-        case 'Space':
-          this.emit('jump');
-          break;
-        case 'ArrowDown':
-        case 'KeyS':
-          this.emit('slide');
-          break;
-        case 'KeyP':
-        case 'Escape':
-          this.emit('pause');
-          break;
+      const code = e.code;
+      const keyCode = e.keyCode || e.which;
+
+      // Smart TV Remote Key Codes:
+      // Samsung Tizen / LG WebOS / Android TV / Fire TV / Apple TV
+      // 37 / 21 = Left, 39 / 22 = Right, 38 / 19 = Up, 40 / 20 = Down, 13 / 23 = OK/Enter, 10009 / 461 / 27 = Back/Return
+
+      if (code === 'ArrowLeft' || code === 'KeyA' || keyCode === 37 || keyCode === 21) {
+        e.preventDefault();
+        this.emit('left');
+      } else if (code === 'ArrowRight' || code === 'KeyD' || keyCode === 39 || keyCode === 22) {
+        e.preventDefault();
+        this.emit('right');
+      } else if (code === 'ArrowUp' || code === 'KeyW' || keyCode === 38 || keyCode === 19) {
+        e.preventDefault();
+        this.emit('jump');
+      } else if (code === 'ArrowDown' || code === 'KeyS' || keyCode === 40 || keyCode === 20) {
+        e.preventDefault();
+        this.emit('slide');
+      } else if (code === 'Space' || code === 'Enter' || keyCode === 13 || keyCode === 23) {
+        // Smart TV OK / Select Button
+        e.preventDefault();
+        this.emit('select');
+        this.emit('jump');
+      } else if (code === 'Escape' || code === 'KeyP' || code === 'Backspace' || keyCode === 10009 || keyCode === 461 || keyCode === 27) {
+        // Smart TV Back / Return Button
+        e.preventDefault();
+        this.emit('pause');
+        this.emit('back');
       }
     });
   }
@@ -75,21 +82,18 @@ export class InputController {
       const absY = Math.abs(deltaY);
 
       if (Math.max(absX, absY) >= this.minSwipeDistance) {
-        // Clear separation between Horizontal (Left/Right) and Vertical (Jump/Slide)
         if (absX > absY) {
-          // Horizontal Finger Swipe
           if (deltaX > 0) {
-            this.emit('right'); // Finger moved Right -> Move Right
+            this.emit('right');
           } else {
-            this.emit('left');  // Finger moved Left -> Move Left
+            this.emit('left');
           }
           this.swipeTriggered = true;
         } else {
-          // Vertical Finger Swipe
           if (deltaY < 0) {
-            this.emit('jump');  // Finger moved Up -> Jump
+            this.emit('jump');
           } else {
-            this.emit('slide'); // Finger moved Down -> Slide
+            this.emit('slide');
           }
           this.swipeTriggered = true;
         }

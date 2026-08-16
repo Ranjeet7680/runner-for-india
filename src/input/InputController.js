@@ -1,4 +1,4 @@
-// InputController.js - Precise Left/Right & Up/Down Mobile Swipe Control Engine
+// InputController.js - Perfect Touchscreen Finger Swipe & D-Pad Control Engine
 export class InputController {
   constructor() {
     this.listeners = {};
@@ -6,8 +6,8 @@ export class InputController {
     this.touchStartY = 0;
     this.swipeTriggered = false;
 
-    // Minimum distance threshold in pixels for clean swipe registration
-    this.minSwipeDistance = 24; 
+    // Responsive swipe distance threshold (18px)
+    this.minSwipeDistance = 18; 
 
     this.initKeyboard();
     this.initTouchSwipes();
@@ -76,15 +76,15 @@ export class InputController {
 
       if (Math.max(absX, absY) >= this.minSwipeDistance) {
         // Clear separation between Horizontal (Left/Right) and Vertical (Jump/Slide)
-        if (absX > absY * 1.1) {
+        if (absX > absY) {
           // Horizontal Finger Swipe
           if (deltaX > 0) {
-            this.emit('right'); // Finger moved Right -> Move Character Right
+            this.emit('right'); // Finger moved Right -> Move Right
           } else {
-            this.emit('left');  // Finger moved Left -> Move Character Left
+            this.emit('left');  // Finger moved Left -> Move Left
           }
           this.swipeTriggered = true;
-        } else if (absY > absX * 1.1) {
+        } else {
           // Vertical Finger Swipe
           if (deltaY < 0) {
             this.emit('jump');  // Finger moved Up -> Jump

@@ -1,4 +1,4 @@
-// ProgressManager.js - Character Roster, Revive Tokens & Saved Stats
+// ProgressManager.js - Character Roster, Revive Tokens, Referral Code & Saved Stats
 export class ProgressManager {
   constructor() {
     this.totalCoins = parseInt(localStorage.getItem('nexora_coins') || '0', 10);
@@ -31,6 +31,37 @@ export class ProgressManager {
     this.loginStreak = parseInt(localStorage.getItem('nexora_streak') || '1', 10);
     this.lastLoginDate = localStorage.getItem('nexora_last_login') || '';
     this.loginClaimedToday = this.checkClaimedToday();
+
+    // Unique Player Referral Code Setup
+    let ref = localStorage.getItem('nexora_my_ref_code');
+    if (!ref) {
+      const randHex = Math.floor(1000 + Math.random() * 9000).toString(16).toUpperCase();
+      ref = `NEXORA-${randHex}`;
+      localStorage.setItem('nexora_my_ref_code', ref);
+    }
+    this.myReferralCode = ref;
+    this.redeemedReferralCode = localStorage.getItem('nexora_redeemed_ref') || '';
+  }
+
+  getReferralUrl() {
+    return `https://nexora-metrorunner.vercel.app/?ref=${this.myReferralCode}`;
+  }
+
+  getShareMessage() {
+    return `🎮 Play NEXORA METRO RUNNER with me! Use my CID Detective referral code [${this.myReferralCode}] to get 500 FREE Coins + 1 Revive Shield! Run now: ${this.getReferralUrl()}`;
+  }
+
+  redeemReferralCode(code) {
+    const cleanCode = (code || '').trim().toUpperCase();
+    if (!cleanCode) return { success: false, message: 'Please enter a valid code!' };
+    if (cleanCode === this.myReferralCode) return { success: false, message: 'You cannot redeem your own referral code!' };
+    if (this.redeemedReferralCode) return { success: false, message: 'You have already redeemed a referral code!' };
+
+    this.redeemedReferralCode = cleanCode;
+    this.addCoins(500);
+    this.addReviveToken(1);
+    this.save();
+    return { success: true, message: '🎉 Referral Success! +500 Coins & +1 Revive Token added!' };
   }
 
   checkClaimedToday() {
@@ -52,6 +83,8 @@ export class ProgressManager {
       localStorage.setItem('nexora_revive_tokens', this.reviveTokens.toString());
       localStorage.setItem('nexora_streak', this.loginStreak.toString());
       localStorage.setItem('nexora_last_login', this.lastLoginDate);
+      localStorage.setItem('nexora_my_ref_code', this.myReferralCode);
+      localStorage.setItem('nexora_redeemed_ref', this.redeemedReferralCode);
     } catch (e) {
       console.warn('LocalStorage save failed:', e);
     }

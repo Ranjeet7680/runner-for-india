@@ -1,4 +1,4 @@
-// UIManager.js - Realtime Achievement Toasts, Day/Night Mode Toggle & Music Changer
+// UIManager.js - Realtime Achievement Toasts, Day/Night Mode Toggle & Referral System Engine
 import { soundEngine } from '../audio/SoundEngine.js';
 import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
@@ -9,7 +9,7 @@ import { CharacterPreviewRenderer } from './CharacterPreviewRenderer.js';
 export class UIManager {
   constructor(game) {
     this.game = game;
-    window.uiManager = this; // Global ref for realtime achievement toasts
+    window.uiManager = this;
 
     // Screens
     this.screenLoading = document.getElementById('screen-loading');
@@ -27,6 +27,7 @@ export class UIManager {
     this.modalRevive = document.getElementById('modal-revive');
     this.modalGameOver = document.getElementById('modal-gameover');
     this.modalSettings = document.getElementById('modal-settings');
+    this.modalReferral = document.getElementById('modal-referral');
 
     // Toast
     this.achievementToast = document.getElementById('ui-achievement-toast');
@@ -48,7 +49,29 @@ export class UIManager {
     this.isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
     this.initListeners();
+    this.initReferralSystem();
     this.updateProfileBadge();
+  }
+
+  initReferralSystem() {
+    // Check if player opened site via a referral link: https://nexora-metrorunner.vercel.app/?ref=NEXORA-XXXX
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCodeParam = urlParams.get('ref');
+
+    if (refCodeParam && !progressManager.redeemedReferralCode) {
+      setTimeout(() => {
+        const inputField = document.getElementById('input-redeem-code');
+        if (inputField) inputField.value = refCodeParam;
+        this.openReferralModal();
+      }, 1000);
+    }
+  }
+
+  openReferralModal() {
+    soundEngine.playClick();
+    const codeDisplay = document.getElementById('ref-code-display');
+    if (codeDisplay) codeDisplay.textContent = progressManager.myReferralCode;
+    this.showModal(this.modalReferral);
   }
 
   initListeners() {
@@ -87,7 +110,7 @@ export class UIManager {
     document.getElementById('btn-nav-maps')?.addEventListener('click', () => { soundEngine.playClick(); this.openMapScreen(); });
     document.getElementById('btn-nav-missions')?.addEventListener('click', () => { soundEngine.playClick(); this.openMissionsScreen(); });
     document.getElementById('btn-nav-rewards')?.addEventListener('click', () => { soundEngine.playClick(); this.openRewardsScreen(); });
-    document.getElementById('btn-nav-achievements')?.addEventListener('click', () => { soundEngine.playClick(); this.openAchievementsScreen(); });
+    document.getElementById('btn-nav-referral')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-nav-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.showModal(this.modalSettings); });
 
     // Menu Close Buttons
@@ -99,7 +122,40 @@ export class UIManager {
     document.getElementById('btn-close-maps')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
     document.getElementById('btn-close-missions')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
     document.getElementById('btn-close-rewards')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
-    document.getElementById('btn-close-achievements')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
+    document.getElementById('btn-close-referral')?.addEventListener('click', () => { soundEngine.playClick(); this.hideModal(this.modalReferral); });
+
+    // Referral Modal Share & Redeem Buttons
+    document.getElementById('btn-share-whatsapp')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      const msg = progressManager.getShareMessage();
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+      window.open(whatsappUrl, '_blank');
+    });
+
+    document.getElementById('btn-share-copy')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      const link = progressManager.getReferralUrl();
+      navigator.clipboard.writeText(link).then(() => {
+        alert('📋 Referral Link Copied to Clipboard!\n' + link);
+      }).catch(() => {
+        prompt('Copy your referral link:', link);
+      });
+    });
+
+    document.getElementById('btn-redeem-code')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      const input = document.getElementById('input-redeem-code');
+      const msgSpan = document.getElementById('redeem-msg');
+      if (input && msgSpan) {
+        const res = progressManager.redeemReferralCode(input.value);
+        msgSpan.textContent = res.message;
+        msgSpan.style.color = res.success ? 'var(--accent-green)' : 'var(--accent-pink)';
+        if (res.success) {
+          soundEngine.playPowerup();
+          this.updateProfileBadge();
+        }
+      }
+    });
 
     // HUD Controls
     document.getElementById('btn-hud-pause')?.addEventListener('click', () => { soundEngine.playClick(); this.game.pauseGame(); });
@@ -122,7 +178,7 @@ export class UIManager {
         this.hideModal(this.modalRevive);
         this.game.revivePlayer();
       } else {
-        alert('No Revive Tokens available! Earn more from Daily Login & Missions.');
+        alert('No Revive Tokens available! Earn more from Daily Login & Referral Rewards.');
         this.hideModal(this.modalRevive);
         this.game.enterGameOverLobby();
       }
@@ -140,8 +196,7 @@ export class UIManager {
       if (this.isMobileDevice) this.requestFullscreenAuto();
       this.game.startCountdownFlow();
     });
-    document.getElementById('btn-go-missions')?.addEventListener('click', () => { soundEngine.playClick(); this.openMissionsScreen(); });
-    document.getElementById('btn-go-rewards')?.addEventListener('click', () => { soundEngine.playClick(); this.openRewardsScreen(); });
+    document.getElementById('btn-go-share')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-go-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
 
     // Settings Modal Close
@@ -312,7 +367,7 @@ export class UIManager {
   hideModal(modal) { if (modal) modal.classList.add('hidden'); }
 
   closeAllModals() {
-    [this.modalPause, this.modalRevive, this.modalGameOver, this.modalSettings].forEach(m => {
+    [this.modalPause, this.modalRevive, this.modalGameOver, this.modalSettings, this.modalReferral].forEach(m => {
       if (m) m.classList.add('hidden');
     });
   }

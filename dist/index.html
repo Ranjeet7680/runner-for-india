@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-BMCXEnGv.js"></script>
+  <script type="module" crossorigin src="/assets/index-CLAIJ2qP.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-CptMUpoJ.css">
 </head>
 <body>
@@ -102,7 +102,7 @@
         </div>
         <div class="nav-sub-row">
           <button id="btn-nav-rewards" class="btn-nav">🎁 REWARDS</button>
-          <button id="btn-nav-achievements" class="btn-nav">🏆 BADGES</button>
+          <button id="btn-nav-referral" class="btn-nav" style="border-color: var(--accent-gold); color: var(--accent-gold);">🔗 REFER & EARN</button>
           <button id="btn-nav-settings" class="btn-nav">⚙️ SETTINGS</button>
         </div>
       </div>
@@ -275,13 +275,37 @@
       <button id="btn-claim-daily" class="btn-primary">CLAIM DAILY REWARD</button>
     </div>
 
-    <!-- 7. ACHIEVEMENTS SCREEN -->
-    <div id="screen-achievements" class="ui-screen full-menu-screen hidden">
-      <div class="menu-top-bar">
-        <h2>HONOR BADGES</h2>
-        <button id="btn-close-achievements" class="close-btn">✕</button>
+    <!-- 7. REFERRAL CODE & SHARE MODAL -->
+    <div id="modal-referral" class="ui-modal hidden">
+      <div class="modal-card">
+        <h2 class="modal-title" style="color: var(--accent-gold);">🎁 REFER & EARN</h2>
+        <p style="text-align:center; font-size:0.85rem; color:#8a99ad; margin-top:2px;">Get 500 Coins + 1 Revive Shield for each friend!</p>
+        <div class="modal-divider"></div>
+        
+        <!-- My Referral Code Section -->
+        <div style="background: rgba(0,0,0,0.4); border:1px solid var(--accent-gold); border-radius:12px; padding:12px; text-align:center; margin-bottom:12px;">
+          <span style="font-family: var(--font-heading); font-size:0.75rem; color: var(--text-muted); letter-spacing:1px;">YOUR UNIQUE REFERRAL CODE:</span>
+          <div id="ref-code-display" style="font-family: var(--font-heading); font-size:1.6rem; font-weight:900; color: var(--accent-gold); letter-spacing:3px; margin:6px 0;">NEXORA-8A9F</div>
+          <p style="font-size:0.75rem; color:#fff;">Share link: <strong style="color:var(--primary-cyan);">https://nexora-metrorunner.vercel.app/</strong></p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
+          <button id="btn-share-whatsapp" class="btn-primary" style="background: linear-gradient(135deg, #25D366, #128C7E); font-size:0.85rem; padding:10px;">💬 WHATSAPP</button>
+          <button id="btn-share-copy" class="btn-secondary" style="font-size:0.85rem; padding:10px;">📋 COPY LINK</button>
+        </div>
+
+        <!-- Redeem Friend's Code Section -->
+        <div style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px; margin-bottom:10px;">
+          <span style="font-family: var(--font-heading); font-size:0.75rem; color: var(--primary-cyan);">REDEEM FRIEND'S REFERRAL CODE:</span>
+          <div style="display:flex; gap:6px; margin-top:6px;">
+            <input type="text" id="input-redeem-code" placeholder="Enter NEXORA-XXXX" class="select-input" style="flex:1; text-transform:uppercase; font-size:0.9rem; font-weight:700;">
+            <button id="btn-redeem-code" class="btn-primary" style="width: auto; padding:0 14px; font-size:0.85rem;">REDEEM</button>
+          </div>
+          <span id="redeem-msg" style="font-size:0.75rem; font-weight:700; display:block; margin-top:4px; text-align:center;"></span>
+        </div>
+
+        <button id="btn-close-referral" class="btn-secondary">CLOSE</button>
       </div>
-      <div id="achievements-list-container" class="missions-list"></div>
     </div>
 
     <!-- 8. COUNTDOWN OVERLAY -->
@@ -378,8 +402,7 @@
         </div>
         <div class="modal-buttons">
           <button id="btn-go-again" class="btn-primary">RUN AGAIN ➔</button>
-          <button id="btn-go-missions" class="btn-secondary">CID MISSIONS</button>
-          <button id="btn-go-rewards" class="btn-secondary">DAILY REWARDS</button>
+          <button id="btn-go-share" class="btn-secondary" style="border-color:var(--accent-gold); color:var(--accent-gold);">🔗 SHARE REFERRAL CODE</button>
           <button id="btn-go-main" class="btn-danger">MAIN MENU</button>
         </div>
       </div>
@@ -402,7 +425,6 @@
             </label>
           </div>
           
-          <!-- Music Track Changer -->
           <div class="setting-item">
             <div class="setting-info">
               <span class="setting-name">BACKGROUND MUSIC TRACK</span>
@@ -428,7 +450,6 @@
             </select>
           </div>
 
-          <!-- Volume Sliders -->
           <div class="volume-slider-group">
             <div class="slider-row"><span>Master Vol</span><input type="range" id="vol-master" min="0" max="1" step="0.05" value="0.8"></div>
             <div class="slider-row"><span>Music Vol</span><input type="range" id="vol-music" min="0" max="1" step="0.05" value="0.7"></div>

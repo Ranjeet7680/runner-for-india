@@ -1,4 +1,4 @@
-// CityGenerator.js - 100+ Procedural Landmark Generator Engine
+// CityGenerator.js - 100+ Procedural Landmark Generator Engine (Bright & Alive Environment)
 import * as THREE from 'three';
 
 export class CityGenerator {
@@ -15,16 +15,15 @@ export class CityGenerator {
   }
 
   initTextures() {
-    // Window Grid Texture (Skyscrapers)
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#0a1428';
+    ctx.fillStyle = '#102040';
     ctx.fillRect(0, 0, 128, 128);
     ctx.fillStyle = '#00f3ff';
     for (let y = 8; y < 128; y += 16) {
       for (let x = 8; x < 128; x += 16) {
-        if (Math.random() > 0.3) ctx.fillRect(x, y, 10, 10);
+        if (Math.random() > 0.25) ctx.fillRect(x, y, 10, 10);
       }
     }
     this.buildingTextureCyan = new THREE.CanvasTexture(canvas);
@@ -32,31 +31,29 @@ export class CityGenerator {
     this.buildingTextureCyan.wrapT = THREE.RepeatWrapping;
     this.buildingTextureCyan.repeat.set(2, 8);
 
-    // Red Fort Sandstone Texture
     const canvasRf = document.createElement('canvas');
     canvasRf.width = 64; canvasRf.height = 64;
     const ctxRf = canvasRf.getContext('2d');
-    ctxRf.fillStyle = '#8b261d';
+    ctxRf.fillStyle = '#a63429';
     ctxRf.fillRect(0, 0, 64, 64);
-    ctxRf.fillStyle = '#5c1913';
+    ctxRf.fillStyle = '#7a221a';
     for (let i = 0; i < 64; i += 8) ctxRf.fillRect(0, i, 64, 2);
     this.redSandstoneTexture = new THREE.CanvasTexture(canvasRf);
 
-    // Marble Texture (Taj Mahal / Victoria Memorial)
     const canvasMb = document.createElement('canvas');
     canvasMb.width = 64; canvasMb.height = 64;
     const ctxMb = canvasMb.getContext('2d');
-    ctxMb.fillStyle = '#f0f4f8';
+    ctxMb.fillStyle = '#f8fafc';
     ctxMb.fillRect(0, 0, 64, 64);
-    ctxMb.fillStyle = '#d0d8e0';
+    ctxMb.fillStyle = '#e2e8f0';
     ctxMb.fillRect(0, 32, 64, 2);
     this.marbleTexture = new THREE.CanvasTexture(canvasMb);
   }
 
   initEnvironmentLighting() {
-    this.skyColor = new THREE.Color(0x0c1b40);
+    this.skyColor = new THREE.Color(0x1a428a);
     this.scene.background = this.skyColor;
-    this.scene.fog = new THREE.FogExp2(0x0c1b40, 0.005);
+    this.scene.fog = new THREE.FogExp2(0x1a428a, 0.0035);
   }
 
   setMap(mapType) {
@@ -65,17 +62,17 @@ export class CityGenerator {
       this.skyColor.setHex(0x3a86ff);
       this.scene.fog.color.setHex(0x3a86ff);
     } else if (mapType === 'NIGHT_METRO') {
-      this.skyColor.setHex(0x0c1b40);
-      this.scene.fog.color.setHex(0x0c1b40);
+      this.skyColor.setHex(0x12244e);
+      this.scene.fog.color.setHex(0x12244e);
     } else if (mapType === 'MUMBAI_METRO') {
-      this.skyColor.setHex(0x0a2472);
-      this.scene.fog.color.setHex(0x0a2472);
+      this.skyColor.setHex(0x0a3b8c);
+      this.scene.fog.color.setHex(0x0a3b8c);
     } else if (mapType === 'DHANBAD_RAIL') {
-      this.skyColor.setHex(0x1a120b);
-      this.scene.fog.color.setHex(0x1a120b);
+      this.skyColor.setHex(0x332211);
+      this.scene.fog.color.setHex(0x332211);
     } else {
-      this.skyColor.setHex(0x0c1b40);
-      this.scene.fog.color.setHex(0x0c1b40);
+      this.skyColor.setHex(0x1a428a);
+      this.scene.fog.color.setHex(0x1a428a);
     }
     this.scene.background = this.skyColor;
   }
@@ -94,7 +91,7 @@ export class CityGenerator {
   }
 
   buildInitialCity() {
-    for (let z = -40; z > -700; z -= 35) {
+    for (let z = 0; z < 700; z += 35) {
       this.spawnChunkLandmarks(z);
     }
   }
@@ -103,107 +100,86 @@ export class CityGenerator {
     const sideLeft = -18;
     const sideRight = 18;
 
-    // Cycle through 100 Landmark Archetypes
     const type = (this.landmarkCounter++) % 20;
 
     switch (type) {
       case 0:
-        // 🏰 RED FORT & INDIA GATE ARCH
         this.createRedFortGate(sideLeft, z);
         this.createIndiaGateArch(sideRight, z);
         break;
       case 1:
-        // 🛕 TAJ MAHAL & VARANASI GHATS
         this.createTajMahalDome(sideRight + 5, z);
         this.createVaranasiGhats(sideLeft, z);
         break;
       case 2:
-        // 🏢 DELHI CYBER HUB & METRO TUNNEL
         this.createCyberHubTower(sideLeft, z);
         this.createMetroTunnelEntrance(0, z);
         break;
       case 3:
-        // 🌊 MUMBAI SEA LINK & MARINE DRIVE
         this.createBridgePylon(sideLeft, z);
         this.createBridgePylon(sideRight, z);
         break;
       case 4:
-        // 🌉 HOWRAH BRIDGE & KOLKATA TRAM
         this.createHowrahSteelTruss(sideLeft, z);
         this.createHowrahSteelTruss(sideRight, z);
         break;
       case 5:
-        // 🏔️ HIMALAYAN PASS & TOY TRAIN
         this.createSnowMountainPeak(sideLeft, z);
         this.createMountainMonastery(sideRight, z);
         break;
       case 6:
-        // 🐫 RAJASTHAN DESERT & PINK CITY
         this.createPinkCityPalace(sideLeft, z);
         this.createDesertDunes(sideRight, z);
         break;
       case 7:
-        // 🛕 GOLDEN TEMPLE & PUNJAB FARMLAND
         this.createGoldenShrine(sideRight, z);
         this.createFarmlandBarn(sideLeft, z);
         break;
       case 8:
-        // 🏭 STEEL PLANT & RAILWAY YARD
         this.createSteelFurnace(sideLeft, z);
         this.createCargoContainers(sideRight, z);
         break;
       case 9:
-        // 🌴 KERALA BACKWATERS & GOA BEACH
         this.createPalmHuts(sideLeft, z);
         this.createPalmHuts(sideRight, z);
         break;
       case 10:
-        // 🗼 TOKYO TOWER & SAKURA DISTRICT
         this.createTokyoTower(sideRight + 6, z);
         this.createSkyscraper(sideLeft, z, 30, 0xff007f);
         break;
       case 11:
-        // 🏙️ DUBAI DOWNTOWN & BURJ SKYLINE
         this.createBurjTower(sideLeft - 4, z);
         this.createSkyscraper(sideRight, z, 55, 0x00f3ff);
         break;
       case 12:
-        // 🤖 ROBOT FACTORY & AI CAMPUS
         this.createRobotFactory(sideLeft, z);
         this.createHyperloopTube(0, z);
         break;
       case 13:
-        // 🚀 NASA SPACE CENTER & ROCKET LAUNCH
         this.createSpaceRocket(sideRight + 10, z);
         this.createBillboard(0, z, 'SPACE CENTER');
         break;
       case 14:
-        // 🔴 MARS COLONY & MOON BASE DOMES
         this.createSpaceDome(sideLeft, z);
         this.createSpaceDome(sideRight, z);
         break;
       case 15:
-        // 🏙️ NEW YORK TIMES SQUARE
         this.createTimesSquareBillboards(sideLeft, z);
         this.createSkyscraper(sideRight, z, 42, 0xffff00);
         break;
       case 16:
-        // 🐲 DRAGON FESTIVAL & NEON CHINATOWN
         this.createChinatownArch(sideLeft, z);
         this.createChinatownArch(sideRight, z);
         break;
       case 17:
-        // 🔋 SOLAR FARM & WIND TURBINES
         this.createWindTurbine(sideRight + 10, z);
         this.createSolarPanels(sideLeft, z);
         break;
       case 18:
-        // 🏎️ FORMULA RACING & STADIUM
         this.createStadiumArena(sideRight, z);
         this.createBillboard(0, z, 'NEXORA GRAND PRIX');
         break;
       default:
-        // 🚀 NEXORA FUTURE CITY TOWER
         this.createNexoraTower(sideLeft - 6, z);
         this.createHyperloopTube(0, z);
         break;
@@ -213,13 +189,10 @@ export class CityGenerator {
   createRedFortGate(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x8b261d, map: this.redSandstoneTexture });
-    const wall = new THREE.Mesh(new THREE.BoxGeometry(14, 14, 8), mat);
-    wall.position.y = 7;
-    const dome1 = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 10), mat);
-    dome1.position.set(-5, 15, 0);
-    const dome2 = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 10), mat);
-    dome2.position.set(5, 15, 0);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xb83a2e, map: this.redSandstoneTexture });
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(14, 14, 8), mat); wall.position.y = 7;
+    const dome1 = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 10), mat); dome1.position.set(-5, 15, 0);
+    const dome2 = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 10), mat); dome2.position.set(5, 15, 0);
     group.add(wall, dome1, dome2);
     this.scene.add(group); this.landmarks.push(group);
   }
@@ -227,7 +200,7 @@ export class CityGenerator {
   createIndiaGateArch(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xc2a688, roughness: 0.5 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xd9ba96, roughness: 0.4 });
     const pillarL = new THREE.Mesh(new THREE.BoxGeometry(3, 16, 4), mat); pillarL.position.set(-4, 8, 0);
     const pillarR = new THREE.Mesh(new THREE.BoxGeometry(3, 16, 4), mat); pillarR.position.set(4, 8, 0);
     const archTop = new THREE.Mesh(new THREE.BoxGeometry(11, 4, 4), mat); archTop.position.set(0, 16, 0);
@@ -238,7 +211,7 @@ export class CityGenerator {
   createTajMahalDome(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.2, map: this.marbleTexture });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, map: this.marbleTexture });
     const base = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), mat); base.position.y = 6;
     const mainDome = new THREE.Mesh(new THREE.SphereGeometry(5, 16, 16), mat); mainDome.position.y = 17;
     group.add(base, mainDome);
@@ -248,7 +221,7 @@ export class CityGenerator {
   createVaranasiGhats(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xa66d3b });
     for (let step = 0; step < 5; step++) {
       const stair = new THREE.Mesh(new THREE.BoxGeometry(12, 0.6, 20), mat);
       stair.position.set(step * 1.2, step * 0.6, 0);
@@ -260,7 +233,7 @@ export class CityGenerator {
   createCyberHubTower(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x00a8ff, metalness: 0.9, roughness: 0.1 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x00c8ff, metalness: 0.9, roughness: 0.1 });
     const glass = new THREE.Mesh(new THREE.BoxGeometry(14, 40, 14), mat); glass.position.y = 20;
     group.add(glass);
     this.scene.add(group); this.landmarks.push(group);
@@ -269,7 +242,7 @@ export class CityGenerator {
   createMetroTunnelEntrance(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x222233 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x334466 });
     const arch = new THREE.Mesh(new THREE.CylinderGeometry(5.5, 5.5, 20, 16, 1, true), mat);
     arch.rotation.x = Math.PI / 2; arch.position.y = 4.5;
     group.add(arch);
@@ -279,7 +252,7 @@ export class CityGenerator {
   createHowrahSteelTruss(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x445566, metalness: 0.8 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x557799, metalness: 0.8 });
     const truss = new THREE.Mesh(new THREE.BoxGeometry(1, 24, 1), mat); truss.position.y = 12;
     group.add(truss);
     this.scene.add(group); this.landmarks.push(group);
@@ -288,7 +261,7 @@ export class CityGenerator {
   createSnowMountainPeak(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const snowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+    const snowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
     const peak = new THREE.Mesh(new THREE.ConeGeometry(18, 30, 6), snowMat); peak.position.y = 15;
     group.add(peak);
     this.scene.add(group); this.landmarks.push(group);
@@ -297,7 +270,7 @@ export class CityGenerator {
   createMountainMonastery(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xcc3322 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xee3322 });
     const temple = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 10), mat); temple.position.y = 4;
     group.add(temple);
     this.scene.add(group); this.landmarks.push(group);
@@ -306,7 +279,7 @@ export class CityGenerator {
   createPinkCityPalace(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xe67399 });
+    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff85a1 });
     const palace = new THREE.Mesh(new THREE.BoxGeometry(12, 16, 8), pinkMat); palace.position.y = 8;
     group.add(palace);
     this.scene.add(group); this.landmarks.push(group);
@@ -315,7 +288,7 @@ export class CityGenerator {
   createDesertDunes(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const sandMat = new THREE.MeshStandardMaterial({ color: 0xedc9af, roughness: 0.95 });
+    const sandMat = new THREE.MeshStandardMaterial({ color: 0xf4d35e, roughness: 0.9 });
     const dune = new THREE.Mesh(new THREE.SphereGeometry(14, 8, 8), sandMat); dune.position.set(0, -5, 0); dune.scale.set(1.5, 0.4, 1.5);
     group.add(dune);
     this.scene.add(group); this.landmarks.push(group);
@@ -333,7 +306,7 @@ export class CityGenerator {
   createFarmlandBarn(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const barnMat = new THREE.MeshStandardMaterial({ color: 0xaa2211 });
+    const barnMat = new THREE.MeshStandardMaterial({ color: 0xcc3322 });
     const barn = new THREE.Mesh(new THREE.BoxGeometry(10, 6, 12), barnMat); barn.position.y = 3;
     group.add(barn);
     this.scene.add(group); this.landmarks.push(group);
@@ -342,7 +315,7 @@ export class CityGenerator {
   createSteelFurnace(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.9 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x444455, metalness: 0.9 });
     const furnace = new THREE.Mesh(new THREE.CylinderGeometry(4, 5, 20), mat); furnace.position.y = 10;
     group.add(furnace);
     this.scene.add(group); this.landmarks.push(group);
@@ -351,7 +324,7 @@ export class CityGenerator {
   createCargoContainers(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const colors = [0xff0055, 0x0066ff, 0xffcc00];
+    const colors = [0xff007f, 0x0066ff, 0xffcc00];
     for (let i = 0; i < 4; i++) {
       const mat = new THREE.MeshStandardMaterial({ color: colors[i % 3], metalness: 0.6 });
       const container = new THREE.Mesh(new THREE.BoxGeometry(4.5, 3.2, 10), mat);
@@ -364,8 +337,8 @@ export class CityGenerator {
   createPalmHuts(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
-    const leavesMat = new THREE.MeshStandardMaterial({ color: 0x00cc44 });
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x734f37 });
+    const leavesMat = new THREE.MeshStandardMaterial({ color: 0x00e65c });
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 6), trunkMat); trunk.position.y = 3;
     const leaves = new THREE.Mesh(new THREE.ConeGeometry(3, 2, 6), leavesMat); leaves.position.y = 6;
     group.add(trunk, leaves);
@@ -375,8 +348,8 @@ export class CityGenerator {
   createTokyoTower(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const redMat = new THREE.MeshStandardMaterial({ color: 0xff2200, roughness: 0.4 });
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+    const redMat = new THREE.MeshStandardMaterial({ color: 0xff3311, roughness: 0.3 });
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
     for (let tier = 0; tier < 5; tier++) {
       const mat = (tier % 2 === 0) ? redMat : whiteMat;
       const w = 12 - tier * 2;
@@ -392,7 +365,7 @@ export class CityGenerator {
   createBurjTower(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xaaccff, metalness: 0.9, roughness: 0.1 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xcce5ff, metalness: 0.9, roughness: 0.1 });
     const burj = new THREE.Mesh(new THREE.CylinderGeometry(1, 8, 70, 6), mat); burj.position.y = 35;
     group.add(burj);
     this.scene.add(group); this.landmarks.push(group);
@@ -401,7 +374,7 @@ export class CityGenerator {
   createRobotFactory(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x112233, metalness: 0.8 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x1d2d44, metalness: 0.8 });
     const factory = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 20), mat); factory.position.y = 6;
     group.add(factory);
     this.scene.add(group); this.landmarks.push(group);
@@ -420,7 +393,7 @@ export class CityGenerator {
   createSpaceDome(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const glassMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.3, wireframe: true });
+    const glassMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.4, wireframe: true });
     const dome = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat); dome.position.y = 0;
     group.add(dome);
     this.scene.add(group); this.landmarks.push(group);
@@ -438,7 +411,7 @@ export class CityGenerator {
   createChinatownArch(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const redMat = new THREE.MeshStandardMaterial({ color: 0xdd2200 });
+    const redMat = new THREE.MeshStandardMaterial({ color: 0xff3300 });
     const arch = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 3), redMat); arch.position.y = 4;
     group.add(arch);
     this.scene.add(group); this.landmarks.push(group);
@@ -456,7 +429,7 @@ export class CityGenerator {
   createSolarPanels(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const blueMat = new THREE.MeshStandardMaterial({ color: 0x0033aa, roughness: 0.2 });
+    const blueMat = new THREE.MeshStandardMaterial({ color: 0x0044ff, roughness: 0.2 });
     const panel = new THREE.Mesh(new THREE.BoxGeometry(10, 0.4, 14), blueMat); panel.position.y = 2; panel.rotation.x = Math.PI / 6;
     group.add(panel);
     this.scene.add(group); this.landmarks.push(group);
@@ -465,7 +438,7 @@ export class CityGenerator {
   createStadiumArena(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0x8899aa });
+    const mat = new THREE.MeshStandardMaterial({ color: 0x99aabb });
     const stadium = new THREE.Mesh(new THREE.CylinderGeometry(14, 16, 10, 16), mat); stadium.position.y = 5;
     group.add(stadium);
     this.scene.add(group); this.landmarks.push(group);
@@ -485,7 +458,7 @@ export class CityGenerator {
     group.position.set(x, 0, z);
 
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x0a1428,
+      color: 0x102040,
       map: this.buildingTextureCyan,
       roughness: 0.3
     });
@@ -507,7 +480,7 @@ export class CityGenerator {
     const group = new THREE.Group();
     group.position.set(x, 8.5, z);
 
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x111122 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x223355 });
     const frame = new THREE.Mesh(new THREE.BoxGeometry(14, 3.5, 0.4), frameMat);
     group.add(frame);
 
@@ -523,7 +496,7 @@ export class CityGenerator {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
 
-    const pylonMat = new THREE.MeshStandardMaterial({ color: 0xddddee, metalness: 0.5 });
+    const pylonMat = new THREE.MeshStandardMaterial({ color: 0xeeeeff, metalness: 0.5 });
     const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.6, 40), pylonMat);
     pylon.position.y = 20;
     group.add(pylon);
@@ -544,7 +517,7 @@ export class CityGenerator {
     const group = new THREE.Group();
     group.position.set(x, 4.5, z);
 
-    const tubeMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.15, wireframe: true });
+    const tubeMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.25, wireframe: true });
     const tube = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 30, 16, 1, true), tubeMat);
     tube.rotation.x = Math.PI / 2;
     group.add(tube);
@@ -559,7 +532,7 @@ export class CityGenerator {
       const phase = Math.sin(this.cycleTime);
 
       const dayColor = new THREE.Color(0x3a86ff);
-      const nightColor = new THREE.Color(0x0c1b40);
+      const nightColor = new THREE.Color(0x1a428a);
       const sunsetColor = new THREE.Color(0xff007f);
 
       if (phase > 0.3) {
@@ -575,8 +548,8 @@ export class CityGenerator {
     }
 
     this.landmarks.forEach(lm => {
-      if (lm.position.z > playerZ + 25) {
-        lm.position.z -= 650;
+      if (lm.position.z < playerZ - 40) {
+        lm.position.z += 650;
       }
     });
   }

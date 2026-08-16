@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-mkpfSNuv.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CptMUpoJ.css">
+  <script type="module" crossorigin src="/assets/index-BfLDICoo.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CCfT-b33.css">
 </head>
 <body>
   <!-- 3D Canvas -->
@@ -19,6 +19,21 @@
 
   <!-- UI Overlay -->
   <div id="ui-container">
+
+    <!-- DEVELOPER DEBUG HUD OVERLAY -->
+    <div id="debug-hud-overlay" class="debug-hud-overlay pointer-through">
+      <span id="dbg-fps">60 FPS</span>
+      <span id="dbg-state">STATE: LOADING</span>
+      <span id="dbg-speed">SPEED: 8.0</span>
+      <span id="dbg-dist">DIST: 0m</span>
+    </div>
+
+    <!-- LOCATION BANNER OVERLAY -->
+    <div id="location-banner-overlay" class="location-banner hidden">
+      <div class="banner-border">
+        <span id="location-banner-text" class="banner-text">🚉 METRO CENTRAL STATION</span>
+      </div>
+    </div>
 
     <!-- REAL-TIME IN-GAME ACHIEVEMENT TOAST POPUP -->
     <div id="ui-achievement-toast" class="achievement-toast hidden">
@@ -282,7 +297,6 @@
         <p style="text-align:center; font-size:0.85rem; color:#8a99ad; margin-top:2px;">Get 500 Coins + 1 Revive Shield for each friend!</p>
         <div class="modal-divider"></div>
         
-        <!-- My Referral Code Section -->
         <div style="background: rgba(0,0,0,0.4); border:1px solid var(--accent-gold); border-radius:12px; padding:12px; text-align:center; margin-bottom:12px;">
           <span style="font-family: var(--font-heading); font-size:0.75rem; color: var(--text-muted); letter-spacing:1px;">YOUR UNIQUE REFERRAL CODE:</span>
           <div id="ref-code-display" style="font-family: var(--font-heading); font-size:1.6rem; font-weight:900; color: var(--accent-gold); letter-spacing:3px; margin:6px 0;">NEXORA-8A9F</div>
@@ -294,7 +308,6 @@
           <button id="btn-share-copy" class="btn-secondary" style="font-size:0.85rem; padding:10px;">📋 COPY LINK</button>
         </div>
 
-        <!-- Redeem Friend's Code Section -->
         <div style="border-top:1px dashed rgba(255,255,255,0.2); padding-top:10px; margin-bottom:10px;">
           <span style="font-family: var(--font-heading); font-size:0.75rem; color: var(--primary-cyan);">REDEEM FRIEND'S REFERRAL CODE:</span>
           <div style="display:flex; gap:6px; margin-top:6px;">

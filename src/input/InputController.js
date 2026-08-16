@@ -1,17 +1,14 @@
-// InputController.js - Smart TV Remote (Samsung Tizen, LG WebOS, Android TV) & Touch Control Engine
+// InputController.js - Centralized Unified Input System (Keyboard, Mobile Touch, Swipes, Smart TV)
 export class InputController {
   constructor() {
     this.listeners = {};
     this.touchStartX = 0;
     this.touchStartY = 0;
     this.swipeTriggered = false;
+    this.minSwipeDistance = 18;
+    this.initialized = false;
 
-    // Minimum distance threshold in pixels for clean swipe registration
-    this.minSwipeDistance = 18; 
-
-    this.initKeyboardAndSmartTVRemote();
-    this.initTouchSwipes();
-    this.initOnScreenButtons();
+    this.initOnce();
   }
 
   on(event, callback) {
@@ -25,37 +22,39 @@ export class InputController {
     }
   }
 
+  initOnce() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    this.initKeyboardAndSmartTVRemote();
+    this.initTouchSwipes();
+    this.initOnScreenMobileButtons();
+  }
+
   initKeyboardAndSmartTVRemote() {
     window.addEventListener('keydown', (e) => {
       const code = e.code;
       const keyCode = e.keyCode || e.which;
 
-      // Smart TV Remote Key Codes:
-      // Samsung Tizen / LG WebOS / Android TV / Fire TV / Apple TV
-      // 37 / 21 = Left, 39 / 22 = Right, 38 / 19 = Up, 40 / 20 = Down, 13 / 23 = OK/Enter, 10009 / 461 / 27 = Back/Return
+      // Prevent default scrolling for Arrow keys, Space, WASD, P, R
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(code) || [37, 38, 39, 40, 32].includes(keyCode)) {
+        if (e.cancelable) e.preventDefault();
+      }
 
       if (code === 'ArrowLeft' || code === 'KeyA' || keyCode === 37 || keyCode === 21) {
-        e.preventDefault();
         this.emit('left');
       } else if (code === 'ArrowRight' || code === 'KeyD' || keyCode === 39 || keyCode === 22) {
-        e.preventDefault();
         this.emit('right');
-      } else if (code === 'ArrowUp' || code === 'KeyW' || keyCode === 38 || keyCode === 19) {
-        e.preventDefault();
+      } else if (code === 'ArrowUp' || code === 'KeyW' || code === 'Space' || keyCode === 38 || keyCode === 19 || keyCode === 32) {
         this.emit('jump');
       } else if (code === 'ArrowDown' || code === 'KeyS' || keyCode === 40 || keyCode === 20) {
-        e.preventDefault();
         this.emit('slide');
-      } else if (code === 'Space' || code === 'Enter' || keyCode === 13 || keyCode === 23) {
-        // Smart TV OK / Select Button
-        e.preventDefault();
-        this.emit('select');
-        this.emit('jump');
-      } else if (code === 'Escape' || code === 'KeyP' || code === 'Backspace' || keyCode === 10009 || keyCode === 461 || keyCode === 27) {
-        // Smart TV Back / Return Button
-        e.preventDefault();
+      } else if (code === 'KeyP' || code === 'Escape' || code === 'Backspace' || keyCode === 10009 || keyCode === 461 || keyCode === 27) {
         this.emit('pause');
-        this.emit('back');
+      } else if (code === 'KeyR') {
+        this.emit('restart');
+      } else if (code === 'Enter' || keyCode === 13 || keyCode === 23) {
+        this.emit('select');
       }
     });
   }
@@ -83,18 +82,12 @@ export class InputController {
 
       if (Math.max(absX, absY) >= this.minSwipeDistance) {
         if (absX > absY) {
-          if (deltaX > 0) {
-            this.emit('right');
-          } else {
-            this.emit('left');
-          }
+          if (deltaX > 0) this.emit('right');
+          else this.emit('left');
           this.swipeTriggered = true;
         } else {
-          if (deltaY < 0) {
-            this.emit('jump');
-          } else {
-            this.emit('slide');
-          }
+          if (deltaY < 0) this.emit('jump');
+          else this.emit('slide');
           this.swipeTriggered = true;
         }
       }
@@ -109,31 +102,39 @@ export class InputController {
     window.addEventListener('touchend', handleEnd, { passive: true });
   }
 
-  initOnScreenButtons() {
-    const bindTouch = (id, eventName) => {
+  initOnScreenMobileButtons() {
+    const bindBtn = (id, eventName) => {
       const btn = document.getElementById(id);
       if (!btn) return;
 
-      const trigger = (e) => {
+      let lastTrigger = 0;
+      const handlePress = (e) => {
+        const now = Date.now();
+        if (now - lastTrigger < 100) return;
+        lastTrigger = now;
+
         if (e.cancelable) e.preventDefault();
         e.stopPropagation();
+
+        btn.classList.add('pressed');
+        setTimeout(() => btn.classList.remove('pressed'), 120);
         this.emit(eventName);
       };
 
-      btn.addEventListener('touchstart', trigger, { passive: false });
-      btn.addEventListener('mousedown', trigger);
+      btn.addEventListener('pointerdown', handlePress, { passive: false });
+      btn.addEventListener('touchstart', handlePress, { passive: false });
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      bindTouch('touch-btn-left', 'left');
-      bindTouch('touch-btn-right', 'right');
-      bindTouch('touch-btn-up', 'jump');
-      bindTouch('touch-btn-down', 'slide');
+      bindBtn('touch-btn-left', 'left');
+      bindBtn('touch-btn-right', 'right');
+      bindBtn('touch-btn-up', 'jump');
+      bindBtn('touch-btn-down', 'slide');
     });
 
-    bindTouch('touch-btn-left', 'left');
-    bindTouch('touch-btn-right', 'right');
-    bindTouch('touch-btn-up', 'jump');
-    bindTouch('touch-btn-down', 'slide');
+    bindBtn('touch-btn-left', 'left');
+    bindBtn('touch-btn-right', 'right');
+    bindBtn('touch-btn-up', 'jump');
+    bindBtn('touch-btn-down', 'slide');
   }
 }

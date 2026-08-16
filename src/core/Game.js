@@ -1,4 +1,4 @@
-// Game.js - High-Performance 60 FPS Game Loop Engine & Aligned Z-Motion
+// Game.js - Single Animation Loop, Smooth Acceleration, Location Banners & Debug System
 import * as THREE from 'three';
 import { AppRenderer } from './Renderer.js';
 import { CameraManager } from './CameraManager.js';
@@ -45,13 +45,22 @@ export class Game {
     this.inputController = new InputController();
     this.uiManager = new UIManager(this);
 
-    // States: 'LOADING', 'WELCOME', 'COUNTDOWN', 'PLAYING', 'PAUSED', 'REVIVE', 'GAMEOVER'
+    // Game Loop States: 'LOADING', 'WELCOME', 'COUNTDOWN', 'PLAYING', 'PAUSED', 'REVIVE', 'GAMEOVER'
     this.state = 'LOADING';
-    this.gameSpeed = 16.0;
-    this.baseSpeed = 16.0;
+    this.baseSpeed = 8.0;
+    this.gameSpeed = 8.0;
     this.maxSpeed = 38.0;
     this.distanceTraveled = 0;
     this.clock = new THREE.Clock();
+
+    // Loop Duplicate Safeguard
+    this.animFrameId = null;
+    this.fpsCount = 60;
+    this.frameCount = 0;
+    this.fpsTimer = 0;
+
+    // Location Banner Tracking
+    this.lastLocationMilestone = 0;
 
     this.initInputs();
     this.simulateAssetLoading();
@@ -61,7 +70,6 @@ export class Game {
     this.inputController.on('left', () => {
       if (this.state === 'PLAYING') {
         this.player.moveLeft();
-        voiceSystem.speak('LEFT');
       }
     });
 
@@ -75,14 +83,12 @@ export class Game {
       if (this.state === 'PLAYING') {
         this.player.jump();
         achievementManager.addJump();
-        voiceSystem.speak('JUMP');
       }
     });
 
     this.inputController.on('slide', () => {
       if (this.state === 'PLAYING') {
         this.player.slide();
-        voiceSystem.speak('SLIDE');
       }
     });
 
@@ -90,12 +96,18 @@ export class Game {
       if (this.state === 'PLAYING') this.pauseGame();
       else if (this.state === 'PAUSED') this.resumeGame();
     });
+
+    this.inputController.on('restart', () => {
+      if (this.state === 'GAMEOVER' || this.state === 'PAUSED') {
+        this.startCountdownFlow();
+      }
+    });
   }
 
   simulateAssetLoading() {
     let progress = 0;
     const interval = setInterval(() => {
-      progress += 12;
+      progress += 15;
       const statusText = progress < 40 ? 'Loading City Landmarks…' : (progress < 80 ? 'Initialising CID Voice Synthesizer…' : 'Ready!');
       this.uiManager.updateLoadingProgress(progress, statusText);
 
@@ -106,9 +118,9 @@ export class Game {
           this.uiManager.showScreen(this.uiManager.screenWelcome);
           soundEngine.startMusic();
           this.startLoop();
-        }, 300);
+        }, 200);
       }
-    }, 80);
+    }, 60);
   }
 
   startCountdownFlow() {
@@ -133,13 +145,14 @@ export class Game {
         clearInterval(interval);
         this.startGameplay();
       }
-    }, 750);
+    }, 700);
   }
 
   startGameplay() {
     this.state = 'PLAYING';
     this.uiManager.showScreen(this.uiManager.screenHUD);
     soundEngine.startMusic();
+    this.showLocationBanner('🚉 METRO CENTRAL STATION');
   }
 
   pauseGame() {
@@ -159,6 +172,7 @@ export class Game {
   resetGameState() {
     this.gameSpeed = this.baseSpeed;
     this.distanceTraveled = 0;
+    this.lastLocationMilestone = 0;
     this.player.reset();
     this.scoreManager.reset();
 
@@ -220,28 +234,77 @@ export class Game {
   }
 
   startLoop() {
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
+    }
+
     this.clock.start();
     const loop = () => {
-      requestAnimationFrame(loop);
+      this.animFrameId = requestAnimationFrame(loop);
       this.update();
       this.render();
     };
     loop();
   }
 
+  showLocationBanner(title) {
+    const banner = document.getElementById('location-banner-overlay');
+    const text = document.getElementById('location-banner-text');
+    if (banner && text) {
+      text.textContent = title;
+      banner.classList.remove('hidden');
+      banner.classList.add('active');
+      setTimeout(() => {
+        banner.classList.remove('active');
+        banner.classList.add('hidden');
+      }, 3500);
+    }
+  }
+
   update() {
     const delta = Math.min(this.clock.getDelta(), 0.033);
+
+    // FPS Counter Update
+    this.frameCount++;
+    this.fpsTimer += delta;
+    if (this.fpsTimer >= 1.0) {
+      this.fpsCount = this.frameCount;
+      this.frameCount = 0;
+      this.fpsTimer = 0;
+    }
 
     if (this.state === 'WELCOME' || this.state === 'LOADING') {
       this.cameraManager.updateMenuCamera(this.player.position, delta);
       this.cityGenerator.update(0, delta);
+      this.updateDebugHUD();
       return;
     }
 
-    if (this.state !== 'PLAYING') return;
+    if (this.state !== 'PLAYING') {
+      this.updateDebugHUD();
+      return;
+    }
 
-    this.gameSpeed = Math.min(this.maxSpeed, this.gameSpeed + delta * 0.15);
+    // Automatic Continuous Running Acceleration (from 8.0 up to 38.0)
+    this.gameSpeed = Math.min(this.maxSpeed, this.baseSpeed + (this.distanceTraveled * 0.006));
     this.distanceTraveled += this.gameSpeed * delta;
+
+    // Check Location Milestones for 108 procedural landmarks
+    const milestone = Math.floor(this.distanceTraveled / 400);
+    if (milestone > this.lastLocationMilestone) {
+      this.lastLocationMilestone = milestone;
+      const names = [
+        '🏰 RED FORT GATE', '🛕 TAJ MAHAL AGRA', '🏙️ DELHI CYBER HUB',
+        '🌉 MUMBAI SEA LINK', '🌉 HOWRAH BRIDGE', '🏔️ HIMALAYAN SNOW PASS',
+        '🐫 RAJASTHAN PINK CITY', '🛕 GOLDEN TEMPLE', '🏭 STEEL PLANT',
+        '🌴 KERALA BACKWATERS', '🗼 TOKYO TOWER', '🏙️ DUBAI SKYLINE',
+        '🤖 ROBOT AI CAMPUS', '🚀 NASA SPACE CENTER', '🔴 MARS COLONY BASE'
+      ];
+      const name = names[milestone % names.length];
+      this.showLocationBanner(name);
+      soundEngine.playPowerup();
+    }
 
     this.scoreManager.update(delta, this.gameSpeed);
     this.player.update(delta, this.gameSpeed, this.distanceTraveled);
@@ -260,25 +323,37 @@ export class Game {
     this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);
     this.uiManager.updatePowerUpBadges(this.powerUpManager.activePowerups, this.powerUpManager.durations);
 
+    // Debug System HUD Update
+    this.updateDebugHUD();
+
     // Collision Detection
     this.checkCollisions();
   }
 
+  updateDebugHUD() {
+    const fpsEl = document.getElementById('dbg-fps');
+    const stateEl = document.getElementById('dbg-state');
+    const speedEl = document.getElementById('dbg-speed');
+    const distEl = document.getElementById('dbg-dist');
+
+    if (fpsEl) fpsEl.textContent = `${this.fpsCount} FPS`;
+    if (stateEl) stateEl.textContent = `STATE: ${this.state}`;
+    if (speedEl) speedEl.textContent = `SPEED: ${this.gameSpeed.toFixed(1)}`;
+    if (distEl) distEl.textContent = `DIST: ${Math.floor(this.distanceTraveled)}m`;
+  }
+
   checkCollisions() {
-    // Train Collision
     if (this.trainManager.checkCollision(this.player.box)) {
       voiceSystem.speak('TRAIN');
       this.handlePlayerCrash();
       return;
     }
 
-    // Barrier / Obstacle Collision
     if (this.obstacleManager.checkCollision(this.player.box)) {
       this.handlePlayerCrash();
       return;
     }
 
-    // Coin Collection
     const coinsGathered = this.coinManager.checkCollections(this.player.box);
     if (coinsGathered > 0) {
       const multiplier = this.player.doubleScoreActive ? 2 : 1;
@@ -287,7 +362,6 @@ export class Game {
       if (Math.random() < 0.1) voiceSystem.speak('COIN');
     }
 
-    // Powerup Pickup
     const powerUpType = this.powerUpManager.checkPickups(this.player.box);
     if (powerUpType) {
       soundEngine.playPowerup();

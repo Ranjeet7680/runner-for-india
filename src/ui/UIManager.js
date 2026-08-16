@@ -1,4 +1,4 @@
-// UIManager.js - Upgraded with Cross-Browser Fullscreen Toggle & Smooth UX
+// UIManager.js - Automatic Mobile Fullscreen System & Smooth Screen Flows
 import { soundEngine } from '../audio/SoundEngine.js';
 import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
@@ -39,6 +39,8 @@ export class UIManager {
     const previewContainer = document.getElementById('char-preview-container');
     this.charPreview = previewContainer ? new CharacterPreviewRenderer(previewContainer) : null;
 
+    this.isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
     this.initListeners();
     this.updateProfileBadge();
   }
@@ -52,10 +54,16 @@ export class UIManager {
     document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', toggleFS);
     document.getElementById('btn-hud-fullscreen')?.addEventListener('click', toggleFS);
 
-    // Welcome Buttons
+    // Welcome Buttons - Trigger Automatic Mobile Fullscreen on START RUN!
     document.getElementById('btn-nav-start')?.addEventListener('click', () => {
       soundEngine.playClick();
       voiceSystem.speak('START');
+      
+      // Automatic Fullscreen Trigger for Mobile
+      if (this.isMobileDevice) {
+        this.requestFullscreenAuto();
+      }
+
       this.game.startCountdownFlow();
     });
 
@@ -111,7 +119,11 @@ export class UIManager {
     });
 
     // Game Over Lobby Buttons
-    document.getElementById('btn-go-again')?.addEventListener('click', () => { soundEngine.playClick(); this.game.startCountdownFlow(); });
+    document.getElementById('btn-go-again')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      if (this.isMobileDevice) this.requestFullscreenAuto();
+      this.game.startCountdownFlow();
+    });
     document.getElementById('btn-go-missions')?.addEventListener('click', () => { soundEngine.playClick(); this.openMissionsScreen(); });
     document.getElementById('btn-go-rewards')?.addEventListener('click', () => { soundEngine.playClick(); this.openRewardsScreen(); });
     document.getElementById('btn-go-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
@@ -213,6 +225,19 @@ export class UIManager {
         this.openRewardsScreen();
       }
     });
+  }
+
+  requestFullscreenAuto() {
+    const doc = window.document;
+    const docEl = doc.documentElement;
+    if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+      const req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+      if (req) {
+        req.call(docEl).catch(() => {
+          // Ignore automatic fullscreen rejection if browser blocks unprompted requests
+        });
+      }
+    }
   }
 
   toggleFullscreen() {

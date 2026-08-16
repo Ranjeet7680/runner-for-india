@@ -8,11 +8,19 @@ export class ProgressManager {
     this.selectedCharacter = localStorage.getItem('nexora_char') || 'BOY';
     this.selectedMap = localStorage.getItem('nexora_map') || 'NIGHT_METRO';
 
-    const savedChars = localStorage.getItem('nexora_unlocked_chars');
-    this.unlockedCharacters = savedChars ? JSON.parse(savedChars) : ['BOY'];
+    try {
+      const savedChars = localStorage.getItem('nexora_unlocked_chars');
+      this.unlockedCharacters = savedChars ? JSON.parse(savedChars) : ['BOY'];
+    } catch (e) {
+      this.unlockedCharacters = ['BOY'];
+    }
 
-    const savedMaps = localStorage.getItem('nexora_unlocked_maps');
-    this.unlockedMaps = savedMaps ? JSON.parse(savedMaps) : ['NIGHT_METRO', 'DAY_METRO', 'DYNAMIC_DAY_NIGHT', 'MUMBAI_METRO', 'CHENNAI_METRO', 'DHANBAD_RAIL'];
+    try {
+      const savedMaps = localStorage.getItem('nexora_unlocked_maps');
+      this.unlockedMaps = savedMaps ? JSON.parse(savedMaps) : ['NIGHT_METRO', 'DAY_METRO', 'DYNAMIC_DAY_NIGHT', 'MUMBAI_METRO', 'CHENNAI_METRO', 'DHANBAD_RAIL'];
+    } catch (e) {
+      this.unlockedMaps = ['NIGHT_METRO', 'DAY_METRO', 'DYNAMIC_DAY_NIGHT', 'MUMBAI_METRO', 'CHENNAI_METRO', 'DHANBAD_RAIL'];
+    }
 
     this.level = parseInt(localStorage.getItem('nexora_lvl') || '1', 10);
     this.xp = parseInt(localStorage.getItem('nexora_xp') || '0', 10);
@@ -31,23 +39,36 @@ export class ProgressManager {
   }
 
   save() {
-    localStorage.setItem('nexora_coins', this.totalCoins.toString());
-    localStorage.setItem('nexora_highscore', this.highScore.toString());
-    localStorage.setItem('nexora_bestdist', this.bestDistance.toString());
-    localStorage.setItem('nexora_char', this.selectedCharacter);
-    localStorage.setItem('nexora_map', this.selectedMap);
-    localStorage.setItem('nexora_unlocked_chars', JSON.stringify(this.unlockedCharacters));
-    localStorage.setItem('nexora_unlocked_maps', JSON.stringify(this.unlockedMaps));
-    localStorage.setItem('nexora_lvl', this.level.toString());
-    localStorage.setItem('nexora_xp', this.xp.toString());
-    localStorage.setItem('nexora_revive_tokens', this.reviveTokens.toString());
-    localStorage.setItem('nexora_streak', this.loginStreak.toString());
-    localStorage.setItem('nexora_last_login', this.lastLoginDate);
+    try {
+      localStorage.setItem('nexora_coins', this.totalCoins.toString());
+      localStorage.setItem('nexora_highscore', this.highScore.toString());
+      localStorage.setItem('nexora_bestdist', this.bestDistance.toString());
+      localStorage.setItem('nexora_char', this.selectedCharacter);
+      localStorage.setItem('nexora_map', this.selectedMap);
+      localStorage.setItem('nexora_unlocked_chars', JSON.stringify(this.unlockedCharacters));
+      localStorage.setItem('nexora_unlocked_maps', JSON.stringify(this.unlockedMaps));
+      localStorage.setItem('nexora_lvl', this.level.toString());
+      localStorage.setItem('nexora_xp', this.xp.toString());
+      localStorage.setItem('nexora_revive_tokens', this.reviveTokens.toString());
+      localStorage.setItem('nexora_streak', this.loginStreak.toString());
+      localStorage.setItem('nexora_last_login', this.lastLoginDate);
+    } catch (e) {
+      console.warn('LocalStorage save failed:', e);
+    }
   }
 
   addCoins(amount) {
     this.totalCoins += amount;
     this.save();
+  }
+
+  updateHighScore(score) {
+    if (score > this.highScore) {
+      this.highScore = score;
+      this.save();
+      return true;
+    }
+    return false;
   }
 
   useReviveToken() {
@@ -62,6 +83,10 @@ export class ProgressManager {
   addReviveToken(count = 1) {
     this.reviveTokens += count;
     this.save();
+  }
+
+  addXP(amount) {
+    this.addXp(amount);
   }
 
   addXp(amount) {

@@ -1,15 +1,13 @@
-// InputController.js - Ultra-Responsive Mobile Finger Swipe & Gesture Engine
+// InputController.js - Precise Left/Right & Up/Down Mobile Swipe Control Engine
 export class InputController {
   constructor() {
     this.listeners = {};
     this.touchStartX = 0;
     this.touchStartY = 0;
-    this.touchEndX = 0;
-    this.touchEndY = 0;
-    this.isSwiping = false;
+    this.swipeTriggered = false;
 
-    // Ultra-sensitive swipe threshold for instant finger flick response
-    this.minSwipeDistance = 18; 
+    // Minimum distance threshold in pixels for clean swipe registration
+    this.minSwipeDistance = 24; 
 
     this.initKeyboard();
     this.initTouchSwipes();
@@ -60,12 +58,12 @@ export class InputController {
       if (e.touches && e.touches.length > 0) {
         this.touchStartX = e.touches[0].clientX;
         this.touchStartY = e.touches[0].clientY;
-        this.isSwiping = true;
+        this.swipeTriggered = false;
       }
     };
 
     const handleMove = (e) => {
-      if (!this.isSwiping || !e.touches || e.touches.length === 0) return;
+      if (this.swipeTriggered || !e.touches || e.touches.length === 0) return;
 
       const currentX = e.touches[0].clientX;
       const currentY = e.touches[0].clientY;
@@ -76,27 +74,30 @@ export class InputController {
       const absX = Math.abs(deltaX);
       const absY = Math.abs(deltaY);
 
-      // Trigger swipe immediately once threshold is reached (low latency)
       if (Math.max(absX, absY) >= this.minSwipeDistance) {
-        if (absX > absY) {
+        // Clear separation between Horizontal (Left/Right) and Vertical (Jump/Slide)
+        if (absX > absY * 1.1) {
           // Horizontal Finger Swipe
-          if (deltaX > 0) this.emit('right');
-          else this.emit('left');
-        } else {
+          if (deltaX > 0) {
+            this.emit('right'); // Finger moved Right -> Move Character Right
+          } else {
+            this.emit('left');  // Finger moved Left -> Move Character Left
+          }
+          this.swipeTriggered = true;
+        } else if (absY > absX * 1.1) {
           // Vertical Finger Swipe
-          if (deltaY < 0) this.emit('jump');
-          else this.emit('slide');
+          if (deltaY < 0) {
+            this.emit('jump');  // Finger moved Up -> Jump
+          } else {
+            this.emit('slide'); // Finger moved Down -> Slide
+          }
+          this.swipeTriggered = true;
         }
-
-        // Reset tracking point after trigger for smooth continuous swiping
-        this.touchStartX = currentX;
-        this.touchStartY = currentY;
-        this.isSwiping = false;
       }
     };
 
     const handleEnd = () => {
-      this.isSwiping = false;
+      this.swipeTriggered = false;
     };
 
     window.addEventListener('touchstart', handleStart, { passive: true });

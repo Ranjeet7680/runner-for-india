@@ -1,4 +1,4 @@
-// Player.js - 7 Original Playable Characters, Responsive Mobile Interpolation & Animations
+// Player.js - 7 Original Playable Characters, Forward Z-Motion & Procedural Animations
 import * as THREE from 'three';
 import { soundEngine } from '../audio/SoundEngine.js';
 
@@ -373,9 +373,12 @@ export class Player {
     this.rocketBoard.visible = active;
   }
 
-  update(delta, gameSpeed) {
+  update(delta, gameSpeed, distanceZ = 0) {
     const gaitSpeed = (gameSpeed / 12) * 12;
     this.animTime += delta * gaitSpeed;
+
+    // Advance forward along POSITIVE Z
+    this.position.z = distanceZ;
 
     // Snappy Snapping Lerp for Mobile Touch Latency (0.35 factor)
     this.position.x = THREE.MathUtils.lerp(this.position.x, this.targetX, 0.35);

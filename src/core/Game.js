@@ -1,4 +1,4 @@
-// Game.js - High-Performance 60 FPS Game Loop Engine
+// Game.js - High-Performance 60 FPS Game Loop Engine & Aligned Z-Motion
 import * as THREE from 'three';
 import { AppRenderer } from './Renderer.js';
 import { CameraManager } from './CameraManager.js';
@@ -139,7 +139,6 @@ export class Game {
   startGameplay() {
     this.state = 'PLAYING';
     this.uiManager.showScreen(this.uiManager.screenHUD);
-    this.cameraManager.setMode('THIRD_PERSON');
     soundEngine.startMusic();
   }
 
@@ -231,11 +230,10 @@ export class Game {
   }
 
   update() {
-    // Frame Delta Clamp for 60fps Stutter Prevention on Low-End Mobile Devices
     const delta = Math.min(this.clock.getDelta(), 0.033);
 
     if (this.state === 'WELCOME' || this.state === 'LOADING') {
-      this.cameraManager.updateWelcomeOrbit(delta);
+      this.cameraManager.updateMenuCamera(this.player.position, delta);
       this.cityGenerator.update(0, delta);
       return;
     }
@@ -246,9 +244,9 @@ export class Game {
     this.distanceTraveled += this.gameSpeed * delta;
 
     this.scoreManager.update(delta, this.gameSpeed);
-    this.player.update(delta, this.gameSpeed);
+    this.player.update(delta, this.gameSpeed, this.distanceTraveled);
 
-    this.trackManager.update(this.gameSpeed, delta, this.player.position.z);
+    this.trackManager.update(this.player.position.z);
     this.trainManager.update(this.gameSpeed, delta, this.player.position);
     this.obstacleManager.update(this.gameSpeed, delta, this.player.position.z);
     this.powerUpManager.update(this.gameSpeed, delta, this.player.position);
@@ -258,7 +256,7 @@ export class Game {
     this.cityGenerator.update(this.player.position.z, delta);
     this.weatherSystem.update(delta, this.player.position);
 
-    this.cameraManager.update(this.player.position, delta);
+    this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta);
     this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);
     this.uiManager.updatePowerUpBadges(this.powerUpManager.activePowerups, this.powerUpManager.durations);
 

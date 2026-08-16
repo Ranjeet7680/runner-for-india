@@ -1,4 +1,4 @@
-// UIManager.js - Upgraded for 7 Character Roster & Selection
+// UIManager.js - Upgraded with Cross-Browser Fullscreen Toggle & Smooth UX
 import { soundEngine } from '../audio/SoundEngine.js';
 import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
@@ -44,6 +44,14 @@ export class UIManager {
   }
 
   initListeners() {
+    // Fullscreen Toggle Buttons
+    const toggleFS = () => {
+      soundEngine.playClick();
+      this.toggleFullscreen();
+    };
+    document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', toggleFS);
+    document.getElementById('btn-hud-fullscreen')?.addEventListener('click', toggleFS);
+
     // Welcome Buttons
     document.getElementById('btn-nav-start')?.addEventListener('click', () => {
       soundEngine.playClick();
@@ -205,6 +213,20 @@ export class UIManager {
         this.openRewardsScreen();
       }
     });
+  }
+
+  toggleFullscreen() {
+    const doc = window.document;
+    const docEl = doc.documentElement;
+
+    const requestFS = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+    const exitFS = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+      if (requestFS) requestFS.call(docEl).catch(err => console.log('Fullscreen failed:', err));
+    } else {
+      if (exitFS) exitFS.call(doc);
+    }
   }
 
   showScreen(targetScreen) {

@@ -1,4 +1,4 @@
-// Renderer.js - Bright Electric Neon Lighting & Colorful Atmosphere
+// Renderer.js - WebGL Context Recovery, Smooth Retina Resizing & High Performance
 import * as THREE from 'three';
 
 export class AppRenderer {
@@ -7,9 +7,8 @@ export class AppRenderer {
     this.scene = new THREE.Scene();
     this.quality = 'HIGH';
 
-    // Vibrant Electric Blue Sky Background (Not pitch black!)
     this.scene.background = new THREE.Color(0x0c1b40);
-    this.scene.fog = new THREE.FogExp2(0x0f2252, 0.005); // Light atmospheric fog
+    this.scene.fog = new THREE.FogExp2(0x0f2252, 0.005);
 
     this.camera = new THREE.PerspectiveCamera(
       60,
@@ -27,7 +26,22 @@ export class AppRenderer {
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.45; // High bright exposure
+    this.renderer.toneMappingExposure = 1.45;
+
+    // Prevent default touch scrolling on canvas for smooth 60fps browser play
+    this.renderer.domElement.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+    this.renderer.domElement.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+
+    // Handle WebGL Context Lost & Restored for robust browser stability
+    this.renderer.domElement.addEventListener('webglcontextlost', (e) => {
+      e.preventDefault();
+      console.warn('WebGL context lost. Pausing rendering...');
+    }, false);
+
+    this.renderer.domElement.addEventListener('webglcontextrestored', () => {
+      console.log('WebGL context restored. Re-initializing lights...');
+      this.initLights();
+    }, false);
 
     this.container.appendChild(this.renderer.domElement);
 
@@ -36,15 +50,12 @@ export class AppRenderer {
   }
 
   initLights() {
-    // Bright Ambient Lighting
     this.ambientLight = new THREE.AmbientLight(0x4a6fa5, 2.2);
     this.scene.add(this.ambientLight);
 
-    // Hemisphere Light: Vibrant Cyan Sky & Purple Ground bounce
     this.hemiLight = new THREE.HemisphereLight(0x00f3ff, 0x7928ca, 1.8);
     this.scene.add(this.hemiLight);
 
-    // Main Sunlight / Moonlight Directional Light
     this.dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
     this.dirLight.position.set(25, 45, -20);
     this.dirLight.castShadow = true;
@@ -61,7 +72,6 @@ export class AppRenderer {
     this.dirLight.shadow.bias = -0.0005;
     this.scene.add(this.dirLight);
 
-    // Bright Neon Point Lights for Vibrant Environment Glow
     this.cyanPointLight = new THREE.PointLight(0x00f3ff, 4.0, 80);
     this.cyanPointLight.position.set(0, 6, 15);
     this.scene.add(this.cyanPointLight);

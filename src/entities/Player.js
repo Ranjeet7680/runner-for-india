@@ -1,4 +1,4 @@
-// Player.js - 7 Original Playable Characters, Advanced Skeletal & Secondary Animations
+// Player.js - 7 Original Playable Characters, Responsive Mobile Interpolation & Animations
 import * as THREE from 'three';
 import { soundEngine } from '../audio/SoundEngine.js';
 
@@ -86,7 +86,7 @@ export class Player {
     attr.needsUpdate = true;
     this.landingParticles.visible = true;
     this.landingEffectTimer = 0.3;
-    this.compressionScale = 0.75; // Squash on landing
+    this.compressionScale = 0.75;
   }
 
   setCharacterType(type) {
@@ -102,7 +102,6 @@ export class Player {
     this.characterGroup = new THREE.Group();
 
     if (type === 'ROBOT') {
-      // 1. CYBER DROID ROBOT
       const robotMat = new THREE.MeshStandardMaterial({ color: 0x8899b0, metalness: 0.9, roughness: 0.2 });
       const coreMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
       const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff007f });
@@ -132,7 +131,6 @@ export class Player {
       this.characterGroup.add(this.leftArmPivot, this.rightArmPivot, this.leftLegPivot, this.rightLegPivot);
 
     } else if (type === 'POLICE') {
-      // 2. CID DETECTIVE POLICE SQUAD LEADER
       const skinMat = new THREE.MeshStandardMaterial({ color: 0xe0a880, roughness: 0.5 });
       const uniformMat = new THREE.MeshStandardMaterial({ color: 0x112244, roughness: 0.5 });
       const vestMat = new THREE.MeshStandardMaterial({ color: 0x0a1428, roughness: 0.4 });
@@ -379,15 +377,16 @@ export class Player {
     const gaitSpeed = (gameSpeed / 12) * 12;
     this.animTime += delta * gaitSpeed;
 
-    this.position.x = THREE.MathUtils.lerp(this.position.x, this.targetX, 0.28);
+    // Snappy Snapping Lerp for Mobile Touch Latency (0.35 factor)
+    this.position.x = THREE.MathUtils.lerp(this.position.x, this.targetX, 0.35);
 
     // Smooth Bank Angle Lean during Lane Change
     const laneShiftDelta = (this.targetX - this.position.x);
-    this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -laneShiftDelta * 0.16, 0.2);
-    this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, laneShiftDelta * 0.08, 0.2);
+    this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -laneShiftDelta * 0.18, 0.22);
+    this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, laneShiftDelta * 0.1, 0.22);
 
     if (this.isRocketFlying) {
-      this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, 0.1);
+      this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, 0.12);
       this.isGrounded = false;
     } else if (!this.isGrounded) {
       this.velocity.y += this.gravity * delta;
@@ -414,9 +413,8 @@ export class Player {
       }
     }
 
-    // Dynamic Compression & Squash Spring-back on Landing
     if (this.compressionScale < 1.0) {
-      this.compressionScale = THREE.MathUtils.lerp(this.compressionScale, 1.0, 0.15);
+      this.compressionScale = THREE.MathUtils.lerp(this.compressionScale, 1.0, 0.18);
     }
 
     this.mesh.position.copy(this.position);
@@ -427,7 +425,7 @@ export class Player {
 
   updateAnimations(gameSpeed) {
     if (this.coreReactor) {
-      this.coreReactor.scale.setScalar(1.0 + Math.sin(this.animTime * 4) * 0.2);
+      this.coreReactor.scale.setScalar(1.0 + Math.sin(this.animTime * 4) * 0.25);
     }
 
     if (this.isRocketFlying) {

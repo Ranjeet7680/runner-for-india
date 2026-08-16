@@ -88,13 +88,6 @@ export class TrainManager {
     hlRight.position.set(0.7, 1.2, -8.05);
     trainGroup.add(hlRight);
 
-    // Spot Light Beam casting on tracks
-    const spot = new THREE.SpotLight(0xffffff, 3.0, 30, Math.PI / 6, 0.5);
-    spot.position.set(0, 1.5, -8.0);
-    spot.target.position.set(xPos, 0, -30);
-    trainGroup.add(spot);
-    trainGroup.add(spot.target);
-
     // Bounding Box Hitbox setup
     const depth = (type === 'EXPRESS' ? 20.0 : (type === 'CARGO' ? 18.0 : 16.0));
     const box = new THREE.Box3();
@@ -104,7 +97,7 @@ export class TrainManager {
       type: type,
       lane: laneIndex,
       isMoving: isMoving,
-      speed: speed, // Movement towards player
+      speed: speed,
       box: box,
       width: 2.2,
       height: 3.2,
@@ -117,34 +110,41 @@ export class TrainManager {
     return trainObj;
   }
 
-  update(playerPos, delta, gameSpeed) {
+  update(gameSpeed, delta, playerPos) {
+    const pZ = (typeof playerPos === 'object' && playerPos !== null) ? playerPos.z : (typeof playerPos === 'number' ? playerPos : 0);
+
     for (let i = this.trains.length - 1; i >= 0; i--) {
       const train = this.trains[i];
 
-      // If moving train, move towards player (decreasing Z)
       if (train.isMoving) {
         train.mesh.position.z -= (gameSpeed + train.speed) * delta;
 
-        // Play horn when approaching player
-        const distZ = train.mesh.position.z - playerPos.z;
+        const distZ = train.mesh.position.z - pZ;
         if (distZ > 10 && distZ < 35 && !train.hornPlayed) {
-          soundEngine.playTrainHorn();
+          soundEngine.playSpatialTrainHorn(train.mesh.position.x, train.mesh.position.z);
           train.hornPlayed = true;
         }
       }
 
-      // Update Hitbox AABB
       train.box.setFromCenterAndSize(
         new THREE.Vector3(train.mesh.position.x, 1.6, train.mesh.position.z),
         new THREE.Vector3(train.width, train.height, train.depth)
       );
 
-      // Remove train if far behind player
-      if (train.mesh.position.z < playerPos.z - 25) {
+      if (train.mesh.position.z < pZ - 25) {
         this.scene.remove(train.mesh);
         this.trains.splice(i, 1);
       }
     }
+  }
+
+  checkCollision(playerBox) {
+    for (let i = 0; i < this.trains.length; i++) {
+      if (this.trains[i].box.intersectsBox(playerBox)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   reset() {

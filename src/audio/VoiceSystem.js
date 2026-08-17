@@ -77,39 +77,41 @@ export class VoiceSystem {
     let useHindiVoice = false;
 
     if (this.mode === 'HINDI_ENGLISH') {
-      // Alternates or speaks combined line
-      const lineH = this.lines.HINDI[key] || '';
-      text = lineH;
+      text = this.lines.HINDI[key] || '';
       useHindiVoice = true;
     } else if (this.mode === 'ENGLISH') {
       text = this.lines.ENGLISH[key] || this.lines.HINDI[key] || '';
       useHindiVoice = false;
-    } else { // HINDI default
+    } else {
       text = this.lines.HINDI[key] || '';
       useHindiVoice = true;
     }
 
     if (!text) return;
 
-    try {
-      this.synth.cancel(); // Prevent audio stack delay
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1;
-      utterance.pitch = 1.05;
-      utterance.volume = this.volume;
+    setTimeout(() => {
+      try {
+        if (this.synth.speaking || this.synth.pending) {
+          this.synth.cancel();
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.1;
+        utterance.pitch = 1.05;
+        utterance.volume = this.volume;
 
-      if (useHindiVoice && this.hindiVoice) {
-        utterance.voice = this.hindiVoice;
-        utterance.lang = 'hi-IN';
-      } else if (this.englishVoice) {
-        utterance.voice = this.englishVoice;
-        utterance.lang = 'en-US';
+        if (useHindiVoice && this.hindiVoice) {
+          utterance.voice = this.hindiVoice;
+          utterance.lang = 'hi-IN';
+        } else if (this.englishVoice) {
+          utterance.voice = this.englishVoice;
+          utterance.lang = 'en-US';
+        }
+
+        this.synth.speak(utterance);
+      } catch (e) {
+        console.warn('Voice synthesis error:', e);
       }
-
-      this.synth.speak(utterance);
-    } catch (e) {
-      console.warn('Voice synthesis error:', e);
-    }
+    }, 0);
   }
 
   setVolume(vol) {

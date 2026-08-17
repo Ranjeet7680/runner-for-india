@@ -138,9 +138,13 @@ export class TrainManager {
     }
   }
 
-  checkCollision(playerBox) {
+  checkCollision(playerBox, playerY = 0) {
     for (let i = 0; i < this.trains.length; i++) {
-      if (this.trains[i].box.intersectsBox(playerBox)) {
+      const t = this.trains[i];
+      if (t.box.intersectsBox(playerBox)) {
+        if (playerY > 2.8) {
+          continue; // Player is jumping high or flying above train roof!
+        }
         return true;
       }
     }

@@ -114,9 +114,16 @@ export class ObstacleManager {
     }
   }
 
-  checkCollision(playerBox) {
+  checkCollision(playerBox, isSliding = false, isJumping = false, playerY = 0) {
     for (let i = 0; i < this.obstacles.length; i++) {
-      if (this.obstacles[i].box.intersectsBox(playerBox)) {
+      const obs = this.obstacles[i];
+      if (obs.box.intersectsBox(playerBox)) {
+        if (obs.type === 'HIGH_BARRIER' && (isSliding || playerY <= 0.2)) {
+          continue; // Slide safely under high barrier!
+        }
+        if ((obs.type === 'LOW_BARRIER' || obs.type === 'CONES') && (isJumping || playerY > 0.8)) {
+          continue; // Jump safely over low hurdle!
+        }
         return true;
       }
     }

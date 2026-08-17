@@ -366,6 +366,13 @@ export class Game {
     this.cityGenerator.update(this.player.position.z, delta);
     this.weatherSystem.update(this.player.position.z, delta);
 
+    const coinsGathered = this.coinManager.update(this.player.position, this.player.magnetActive, delta);
+    if (coinsGathered > 0) {
+      const multiplier = this.player.doubleScoreActive ? 2 : 1;
+      this.scoreManager.addCoins(coinsGathered * multiplier);
+      if (Math.random() < 0.15) voiceSystem.speak('COIN');
+    }
+
     this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta, this.gameSpeed);
     this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);
     this.uiManager.updatePowerUpBadges(this.powerUpManager.activePowerups, this.powerUpManager.durations);
@@ -390,33 +397,15 @@ export class Game {
   }
 
   checkCollisions() {
-    if (this.trainManager.checkCollision(this.player.box)) {
+    if (this.trainManager.checkCollision(this.player.box, this.player.position.y)) {
       voiceSystem.speak('TRAIN');
       this.handlePlayerCrash();
       return;
     }
 
-    if (this.obstacleManager.checkCollision(this.player.box)) {
+    if (this.obstacleManager.checkCollision(this.player.box, this.player.isSliding, this.player.isJumping, this.player.position.y)) {
       this.handlePlayerCrash();
       return;
-    }
-
-    const coinsGathered = this.coinManager.checkCollections(this.player.box);
-    if (coinsGathered > 0) {
-      const multiplier = this.player.doubleScoreActive ? 2 : 1;
-      this.scoreManager.addCoins(coinsGathered * multiplier);
-      soundEngine.playCoin();
-      if (Math.random() < 0.1) voiceSystem.speak('COIN');
-    }
-
-    const powerUpType = this.powerUpManager.checkPickups(this.player.box);
-    if (powerUpType) {
-      soundEngine.playPowerup();
-      this.player.setPowerupVisual(powerUpType, true);
-
-      if (powerUpType === 'AIR_ROCKET') voiceSystem.speak('ROCKET');
-      else if (powerUpType === 'SAFETY_BUBBLE') voiceSystem.speak('SAFETY_BUBBLE');
-      else if (powerUpType === 'DOUBLE_COIN') voiceSystem.speak('DOUBLE_COINS');
     }
   }
 

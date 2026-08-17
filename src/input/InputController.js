@@ -108,12 +108,13 @@ export class InputController {
   initOnScreenMobileButtons() {
     const bindBtn = (id, eventName) => {
       const btn = document.getElementById(id);
-      if (!btn) return;
+      if (!btn || btn.dataset.bound) return;
+      btn.dataset.bound = 'true';
 
       let lastTrigger = 0;
       const handlePress = (e) => {
         const now = Date.now();
-        if (now - lastTrigger < 100) return;
+        if (now - lastTrigger < 120) return;
         lastTrigger = now;
 
         if (e.cancelable) e.preventDefault();
@@ -124,20 +125,24 @@ export class InputController {
         this.emit(eventName);
       };
 
-      btn.addEventListener('pointerdown', handlePress, { passive: false });
-      btn.addEventListener('touchstart', handlePress, { passive: false });
+      if (window.PointerEvent) {
+        btn.addEventListener('pointerdown', handlePress, { passive: false });
+      } else {
+        btn.addEventListener('touchstart', handlePress, { passive: false });
+      }
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
+    const setupAll = () => {
       bindBtn('touch-btn-left', 'left');
       bindBtn('touch-btn-right', 'right');
       bindBtn('touch-btn-up', 'jump');
       bindBtn('touch-btn-down', 'slide');
-    });
+    };
 
-    bindBtn('touch-btn-left', 'left');
-    bindBtn('touch-btn-right', 'right');
-    bindBtn('touch-btn-up', 'jump');
-    bindBtn('touch-btn-down', 'slide');
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAll);
+    } else {
+      setupAll();
+    }
   }
 }

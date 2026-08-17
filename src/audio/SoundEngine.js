@@ -71,6 +71,7 @@ export class SoundEngine {
   }
 
   setMusicTrack(trackKey) {
+    this.stopCustomSong();
     this.currentTrack = trackKey;
     if (this.musicPlaying) {
       this.stopMusic();
@@ -78,7 +79,41 @@ export class SoundEngine {
     }
   }
 
+  playCustomSongUrl(url) {
+    if (!url) return;
+    this.stopMusic();
+    this.stopLobbyMusic();
+
+    if (this.customAudio) {
+      this.customAudio.pause();
+      this.customAudio = null;
+    }
+
+    try {
+      this.customAudio = new Audio(url);
+      this.customAudio.loop = true;
+      this.customAudio.volume = this.volumes.music || 0.7;
+      this.customAudio.play().then(() => {
+        console.log('Custom song playing in loop:', url);
+        this.isCustomSongActive = true;
+      }).catch(err => {
+        console.warn('Custom song playback error:', err);
+      });
+    } catch (e) {
+      console.warn('Invalid custom audio URL:', e);
+    }
+  }
+
+  stopCustomSong() {
+    if (this.customAudio) {
+      this.customAudio.pause();
+      this.customAudio = null;
+    }
+    this.isCustomSongActive = false;
+  }
+
   startMusic() {
+    if (this.isCustomSongActive) return;
     if (this.isMuted || !this.ctx || this.musicPlaying) return;
     this.ensureContext();
     this.stopLobbyMusic();
@@ -92,6 +127,7 @@ export class SoundEngine {
   }
 
   startLobbyMusic() {
+    if (this.isCustomSongActive) return;
     if (this.isMuted || !this.ctx || this.lobbyPlaying) return;
     this.ensureContext();
     this.stopMusic();

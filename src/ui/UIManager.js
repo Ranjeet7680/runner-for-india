@@ -113,7 +113,18 @@ export class UIManager {
     document.getElementById('btn-nav-referral')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-nav-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.showModal(this.modalSettings); });
 
-    // Menu Close Buttons
+    // Universal Close Button Handlers
+    document.querySelectorAll('.close-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundEngine.playClick();
+        if (this.charPreview) this.charPreview.stop();
+        this.closeAllModals();
+        if (this.game.state !== 'PLAYING') {
+          this.showScreen(this.screenWelcome);
+        }
+      });
+    });
+
     document.getElementById('btn-close-chars')?.addEventListener('click', () => {
       soundEngine.playClick();
       if (this.charPreview) this.charPreview.stop();
@@ -123,6 +134,19 @@ export class UIManager {
     document.getElementById('btn-close-missions')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
     document.getElementById('btn-close-rewards')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
     document.getElementById('btn-close-referral')?.addEventListener('click', () => { soundEngine.playClick(); this.hideModal(this.modalReferral); });
+    document.getElementById('btn-close-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.hideModal(this.modalSettings); });
+
+    // Custom Song URL Play Button
+    document.getElementById('btn-play-custom-song')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      const input = document.getElementById('setting-custom-song-url');
+      if (input && input.value) {
+        soundEngine.playCustomSongUrl(input.value.trim());
+        alert('🎵 Custom BGM Song URL loaded & playing in loop!');
+      } else {
+        alert('Please enter a valid audio URL (e.g. https://example.com/song.mp3)');
+      }
+    });
 
     // Referral Modal Share & Redeem Buttons
     document.getElementById('btn-share-whatsapp')?.addEventListener('click', () => {

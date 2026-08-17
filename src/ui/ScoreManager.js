@@ -1,4 +1,4 @@
-// ScoreManager.js - Score, High Score Storage & Stats Tracking
+import { progressManager } from '../progression/ProgressManager.js';
 
 export class ScoreManager {
   constructor() {
@@ -19,26 +19,22 @@ export class ScoreManager {
   }
 
   loadHighScore() {
-    return parseInt(localStorage.getItem('NEXORA_HIGH_SCORE') || '0', 10);
+    return progressManager.highScore;
   }
 
   loadBestDistance() {
-    return parseInt(localStorage.getItem('NEXORA_BEST_DISTANCE') || '0', 10);
+    return progressManager.bestDistance;
   }
 
   saveHighScore() {
-    if (this.score > this.highScore) {
-      this.highScore = this.score;
-      localStorage.setItem('NEXORA_HIGH_SCORE', this.highScore.toString());
-      return true; // New High Score Record!
-    }
-    return false;
+    return progressManager.updateHighScore(Math.floor(this.score));
   }
 
   saveBestDistance() {
     if (this.distance > this.bestDistance) {
-      this.bestDistance = this.distance;
-      localStorage.setItem('NEXORA_BEST_DISTANCE', this.bestDistance.toString());
+      this.bestDistance = Math.floor(this.distance);
+      progressManager.bestDistance = this.bestDistance;
+      progressManager.save();
     }
   }
 

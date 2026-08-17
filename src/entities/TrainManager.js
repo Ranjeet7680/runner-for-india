@@ -163,6 +163,7 @@ export class TrainManager {
         const distZ = train.mesh.position.z - pZ;
         if (distZ > 10 && distZ < 35 && !train.hornPlayed) {
           soundEngine.playSpatialTrainHorn(train.mesh.position.x, train.mesh.position.z);
+          soundEngine.playTrainEnginePass(train.mesh.position.x);
           train.hornPlayed = true;
         }
       }

@@ -259,33 +259,60 @@ export class SoundEngine {
 
     const osc1 = this.ctx.createOscillator();
     const osc2 = this.ctx.createOscillator();
+    const osc3 = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
     osc1.type = 'sawtooth';
     osc2.type = 'sawtooth';
+    osc3.type = 'square';
 
-    osc1.frequency.setValueAtTime(220, this.ctx.currentTime);
-    osc2.frequency.setValueAtTime(277.18, this.ctx.currentTime); // Dual tone chord (A3 + C#4)
+    // Train Locomotive 3-Note Horn Chord (A3, C#4, E4)
+    osc1.frequency.setValueAtTime(220.00, this.ctx.currentTime);
+    osc2.frequency.setValueAtTime(277.18, this.ctx.currentTime);
+    osc3.frequency.setValueAtTime(329.63, this.ctx.currentTime);
 
-    osc1.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.65);
-    osc2.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.65);
+    // Doppler Shift Pitch Decay
+    osc1.frequency.exponentialRampToValueAtTime(175.00, this.ctx.currentTime + 0.75);
+    osc2.frequency.exponentialRampToValueAtTime(220.00, this.ctx.currentTime + 0.75);
+    osc3.frequency.exponentialRampToValueAtTime(261.63, this.ctx.currentTime + 0.75);
 
-    gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.65);
+    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.75);
 
+    const dest = this.gainNodes.train || this.masterGain;
     if (panner) {
-      osc1.connect(panner);
-      osc2.connect(panner);
-      panner.connect(this.gainNodes.train || this.masterGain);
+      osc1.connect(panner); osc2.connect(panner); osc3.connect(panner);
+      panner.connect(dest);
     } else {
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(this.gainNodes.train || this.masterGain);
+      osc1.connect(gain); osc2.connect(gain); osc3.connect(gain);
+      gain.connect(dest);
     }
 
-    osc1.start(); osc2.start();
-    osc1.stop(this.ctx.currentTime + 0.65);
-    osc2.stop(this.ctx.currentTime + 0.65);
+    osc1.start(); osc2.start(); osc3.start();
+    osc1.stop(this.ctx.currentTime + 0.75);
+    osc2.stop(this.ctx.currentTime + 0.75);
+    osc3.stop(this.ctx.currentTime + 0.75);
+  }
+
+  playTrainEnginePass(xPos) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80.0, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(35.0, this.ctx.currentTime + 0.4);
+
+    gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.42);
+
+    osc.connect(gain);
+    gain.connect(this.gainNodes.train || this.masterGain);
+
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.42);
   }
 
   playJump() {

@@ -9,6 +9,15 @@ export class ScoreManager {
     this.bestDistance = this.loadBestDistance();
   }
 
+  get coinsCollected() {
+    return this.coins;
+  }
+
+  update(delta, gameSpeed, isDoubleScore = false) {
+    const distThisFrame = gameSpeed * delta;
+    this.addDistance(distThisFrame, isDoubleScore);
+  }
+
   loadHighScore() {
     return parseInt(localStorage.getItem('NEXORA_HIGH_SCORE') || '0', 10);
   }

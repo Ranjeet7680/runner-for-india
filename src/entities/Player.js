@@ -485,6 +485,12 @@ export class Player {
       this.superJumpActive = active;
     } else if (type === 'AIR_ROCKET') {
       this.setRocketFlight(active);
+    } else if (type === 'MAGNET') {
+      this.magnetActive = active;
+    } else if (type === 'DOUBLE_COIN') {
+      this.doubleScoreActive = active;
+    } else if (type === 'SPEED_BOOST') {
+      this.speedActive = active;
     }
   }
 
@@ -498,6 +504,12 @@ export class Player {
     this.isSliding = false;
     this.isRocketFlying = false;
     this.rocketBoard.visible = false;
+    this.shieldActive = false;
+    this.superJumpActive = false;
+    this.magnetActive = false;
+    this.doubleScoreActive = false;
+    this.speedActive = false;
+    if (this.shieldMesh) this.shieldMesh.visible = false;
     this.compressionScale = 1.0;
     if (this.landingParticles) this.landingParticles.visible = false;
   }

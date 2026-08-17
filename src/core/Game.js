@@ -61,6 +61,7 @@ export class Game {
 
     // Location Banner Tracking
     this.lastLocationMilestone = 0;
+    this.nextSpawnZ = 40;
 
     this.initInputs();
     this.simulateAssetLoading();
@@ -173,6 +174,7 @@ export class Game {
     this.gameSpeed = this.baseSpeed;
     this.distanceTraveled = 0;
     this.lastLocationMilestone = 0;
+    this.nextSpawnZ = 40;
     this.player.reset();
     this.scoreManager.reset();
 
@@ -182,6 +184,49 @@ export class Game {
     this.powerUpManager.reset();
     this.coinManager.reset();
     this.policeNPCManager.reset();
+  }
+
+  spawnWorldAhead() {
+    while (this.nextSpawnZ < this.player.position.z + 200) {
+      const z = this.nextSpawnZ;
+      const rand = Math.random();
+      const lane = Math.floor(Math.random() * 3); // 0, 1, 2
+
+      if (rand < 0.35) {
+        const types = ['LOW_BARRIER', 'HIGH_BARRIER', 'CONES'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        this.obstacleManager.createObstacle(type, lane, z);
+      } else if (rand < 0.65) {
+        const types = ['METRO', 'CARGO', 'EXPRESS'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const isMoving = Math.random() < 0.4;
+        const speed = isMoving ? 10 + Math.random() * 8 : 0;
+        this.trainManager.createTrain(type, lane, z, isMoving, speed);
+      }
+
+      if (Math.random() < 0.7) {
+        const patterns = ['LINE', 'ARCH', 'ZIGZAG'];
+        const pat = patterns[Math.floor(Math.random() * patterns.length)];
+        const coinLane = (lane + 1) % 3;
+        this.coinManager.spawnPattern(pat, coinLane, z + 4);
+      }
+
+      if (Math.random() < 0.22) {
+        const pTypes = ['AIR_ROCKET', 'JUMP_SHOES', 'DOUBLE_COIN', 'SAFETY_BUBBLE', 'MAGNET'];
+        const pType = pTypes[Math.floor(Math.random() * pTypes.length)];
+        const pLane = (lane + 2) % 3;
+        this.powerUpManager.spawnPowerUp(pType, pLane, z + 12);
+      }
+
+      if (Math.random() < 0.25) {
+        const pTypes = ['DIRECTING_TRAFFIC', 'WALKING', 'STANDING'];
+        const pType = pTypes[Math.floor(Math.random() * pTypes.length)];
+        const sideX = Math.random() > 0.5 ? 4.5 : -4.5;
+        this.policeNPCManager.spawnPolice(sideX, z + 8, pType);
+      }
+
+      this.nextSpawnZ += 28 + Math.random() * 12;
+    }
   }
 
   handlePlayerCrash() {
@@ -306,18 +351,20 @@ export class Game {
       soundEngine.playPowerup();
     }
 
-    this.scoreManager.update(delta, this.gameSpeed);
+    this.scoreManager.update(delta, this.gameSpeed, this.player.doubleScoreActive);
     this.player.update(delta, this.gameSpeed, this.distanceTraveled);
+
+    this.spawnWorldAhead();
 
     this.trackManager.update(this.player.position.z);
     this.trainManager.update(this.gameSpeed, delta, this.player.position);
     this.obstacleManager.update(this.gameSpeed, delta, this.player.position.z);
-    this.powerUpManager.update(this.gameSpeed, delta, this.player.position);
-    this.coinManager.update(this.gameSpeed, delta, this.player.position, this.player.magnetActive);
+    this.powerUpManager.update(this.player.position, this.player, delta);
+    this.coinManager.update(this.player.position, this.player.magnetActive, delta);
 
-    this.policeNPCManager.update(delta, this.player.position, this.gameSpeed);
+    this.policeNPCManager.update(this.player.position, delta);
     this.cityGenerator.update(this.player.position.z, delta);
-    this.weatherSystem.update(delta, this.player.position);
+    this.weatherSystem.update(this.player.position.z, delta);
 
     this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta);
     this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);

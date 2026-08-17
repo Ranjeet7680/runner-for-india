@@ -110,7 +110,7 @@ export class TrackManager {
   update(playerZ) {
     if (this.chunks.length > 0) {
       const firstChunk = this.chunks[0];
-      if (firstChunk.position.z < playerZ - 30) {
+      if (firstChunk.position.z + (this.chunkLength / 2) < playerZ - 30) {
         this.scene.remove(firstChunk);
         this.chunks.shift();
         this.createChunk(this.spawnZ);

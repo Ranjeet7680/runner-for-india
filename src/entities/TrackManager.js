@@ -12,6 +12,8 @@ export class TrackManager {
     this.railGeo = new THREE.BoxGeometry(0.14, 0.16, this.chunkLength);
     this.sleeperGeo = new THREE.BoxGeometry(2.1, 0.1, 0.3);
     this.ballastGeo = new THREE.BoxGeometry(10.0, 0.4, this.chunkLength);
+    this.groundGeo = new THREE.BoxGeometry(250.0, 0.2, this.chunkLength);
+    this.grassStripGeo = new THREE.BoxGeometry(8.0, 0.3, this.chunkLength);
     this.catenaryPoleGeo = new THREE.CylinderGeometry(0.16, 0.22, 9.5, 8);
     this.catenaryBeamGeo = new THREE.BoxGeometry(12.5, 0.25, 0.25);
     this.wallGeo = new THREE.BoxGeometry(0.4, 0.8, this.chunkLength);
@@ -27,6 +29,8 @@ export class TrackManager {
 
     this.sleeperMat = new THREE.MeshStandardMaterial({ color: 0x3a2518, roughness: 0.8 });
     this.ballastMat = new THREE.MeshStandardMaterial({ color: 0x161e33, roughness: 0.9 });
+    this.groundMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.8, metalness: 0.1 });
+    this.grassStripMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 0.7 });
     this.wallMat = new THREE.MeshStandardMaterial({ color: 0x162036, roughness: 0.7 });
     this.wallNeonMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
     
@@ -52,6 +56,21 @@ export class TrackManager {
   createChunk(zPos) {
     const chunkGroup = new THREE.Group();
     chunkGroup.position.z = zPos;
+
+    const ground = new THREE.Mesh(this.groundGeo, this.groundMat);
+    ground.position.set(0, -0.4, 0);
+    ground.receiveShadow = true;
+    chunkGroup.add(ground);
+
+    const grassL = new THREE.Mesh(this.grassStripGeo, this.grassStripMat);
+    grassL.position.set(-9.0, -0.15, 0);
+    grassL.receiveShadow = true;
+    chunkGroup.add(grassL);
+
+    const grassR = new THREE.Mesh(this.grassStripGeo, this.grassStripMat);
+    grassR.position.set(9.0, -0.15, 0);
+    grassR.receiveShadow = true;
+    chunkGroup.add(grassR);
 
     const ballast = new THREE.Mesh(this.ballastGeo, this.ballastMat);
     ballast.position.set(0, -0.2, 0);

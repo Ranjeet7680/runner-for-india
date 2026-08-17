@@ -207,29 +207,29 @@ export class CityGenerator {
 
   setMap(mapType) {
     this.currentMap = mapType;
-    if (mapType === 'DAY_METRO') {
-      this.skyColor.setHex(0x1a5bb0);
-      this.scene.fog.color.setHex(0x1a5bb0);
+    if (mapType === 'DAY_METRO' || mapType === 'SKY_BLUE') {
+      this.skyColor.setHex(0x38bdf8); // Sky Blue
+      this.scene.fog.color.setHex(0x38bdf8);
       this.moonSphere.material.color.setHex(0xffea00);
       this.moonHalo.material.color.setHex(0xffaa00);
-    } else if (mapType === 'NIGHT_METRO') {
-      this.skyColor.setHex(0x060e20);
-      this.scene.fog.color.setHex(0x060e20);
+    } else if (mapType === 'SUNSET_ORANGE' || mapType === 'DHANBAD_RAIL') {
+      this.skyColor.setHex(0xff6600); // Sunset Orange
+      this.scene.fog.color.setHex(0xff6600);
+      this.moonSphere.material.color.setHex(0xffaa00);
+      this.moonHalo.material.color.setHex(0xff3300);
+    } else if (mapType === 'CYBER_PINK' || mapType === 'MUMBAI_METRO') {
+      this.skyColor.setHex(0xff007f); // Cyberpunk Pink
+      this.scene.fog.color.setHex(0xff007f);
+      this.moonSphere.material.color.setHex(0x00ffff);
+      this.moonHalo.material.color.setHex(0xd946ef);
+    } else if (mapType === 'NIGHT_METRO' || mapType === 'DARK_BLUE') {
+      this.skyColor.setHex(0x0a192f); // Midnight Dark Blue
+      this.scene.fog.color.setHex(0x0a192f);
       this.moonSphere.material.color.setHex(0x00ffff);
       this.moonHalo.material.color.setHex(0x00f3ff);
-    } else if (mapType === 'MUMBAI_METRO') {
-      this.skyColor.setHex(0x091e42);
-      this.scene.fog.color.setHex(0x091e42);
-      this.moonSphere.material.color.setHex(0x00e5ff);
-      this.moonHalo.material.color.setHex(0x00b0ff);
-    } else if (mapType === 'DHANBAD_RAIL') {
-      this.skyColor.setHex(0x2b1c10);
-      this.scene.fog.color.setHex(0x2b1c10);
-      this.moonSphere.material.color.setHex(0xff6600);
-      this.moonHalo.material.color.setHex(0xffaa00);
     } else {
-      this.skyColor.setHex(0x060e20);
-      this.scene.fog.color.setHex(0x060e20);
+      this.skyColor.setHex(0x0a192f);
+      this.scene.fog.color.setHex(0x0a192f);
       this.moonSphere.material.color.setHex(0x00ffff);
       this.moonHalo.material.color.setHex(0x00f3ff);
     }
@@ -237,15 +237,21 @@ export class CityGenerator {
   }
 
   toggleDayNightMode() {
-    if (this.currentMap === 'NIGHT_METRO') {
-      this.setMap('DAY_METRO');
-      return 'DAY';
-    } else if (this.currentMap === 'DAY_METRO') {
+    if (this.currentMap === 'DAY_METRO') {
+      this.setMap('SUNSET_ORANGE');
+      return 'ORANGE';
+    } else if (this.currentMap === 'SUNSET_ORANGE') {
+      this.setMap('CYBER_PINK');
+      return 'PINK';
+    } else if (this.currentMap === 'CYBER_PINK') {
+      this.setMap('NIGHT_METRO');
+      return 'DARK_BLUE';
+    } else if (this.currentMap === 'NIGHT_METRO') {
       this.setMap('DYNAMIC_DAY_NIGHT');
       return 'DYNAMIC';
     } else {
-      this.setMap('NIGHT_METRO');
-      return 'NIGHT';
+      this.setMap('DAY_METRO');
+      return 'SKY_BLUE';
     }
   }
 

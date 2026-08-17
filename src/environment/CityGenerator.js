@@ -537,37 +537,124 @@ export class CityGenerator {
   createSnowMountainPeak(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const snowMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
-    const peak = new THREE.Mesh(new THREE.ConeGeometry(18, 30, 6), snowMat); peak.position.y = 15;
-    group.add(peak);
-    this.scene.add(group); this.landmarks.push(group);
+
+    // Multi-Layer Himalayan Mountain Base with Slate Granite & Snow Cap
+    const rockMat = new THREE.MeshStandardMaterial({
+      color: 0x64748b,
+      roughness: 0.9,
+      map: this.rockyMountainTexture || this.concreteTexture
+    });
+
+    const snowCapMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.3,
+      metalness: 0.1
+    });
+
+    // Main Mountain Mass
+    const baseMountain = new THREE.Mesh(new THREE.ConeGeometry(22, 34, 12), rockMat);
+    baseMountain.position.y = 17;
+    baseMountain.castShadow = true;
+    baseMountain.receiveShadow = true;
+    group.add(baseMountain);
+
+    // Pure White Snow Cap Top
+    const snowCap = new THREE.Mesh(new THREE.ConeGeometry(9, 14, 12), snowCapMat);
+    snowCap.position.y = 27;
+    group.add(snowCap);
+
+    // Alpine Pine Trees around Base
+    const pineTreeGeo = new THREE.ConeGeometry(1.8, 6, 8);
+    const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 3, 6);
+    const pineMat = new THREE.MeshStandardMaterial({ color: 0x1e3a29, roughness: 0.7 });
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a2e18, roughness: 0.9 });
+
+    const offsets = [[-8, 0, 5], [8, 0, 6], [-12, 0, -4], [10, 0, -5]];
+    offsets.forEach(([px, py, pz]) => {
+      const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+      trunk.position.set(px, 1.5, pz);
+      group.add(trunk);
+
+      const foliage = new THREE.Mesh(pineTreeGeo, pineMat);
+      foliage.position.set(px, 4.5, pz);
+      group.add(foliage);
+    });
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createMountainMonastery(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xee3322 });
-    const temple = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 10), mat); temple.position.y = 4;
+
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0xee3322, map: this.redSandstoneTexture });
+    const roofMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9 });
+
+    const temple = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 10), stoneMat);
+    temple.position.y = 4;
     group.add(temple);
-    this.scene.add(group); this.landmarks.push(group);
+
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(8, 5, 4), roofMat);
+    roof.rotation.y = Math.PI / 4;
+    roof.position.y = 10.5;
+    group.add(roof);
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createPinkCityPalace(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff85a1 });
-    const palace = new THREE.Mesh(new THREE.BoxGeometry(12, 16, 8), pinkMat); palace.position.y = 8;
-    group.add(palace);
-    this.scene.add(group); this.landmarks.push(group);
+
+    const pinkMat = new THREE.MeshStandardMaterial({
+      color: 0xee5253,
+      roughness: 0.6,
+      map: this.pinkSandstoneTexture || this.redSandstoneTexture
+    });
+
+    const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+
+    // Main Palace Body
+    const palaceBase = new THREE.Mesh(new THREE.BoxGeometry(16, 18, 10), pinkMat);
+    palaceBase.position.y = 9;
+    palaceBase.castShadow = true;
+    palaceBase.receiveShadow = true;
+    group.add(palaceBase);
+
+    // Tiered Palace Towers & Cupola Domes
+    const domeMat = new THREE.MeshStandardMaterial({ color: 0xff85a1, roughness: 0.4 });
+    for (let i = -6; i <= 6; i += 4) {
+      const turret = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.0, 19, 8), pinkMat);
+      turret.position.set(i, 9.5, 5.1);
+      group.add(turret);
+
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(1.1, 12, 12), domeMat);
+      dome.position.set(i, 19.5, 5.1);
+      group.add(dome);
+
+      const spire = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.5, 6), goldMat);
+      spire.position.set(i, 21.0, 5.1);
+      group.add(spire);
+    }
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createDesertDunes(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
+
     const sandMat = new THREE.MeshStandardMaterial({ color: 0xf4d35e, roughness: 0.9 });
-    const dune = new THREE.Mesh(new THREE.SphereGeometry(14, 8, 8), sandMat); dune.position.set(0, -5, 0); dune.scale.set(1.5, 0.4, 1.5);
+    const dune = new THREE.Mesh(new THREE.SphereGeometry(14, 12, 12), sandMat);
+    dune.position.set(0, -5, 0);
+    dune.scale.set(1.5, 0.4, 1.5);
     group.add(dune);
-    this.scene.add(group); this.landmarks.push(group);
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createGoldenShrine(x, z) {

@@ -382,10 +382,6 @@ export class Game {
 
     this.trackManager.update(this.player.position.z);
     this.trainManager.update(this.gameSpeed, delta, this.player.position);
-    this.obstacleManager.update(this.gameSpeed, delta, this.player.position.z);
-    this.powerUpManager.update(this.player.position, this.player, delta);
-    this.coinManager.update(this.player.position, this.player.magnetActive, delta);
-
     this.policeNPCManager.update(this.player.position, delta);
     this.cityGenerator.update(this.player.position.z, delta);
     this.weatherSystem.update(this.player.position.z, delta);
@@ -394,6 +390,7 @@ export class Game {
     if (coinsGathered > 0) {
       const multiplier = this.player.doubleScoreActive ? 2 : 1;
       this.scoreManager.addCoins(coinsGathered * multiplier);
+      this.uiManager.showCoinPopup(coinsGathered * multiplier);
       if (Math.random() < 0.15) voiceSystem.speak('COIN');
     }
 

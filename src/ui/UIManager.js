@@ -438,6 +438,34 @@ export class UIManager {
     });
   }
 
+  showCoinPopup(amount) {
+    const hudCoins = document.getElementById('hud-coins-val');
+    if (!hudCoins) return;
+
+    const popup = document.createElement('div');
+    popup.textContent = `+${amount} 🪙`;
+    popup.style.cssText = `
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffaa00;
+      pointer-events: none;
+      animation: coinFloatUp 0.6s ease-out forwards;
+      z-index: 9999;
+    `;
+    const parent = hudCoins.parentElement;
+    if (parent) {
+      if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+      parent.appendChild(popup);
+      setTimeout(() => popup.remove(), 600);
+    }
+  }
+
   showAchievementToast(ach) {
     if (!this.achievementToast) return;
     if (this.toastTitle) this.toastTitle.textContent = ach.title;

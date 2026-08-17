@@ -117,6 +117,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.75, 0);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), robotMat);
+      this.headMesh = head;
       this.headGroup.add(head);
 
       const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.1, 0.42), eyeMat);
@@ -148,6 +149,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.7, 0);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.45, 0.42), skinMat);
+      this.headMesh = head;
       this.headGroup.add(head);
 
       const cap = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.15, 0.48), uniformMat);
@@ -179,6 +181,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.65, 0);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.4, 0.38), skinMat);
+      this.headMesh = head;
       this.headGroup.add(head);
 
       const hair = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.2, 0.42), hairMat);
@@ -209,6 +212,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.7, 0);
       const dome = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 12), alienMat);
+      this.headMesh = dome;
       this.headGroup.add(dome);
 
       const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat);
@@ -240,6 +244,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 0.75, 0.35);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), petMat);
+      this.headMesh = head;
       this.headGroup.add(head);
 
       const earGeo = isDog ? new THREE.BoxGeometry(0.1, 0.2, 0.1) : new THREE.ConeGeometry(0.1, 0.25, 4);
@@ -283,6 +288,7 @@ export class Player {
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.7, 0);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.45, 0.42), skinMat);
+      this.headMesh = head;
       this.headGroup.add(head);
 
       // Visor / Headband Accent
@@ -308,6 +314,12 @@ export class Player {
     this.characterGroup.add(this.rocketBoard);
 
     this.mesh.add(this.characterGroup);
+
+    // Apply custom face texture if present
+    const savedFace = this.customFaceDataUrl || localStorage.getItem('nexora_custom_face');
+    if (savedFace) {
+      this.setCustomFaceImage(savedFace);
+    }
   }
 
   createPivot(x, y, mat, shoeMat = null) {
@@ -536,6 +548,48 @@ export class Player {
     this.speedActive = false;
     if (this.shieldMesh) this.shieldMesh.visible = false;
     this.compressionScale = 1.0;
-    if (this.landingParticles) this.landingParticles.visible = false;
+  }
+
+  setCustomFaceImage(dataUrl) {
+    if (!dataUrl) return;
+    this.customFaceDataUrl = dataUrl;
+    const loader = new THREE.TextureLoader();
+    loader.load(dataUrl, (texture) => {
+      this.customFaceTexture = texture;
+      this.applyFaceTextureToHead();
+      try {
+        localStorage.setItem('nexora_custom_face', dataUrl);
+      } catch (e) {
+        console.warn('Could not save face image to localStorage:', e);
+      }
+    });
+  }
+
+  removeCustomFaceImage() {
+    this.customFaceDataUrl = null;
+    this.customFaceTexture = null;
+    try {
+      localStorage.removeItem('nexora_custom_face');
+    } catch (e) {}
+    this.setCharacterType(this.characterType);
+  }
+
+  applyFaceTextureToHead() {
+    if (!this.customFaceTexture || !this.headMesh) return;
+    const faceMat = new THREE.MeshStandardMaterial({
+      map: this.customFaceTexture,
+      roughness: 0.4,
+      metalness: 0.1
+    });
+
+    const baseMat = Array.isArray(this.headMesh.material) ? this.headMesh.material[0] : this.headMesh.material;
+    this.headMesh.material = [
+      baseMat, // +X right
+      baseMat, // -X left
+      baseMat, // +Y top
+      baseMat, // -Y bottom
+      faceMat, // +Z front face (CUSTOM FACE PHOTO!)
+      baseMat  // -Z back
+    ];
   }
 }

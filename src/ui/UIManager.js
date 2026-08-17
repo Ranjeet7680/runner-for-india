@@ -158,6 +158,42 @@ export class UIManager {
       }
     });
 
+    // Custom Character Face Image Upload
+    const inputFace = document.getElementById('input-custom-face');
+    const btnRemoveFace = document.getElementById('btn-remove-face');
+
+    if (localStorage.getItem('nexora_custom_face') && btnRemoveFace) {
+      btnRemoveFace.style.display = 'block';
+    }
+
+    inputFace?.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        soundEngine.playClick();
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const dataUrl = evt.target.result;
+          if (this.game.player) {
+            this.game.player.setCustomFaceImage(dataUrl);
+          }
+          if (this.charPreview && this.charPreview.player) {
+            this.charPreview.player.setCustomFaceImage(dataUrl);
+          }
+          if (btnRemoveFace) btnRemoveFace.style.display = 'block';
+          alert('📸 Custom Face Photo successfully applied to your character!');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    btnRemoveFace?.addEventListener('click', () => {
+      soundEngine.playClick();
+      if (this.game.player) this.game.player.removeCustomFaceImage();
+      if (this.charPreview && this.charPreview.player) this.charPreview.player.removeCustomFaceImage();
+      btnRemoveFace.style.display = 'none';
+      alert('Custom face photo removed.');
+    });
+
     // Referral Modal Share & Redeem Buttons
     document.getElementById('btn-share-whatsapp')?.addEventListener('click', () => {
       soundEngine.playClick();

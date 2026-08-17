@@ -136,6 +136,13 @@
         <div class="preview-card">
           <div id="char-preview-container"></div>
           <span id="preview-char-name" class="char-preview-title">BOY</span>
+          <div class="custom-face-controls" style="margin-top:8px; display:flex; flex-direction:column; align-items:center; gap:6px; width:100%;">
+            <label for="input-custom-face" class="btn-secondary" style="font-size:0.75rem; padding:6px 10px; min-height:36px; text-align:center; display:flex; align-items:center; justify-content:center; cursor:pointer; background: linear-gradient(135deg, rgba(0,243,255,0.2), rgba(121,40,202,0.3)); border-color: var(--primary-cyan);">
+              📸 ADD FACE PHOTO
+            </label>
+            <input type="file" id="input-custom-face" accept="image/*" style="display:none;">
+            <button id="btn-remove-face" class="btn-danger" style="font-size:0.75rem; padding:4px 8px; min-height:30px; display:none;">❌ REMOVE FACE</button>
+          </div>
         </div>
         <div class="char-cards-list">
           <div class="char-card active" data-char="BOY">

@@ -164,6 +164,15 @@ export class CityGenerator {
     ctxCid.font = '700 14px sans-serif';
     ctxCid.fillText('SPECIAL INVESTIGATION', 128, 310);
     this.cidDetectiveTexture = new THREE.CanvasTexture(canvasCid);
+
+    // Real High-Resolution AI Generated Posters
+    const loader = new THREE.TextureLoader();
+    this.aiPosterTextureReal = loader.load('/assets/ai_poster_1.jpg', undefined, undefined, () => {
+      this.aiPosterTextureReal = this.aiPosterTexture;
+    });
+    this.cidPosterTextureReal = loader.load('/assets/cid_poster_1.jpg', undefined, undefined, () => {
+      this.cidPosterTextureReal = this.cidDetectiveTexture;
+    });
   }
 
   initCelestialSkyBody() {
@@ -655,25 +664,30 @@ export class CityGenerator {
 
   createAiPosterBillboard(x, z, type = 'AI') {
     const group = new THREE.Group();
-    group.position.set(x, 10, z);
+    group.position.set(x, 12, z);
 
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x11192e, metalness: 0.8 });
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(7.0, 10.0, 0.4), frameMat);
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x11192e, metalness: 0.9, roughness: 0.2 });
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(7.2, 12.2, 0.5), frameMat);
     group.add(frame);
 
-    const tex = (type === 'CID') ? this.cidDetectiveTexture : this.aiPosterTexture;
+    const tex = (type === 'CID') ? (this.cidPosterTextureReal || this.cidDetectiveTexture) : (this.aiPosterTextureReal || this.aiPosterTexture);
     const posterMat = new THREE.MeshBasicMaterial({ map: tex });
-    const poster = new THREE.Mesh(new THREE.BoxGeometry(6.6, 9.6, 0.44), posterMat);
+    const poster = new THREE.Mesh(new THREE.BoxGeometry(6.8, 11.8, 0.55), posterMat);
     group.add(poster);
 
     const borderMat = new THREE.MeshBasicMaterial({ color: (type === 'CID' ? 0xff007f : 0x00f3ff) });
-    const borderTop = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.2, 0.5), borderMat);
-    borderTop.position.y = 5.1;
+    const borderTop = new THREE.Mesh(new THREE.BoxGeometry(7.4, 0.3, 0.6), borderMat);
+    borderTop.position.y = 6.2;
     group.add(borderTop);
 
-    const borderBot = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.2, 0.5), borderMat);
-    borderBot.position.y = -5.1;
+    const borderBot = new THREE.Mesh(new THREE.BoxGeometry(7.4, 0.3, 0.6), borderMat);
+    borderBot.position.y = -6.2;
     group.add(borderBot);
+
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.4 });
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 12.0, 8), pillarMat);
+    pillar.position.y = -6.0;
+    group.add(pillar);
 
     this.scene.add(group);
     this.landmarks.push(group);

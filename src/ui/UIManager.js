@@ -90,6 +90,21 @@ export class UIManager {
     document.getElementById('btn-daynight-toggle')?.addEventListener('click', toggleDN);
     document.getElementById('btn-hud-daynight')?.addEventListener('click', toggleDN);
 
+    // Camera View Mode Toggle
+    document.getElementById('btn-hud-camera')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      if (this.game && this.game.cameraManager) {
+        const mode = this.game.cameraManager.cycleCameraMode();
+        const modeNames = {
+          'CHASE': '🎬 ACTION CHASE CAM',
+          'LOW_RACE': '🏎️ LOW RACING CAM',
+          'FIRST_PERSON': '👁️ FIRST PERSON CAM',
+          'DRONE': '🛸 OVERHEAD DRONE CAM'
+        };
+        alert(modeNames[mode] || `Camera Mode: ${mode}`);
+      }
+    });
+
     // Fullscreen Toggle Buttons
     const toggleFS = () => {
       soundEngine.playClick();

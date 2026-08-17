@@ -34,6 +34,17 @@ export class SoundEngine {
         gain.connect(this.masterGain);
         this.gainNodes[cat] = gain;
       });
+
+      // Global user interaction handler to unlock Web Audio on modern browsers
+      const unlockAudio = () => {
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().then(() => console.log('Web AudioContext unlocked successfully.'));
+        }
+      };
+
+      ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(evt => {
+        window.addEventListener(evt, unlockAudio, { passive: true, once: false });
+      });
     }
   }
 

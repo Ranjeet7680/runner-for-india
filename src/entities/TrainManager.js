@@ -13,13 +13,54 @@ export class TrainManager {
     this.cargoBodyGeo = new THREE.BoxGeometry(2.4, 3.4, 18.0);
     this.expressBodyGeo = new THREE.BoxGeometry(2.2, 3.0, 20.0);
 
-    this.metroMat = new THREE.MeshStandardMaterial({ color: 0x0066ff, metalness: 0.7, roughness: 0.3 });
-    this.cargoMat = new THREE.MeshStandardMaterial({ color: 0x8a3b14, metalness: 0.4, roughness: 0.8 });
-    this.expressMat = new THREE.MeshStandardMaterial({ color: 0xe0e6ed, metalness: 0.9, roughness: 0.1 });
+    this.initTrainTextures();
+
+    this.metroMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.7, roughness: 0.3, map: this.metroTrainTexture });
+    this.cargoMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.4, roughness: 0.7, map: this.cargoTrainTexture });
+    this.expressMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1, map: this.expressTrainTexture });
     
     this.windowMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.7 });
     this.headlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     this.darkMat = new THREE.MeshStandardMaterial({ color: 0x111622, roughness: 0.5 });
+  }
+
+  initTrainTextures() {
+    const canvasM = document.createElement('canvas');
+    canvasM.width = 256; canvasM.height = 128;
+    const ctxM = canvasM.getContext('2d');
+    ctxM.fillStyle = '#0f388a';
+    ctxM.fillRect(0, 0, 256, 128);
+    ctxM.fillStyle = '#00f3ff';
+    ctxM.fillRect(0, 40, 256, 40);
+    ctxM.fillStyle = '#0a1428';
+    for (let x = 10; x < 256; x += 32) {
+      ctxM.fillRect(x, 44, 20, 32);
+    }
+    ctxM.fillStyle = '#ffffff';
+    ctxM.fillRect(0, 90, 256, 8);
+    this.metroTrainTexture = new THREE.CanvasTexture(canvasM);
+
+    const canvasC = document.createElement('canvas');
+    canvasC.width = 128; canvasC.height = 128;
+    const ctxC = canvasC.getContext('2d');
+    ctxC.fillStyle = '#8a3b14';
+    ctxC.fillRect(0, 0, 128, 128);
+    ctxC.fillStyle = '#5c240a';
+    for (let x = 0; x < 128; x += 16) {
+      ctxC.fillRect(x, 0, 4, 128);
+    }
+    this.cargoTrainTexture = new THREE.CanvasTexture(canvasC);
+
+    const canvasE = document.createElement('canvas');
+    canvasE.width = 256; canvasE.height = 128;
+    const ctxE = canvasE.getContext('2d');
+    ctxE.fillStyle = '#e0e6ed';
+    ctxE.fillRect(0, 0, 256, 128);
+    ctxE.fillStyle = '#ff0055';
+    ctxE.fillRect(0, 50, 256, 20);
+    ctxE.fillStyle = '#00f3ff';
+    ctxE.fillRect(0, 75, 256, 8);
+    this.expressTrainTexture = new THREE.CanvasTexture(canvasE);
   }
 
   createTrain(type, laneIndex, zPos, isMoving = false, speed = 0) {

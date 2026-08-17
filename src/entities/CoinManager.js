@@ -8,16 +8,56 @@ export class CoinManager {
     this.coins = [];
     this.lanes = [-2.5, 0, 2.5];
 
-    this.coinGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.08, 16);
+    this.initCoinTexture();
+
+    this.coinGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.1, 24);
     this.coinMat = new THREE.MeshStandardMaterial({
       color: 0xffd700,
-      metalness: 0.9,
+      metalness: 0.95,
       roughness: 0.1,
-      emissive: 0xaa8800,
-      emissiveIntensity: 0.3
+      map: this.coinTexture,
+      emissive: 0xaa7700,
+      emissiveIntensity: 0.4
     });
 
     this.initParticlePool();
+  }
+
+  initCoinTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+
+    const grad = ctx.createRadialGradient(64, 64, 5, 64, 64, 60);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.3, '#ffd700');
+    grad.addColorStop(0.7, '#ffaa00');
+    grad.addColorStop(1, '#b37700');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(64, 64, 60, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#fff5aa';
+    ctx.stroke();
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#805500';
+    ctx.beginPath();
+    ctx.arc(64, 64, 50, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ff8800';
+    ctx.shadowBlur = 8;
+    ctx.fillText('★', 64, 64);
+
+    this.coinTexture = new THREE.CanvasTexture(canvas);
   }
 
   initParticlePool() {

@@ -12,12 +12,12 @@ export class PowerUpManager {
     this.boxGeo = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     
     this.materials = {
-      AIR_ROCKET: new THREE.MeshStandardMaterial({ color: 0xff3300, metalness: 0.9, emissive: 0xff2200 }),
-      JUMP_SHOES: new THREE.MeshStandardMaterial({ color: 0x00ff88, metalness: 0.8, emissive: 0x00aa44 }),
-      DOUBLE_COIN: new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, emissive: 0xaa8800 }),
-      SAFETY_BUBBLE: new THREE.MeshStandardMaterial({ color: 0x0066ff, metalness: 0.8, emissive: 0x0033aa }),
-      MAGNET: new THREE.MeshStandardMaterial({ color: 0x7928ca, metalness: 0.8, emissive: 0x441188 }),
-      SPEED_BOOST: new THREE.MeshStandardMaterial({ color: 0x00f3ff, metalness: 0.8, emissive: 0x00aacc })
+      AIR_ROCKET: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('🚀', '#d92600'), metalness: 0.8, roughness: 0.2 }),
+      JUMP_SHOES: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('👟', '#00b359'), metalness: 0.8, roughness: 0.2 }),
+      DOUBLE_COIN: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('2X', '#b38600'), metalness: 0.8, roughness: 0.2 }),
+      SAFETY_BUBBLE: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('🛡️', '#0055b3'), metalness: 0.8, roughness: 0.2 }),
+      MAGNET: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('🧲', '#661a99'), metalness: 0.8, roughness: 0.2 }),
+      SPEED_BOOST: new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.createIconTexture('⚡', '#0099b3'), metalness: 0.8, roughness: 0.2 })
     };
 
     this.activePowerups = {
@@ -39,6 +39,23 @@ export class PowerUpManager {
     };
 
     this.bubbleHealth = 0;
+  }
+
+  createIconTexture(symbol, bgColor) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(6, 6, 116, 116);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 60px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(symbol, 64, 64);
+    return new THREE.CanvasTexture(canvas);
   }
 
   spawnPowerUp(type, laneIndex, zPos) {

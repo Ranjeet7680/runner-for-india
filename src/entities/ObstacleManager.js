@@ -13,10 +13,31 @@ export class ObstacleManager {
     this.postGeo = new THREE.CylinderGeometry(0.1, 0.1, 3.2, 8);
     this.coneGeo = new THREE.ConeGeometry(0.35, 0.8, 8);
 
+    this.initHazardTexture();
+
     this.barrierMat = new THREE.MeshStandardMaterial({ color: 0xff0055, roughness: 0.5 });
-    this.stripeMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+    this.stripeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: this.hazardTexture, roughness: 0.3 });
     this.postMat = new THREE.MeshStandardMaterial({ color: 0x334466, roughness: 0.7 });
     this.coneMat = new THREE.MeshStandardMaterial({ color: 0xff6600, roughness: 0.4 });
+  }
+
+  initHazardTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffcc00';
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.fillStyle = '#111827';
+    for (let i = -128; i < 256; i += 32) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i + 16, 0);
+      ctx.lineTo(i + 16 + 128, 128);
+      ctx.lineTo(i + 128, 128);
+      ctx.closePath();
+      ctx.fill();
+    }
+    this.hazardTexture = new THREE.CanvasTexture(canvas);
   }
 
   createObstacle(type, laneIndex, zPos) {

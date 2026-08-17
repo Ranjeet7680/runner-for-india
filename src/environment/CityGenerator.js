@@ -56,6 +56,59 @@ export class CityGenerator {
     ctxMb.fillStyle = '#e2e8f0';
     ctxMb.fillRect(0, 32, 64, 2);
     this.marbleTexture = new THREE.CanvasTexture(canvasMb);
+
+    // Concrete Panel Texture (Bridge Pylons, Elevated Roads)
+    const canvasCc = document.createElement('canvas');
+    canvasCc.width = 128; canvasCc.height = 128;
+    const ctxCc = canvasCc.getContext('2d');
+    ctxCc.fillStyle = '#222d42';
+    ctxCc.fillRect(0, 0, 128, 128);
+    ctxCc.strokeStyle = '#334466';
+    ctxCc.lineWidth = 4;
+    ctxCc.strokeRect(4, 4, 120, 120);
+    for (let x = 32; x < 128; x += 32) {
+      for (let y = 32; y < 128; y += 32) {
+        ctxCc.fillStyle = '#111827';
+        ctxCc.fillRect(x - 2, y - 2, 4, 4);
+      }
+    }
+    this.concreteTexture = new THREE.CanvasTexture(canvasCc);
+    this.concreteTexture.wrapS = THREE.RepeatWrapping;
+    this.concreteTexture.wrapT = THREE.RepeatWrapping;
+
+    // Glowing Billboard Graphics Texture
+    const canvasBb = document.createElement('canvas');
+    canvasBb.width = 256; canvasBb.height = 128;
+    const ctxBb = canvasBb.getContext('2d');
+    ctxBb.fillStyle = '#050e26';
+    ctxBb.fillRect(0, 0, 256, 128);
+    ctxBb.strokeStyle = '#00f3ff';
+    ctxBb.lineWidth = 6;
+    ctxBb.strokeRect(6, 6, 244, 116);
+    ctxBb.fillStyle = '#00f3ff';
+    ctxBb.font = '900 24px sans-serif';
+    ctxBb.textAlign = 'center';
+    ctxBb.fillText('NEXORA METRO', 128, 50);
+    ctxBb.fillStyle = '#ffd700';
+    ctxBb.font = '900 18px sans-serif';
+    ctxBb.fillText('CYBER CITY RUNNER', 128, 85);
+    this.billboardTexture = new THREE.CanvasTexture(canvasBb);
+
+    // High-Tech Solar Panel Texture
+    const canvasSp = document.createElement('canvas');
+    canvasSp.width = 128; canvasSp.height = 128;
+    const ctxSp = canvasSp.getContext('2d');
+    ctxSp.fillStyle = '#0f2b5c';
+    ctxSp.fillRect(0, 0, 128, 128);
+    ctxSp.strokeStyle = '#00f3ff';
+    ctxSp.lineWidth = 2;
+    for (let i = 0; i <= 128; i += 16) {
+      ctxSp.beginPath(); ctxSp.moveTo(i, 0); ctxSp.lineTo(i, 128); ctxSp.stroke();
+      ctxSp.beginPath(); ctxSp.moveTo(0, i); ctxSp.lineTo(128, i); ctxSp.stroke();
+    }
+    this.solarTexture = new THREE.CanvasTexture(canvasSp);
+    this.solarTexture.wrapS = THREE.RepeatWrapping;
+    this.solarTexture.wrapT = THREE.RepeatWrapping;
   }
 
   initCelestialSkyBody() {

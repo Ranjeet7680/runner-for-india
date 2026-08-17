@@ -497,7 +497,21 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 .about-credits { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
 .about-credits h3 { font-family: var(--font-heading); color: var(--primary-cyan); font-size: 0.85rem; margin-bottom: 2px; }
 
-/* MEDIA QUERIES FOR MOBILE BREAKPOINTS & RESPONSIVE POLISH */
+/* END-TO-END MOBILE UI POLISH & RESPONSIVE TOUCH SAFETY */
+body, .ui-screen, .ui-modal {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select, .color-dot, .touch-btn, .close-btn {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 @keyframes screenSlideIn {
   0% { transform: translate3d(0, 16px, 0) scale(0.98); opacity: 0; }
   100% { transform: translate3d(0, 0, 0) scale(1.0); opacity: 1; }
@@ -530,18 +544,33 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 
 @media (max-width: 768px) {
   .char-select-layout { grid-template-columns: 1fr; overflow-y: auto; gap: 10px; }
-  #char-preview-container { height: 150px; }
-  .char-cards-list { max-height: 240px; }
-  .maps-grid { grid-template-columns: repeat(2, 1fr); }
-  .daily-calendar-grid { grid-template-columns: repeat(2, 1fr); }
+  #char-preview-container { height: 140px; }
+  .char-cards-list { max-height: 220px; }
+  .maps-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .daily-calendar-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .modal-card { max-height: 90vh; padding: 14px; }
 }
 
 @media (max-width: 480px) {
-  .nav-sub-row { grid-template-columns: repeat(3, 1fr); gap: 5px; }
-  .btn-nav { font-size: 0.68rem; padding: 8px 3px; min-height: 42px; }
+  .hero-title { font-size: 2.2rem; letter-spacing: 2px; }
+  .hero-sub { font-size: 1.0rem; letter-spacing: 3px; }
+  .nav-sub-row { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .btn-nav { font-size: 0.65rem; padding: 8px 2px; min-height: 42px; }
   .maps-grid { grid-template-columns: repeat(2, 1fr); }
-  .hud-top-bar { padding: 3px; gap: 3px; }
-  .hud-card { min-width: 54px; padding: 3px 5px; }
-  .hud-val { font-size: 0.85rem; }
-  .mobile-touch-overlay { width: 120px; height: 120px; bottom: 12px; right: 12px; }
+  .hud-top-bar { padding: 2px; gap: 2px; }
+  .hud-card { min-width: 50px; padding: 2px 4px; }
+  .hud-val { font-size: 0.8rem; }
+  .mobile-touch-overlay { width: 115px; height: 115px; bottom: 10px; right: 10px; }
+  .modal-card { max-height: 92vh; border-radius: 16px; padding: 12px; }
+}
+
+/* LANDSCAPE MOBILE OPTIMIZATION */
+@media (max-height: 500px) and (orientation: landscape) {
+  .welcome-hero { margin: 2px 0; }
+  .hero-title { font-size: 1.8rem; }
+  .hero-sub { font-size: 0.85rem; margin-bottom: 2px; }
+  .nav-menu-grid { max-width: 600px; gap: 6px; }
+  .char-select-layout { grid-template-columns: 180px 1fr; }
+  #char-preview-container { height: 110px; }
+  .modal-card { max-height: 94vh; padding: 10px; }
 }

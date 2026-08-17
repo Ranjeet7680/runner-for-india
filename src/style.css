@@ -497,10 +497,41 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 .about-credits { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; text-align: center; font-size: 0.75rem; color: var(--text-muted); }
 .about-credits h3 { font-family: var(--font-heading); color: var(--primary-cyan); font-size: 0.85rem; margin-bottom: 2px; }
 
-/* MEDIA QUERIES FOR MOBILE BREAKPOINTS */
+/* MEDIA QUERIES FOR MOBILE BREAKPOINTS & RESPONSIVE POLISH */
+@keyframes screenSlideIn {
+  0% { transform: translate3d(0, 16px, 0) scale(0.98); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1.0); opacity: 1; }
+}
+
+.ui-screen.active {
+  animation: screenSlideIn 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes btnPulseGlow {
+  0% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+  50% { box-shadow: 0 0 35px rgba(255, 0, 127, 0.85), 0 0 15px rgba(0, 243, 255, 0.9); }
+  100% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+}
+
+.btn-primary {
+  animation: btnPulseGlow 3s infinite ease-in-out;
+}
+
+.char-card.active, .map-card.active, .login-day-tile.highlight {
+  border-color: var(--primary-cyan) !important;
+  box-shadow: 0 0 22px rgba(0, 243, 255, 0.7), inset 0 0 12px rgba(0, 243, 255, 0.2) !important;
+  animation: cardHighlightPulse 2s infinite alternate;
+}
+
+@keyframes cardHighlightPulse {
+  0% { transform: scale(1); box-shadow: 0 0 18px rgba(0, 243, 255, 0.6); }
+  100% { transform: scale(1.02); box-shadow: 0 0 28px rgba(0, 243, 255, 0.9); }
+}
+
 @media (max-width: 768px) {
-  .char-select-layout { grid-template-columns: 1fr; overflow-y: auto; }
-  #char-preview-container { height: 160px; }
+  .char-select-layout { grid-template-columns: 1fr; overflow-y: auto; gap: 10px; }
+  #char-preview-container { height: 150px; }
+  .char-cards-list { max-height: 240px; }
   .maps-grid { grid-template-columns: repeat(2, 1fr); }
   .daily-calendar-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -509,7 +540,8 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   .nav-sub-row { grid-template-columns: repeat(3, 1fr); gap: 5px; }
   .btn-nav { font-size: 0.68rem; padding: 8px 3px; min-height: 42px; }
   .maps-grid { grid-template-columns: repeat(2, 1fr); }
-  .hud-top-bar { padding: 3px; }
-  .hud-card { min-width: 60px; padding: 3px 6px; }
+  .hud-top-bar { padding: 3px; gap: 3px; }
+  .hud-card { min-width: 54px; padding: 3px 5px; }
+  .hud-val { font-size: 0.85rem; }
   .mobile-touch-overlay { width: 120px; height: 120px; bottom: 12px; right: 12px; }
 }

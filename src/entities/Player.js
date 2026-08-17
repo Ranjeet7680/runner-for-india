@@ -168,10 +168,13 @@ export class Player {
       this.characterGroup.add(this.leftArmPivot, this.rightArmPivot, this.leftLegPivot, this.rightLegPivot);
 
     } else if (type === 'GIRL') {
+      const clothHex = this.clothColor ? parseInt(this.clothColor.replace('#', '0x'), 16) : 0xff007f;
+      const pantsHex = this.pantsColor ? parseInt(this.pantsColor.replace('#', '0x'), 16) : 0x11052c;
+
       const skinMat = new THREE.MeshStandardMaterial({ color: 0xf2c8a0, roughness: 0.5 });
       const hairMat = new THREE.MeshStandardMaterial({ color: 0x662200, roughness: 0.8 });
-      const jacketMat = new THREE.MeshStandardMaterial({ color: 0xff007f, roughness: 0.4 });
-      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x11052c, roughness: 0.6 });
+      const jacketMat = new THREE.MeshStandardMaterial({ color: clothHex, roughness: 0.4 });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: pantsHex, roughness: 0.6 });
       const shoeMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, roughness: 0.3 });
 
       const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.75, 0.36), jacketMat);
@@ -230,8 +233,11 @@ export class Player {
 
     } else if (type === 'DOG' || type === 'CAT') {
       const isDog = (type === 'DOG');
-      const petMat = new THREE.MeshStandardMaterial({ color: isDog ? 0xd4a373 : 0x4a4e69, roughness: 0.8 });
-      const collarMat = new THREE.MeshBasicMaterial({ color: isDog ? 0xff0055 : 0x00f3ff });
+      const clothHex = this.clothColor ? parseInt(this.clothColor.replace('#', '0x'), 16) : null;
+      const pantsHex = this.pantsColor ? parseInt(this.pantsColor.replace('#', '0x'), 16) : (isDog ? 0xd4a373 : 0x4a4e69);
+
+      const petMat = new THREE.MeshStandardMaterial({ color: pantsHex, roughness: 0.8 });
+      const collarMat = new THREE.MeshBasicMaterial({ color: clothHex || (isDog ? 0xff0055 : 0x00f3ff) });
 
       const body = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.8), petMat);
       body.position.y = 0.5;
@@ -269,10 +275,13 @@ export class Player {
 
     } else {
       // Default Boy Runner
+      const clothHex = this.clothColor ? parseInt(this.clothColor.replace('#', '0x'), 16) : 0x00d2ff;
+      const pantsHex = this.pantsColor ? parseInt(this.pantsColor.replace('#', '0x'), 16) : 0x11192e;
+
       const skinMat = new THREE.MeshStandardMaterial({ color: 0xe0a880, roughness: 0.5 });
-      const jacketMat = new THREE.MeshStandardMaterial({ color: 0x00d2ff, roughness: 0.3, metalness: 0.2 });
+      const jacketMat = new THREE.MeshStandardMaterial({ color: clothHex, roughness: 0.3, metalness: 0.2 });
       const trimMat = new THREE.MeshBasicMaterial({ color: 0xff007f });
-      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x11192e, roughness: 0.7 });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: pantsHex, roughness: 0.7 });
       const shoeMat = new THREE.MeshStandardMaterial({ color: 0xff007f, roughness: 0.3 });
 
       const torso = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.8, 0.4), jacketMat);
@@ -591,5 +600,21 @@ export class Player {
       faceMat, // +Z front face (CUSTOM FACE PHOTO!)
       baseMat  // -Z back
     ];
+  }
+
+  setClothColor(hexColor) {
+    this.clothColor = hexColor;
+    try {
+      localStorage.setItem('nexora_cloth_color', hexColor);
+    } catch(e) {}
+    this.setCharacterType(this.characterType);
+  }
+
+  setPantsColor(hexColor) {
+    this.pantsColor = hexColor;
+    try {
+      localStorage.setItem('nexora_pants_color', hexColor);
+    } catch(e) {}
+    this.setCharacterType(this.characterType);
   }
 }

@@ -194,6 +194,30 @@ export class UIManager {
       alert('Custom face photo removed.');
     });
 
+    // Clothes / Jacket Color Swatches
+    document.querySelectorAll('#swatches-cloth .color-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        soundEngine.playClick();
+        document.querySelectorAll('#swatches-cloth .color-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        const color = dot.getAttribute('data-color');
+        if (this.game.player) this.game.player.setClothColor(color);
+        if (this.charPreview && this.charPreview.player) this.charPreview.player.setClothColor(color);
+      });
+    });
+
+    // Pants / Pet Fur Color Swatches
+    document.querySelectorAll('#swatches-pants .color-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        soundEngine.playClick();
+        document.querySelectorAll('#swatches-pants .color-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        const color = dot.getAttribute('data-color');
+        if (this.game.player) this.game.player.setPantsColor(color);
+        if (this.charPreview && this.charPreview.player) this.charPreview.player.setPantsColor(color);
+      });
+    });
+
     // Referral Modal Share & Redeem Buttons
     document.getElementById('btn-share-whatsapp')?.addEventListener('click', () => {
       soundEngine.playClick();

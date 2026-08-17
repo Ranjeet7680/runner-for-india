@@ -136,12 +136,38 @@
         <div class="preview-card">
           <div id="char-preview-container"></div>
           <span id="preview-char-name" class="char-preview-title">BOY</span>
-          <div class="custom-face-controls" style="margin-top:8px; display:flex; flex-direction:column; align-items:center; gap:6px; width:100%;">
-            <label for="input-custom-face" class="btn-secondary" style="font-size:0.75rem; padding:6px 10px; min-height:36px; text-align:center; display:flex; align-items:center; justify-content:center; cursor:pointer; background: linear-gradient(135deg, rgba(0,243,255,0.2), rgba(121,40,202,0.3)); border-color: var(--primary-cyan);">
+          <div class="custom-face-controls" style="margin-top:6px; display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;">
+            <label for="input-custom-face" class="btn-secondary" style="font-size:0.75rem; padding:4px 8px; min-height:32px; text-align:center; display:flex; align-items:center; justify-content:center; cursor:pointer; background: linear-gradient(135deg, rgba(0,243,255,0.2), rgba(121,40,202,0.3)); border-color: var(--primary-cyan);">
               📸 ADD FACE PHOTO
             </label>
             <input type="file" id="input-custom-face" accept="image/*" style="display:none;">
-            <button id="btn-remove-face" class="btn-danger" style="font-size:0.75rem; padding:4px 8px; min-height:30px; display:none;">❌ REMOVE FACE</button>
+            <button id="btn-remove-face" class="btn-danger" style="font-size:0.75rem; padding:4px 8px; min-height:28px; display:none;">❌ REMOVE FACE</button>
+          </div>
+
+          <!-- Clothes & Pants Color Picker Swatches -->
+          <div class="custom-color-controls" style="margin-top:8px; width:100%; display:flex; flex-direction:column; gap:6px;">
+            <div class="color-picker-row" style="text-align:center;">
+              <span class="picker-label" style="font-family: var(--font-heading); font-size:0.6rem; color: var(--primary-cyan); font-weight:800; letter-spacing:1px;">👕 CLOTHES / JACKET COLOR:</span>
+              <div class="color-swatches" id="swatches-cloth" style="margin-top:3px;">
+                <button class="color-dot active" data-color="#00d2ff" style="background:#00d2ff;" title="Cyber Cyan"></button>
+                <button class="color-dot" data-color="#ff007f" style="background:#ff007f;" title="Neon Pink"></button>
+                <button class="color-dot" data-color="#ffcc00" style="background:#ffcc00;" title="Electric Yellow"></button>
+                <button class="color-dot" data-color="#00ff88" style="background:#00ff88;" title="Emerald Green"></button>
+                <button class="color-dot" data-color="#7928ca" style="background:#7928ca;" title="Royal Purple"></button>
+                <button class="color-dot" data-color="#1e293b" style="background:#1e293b;" title="Stealth Black"></button>
+              </div>
+            </div>
+            <div class="color-picker-row" style="text-align:center;">
+              <span class="picker-label" style="font-family: var(--font-heading); font-size:0.6rem; color: var(--accent-pink); font-weight:800; letter-spacing:1px;">👖 PANTS / PET FUR COLOR:</span>
+              <div class="color-swatches" id="swatches-pants" style="margin-top:3px;">
+                <button class="color-dot active" data-color="#11192e" style="background:#11192e;" title="Navy Dark"></button>
+                <button class="color-dot" data-color="#d4a373" style="background:#d4a373;" title="Golden Fur / Sand"></button>
+                <button class="color-dot" data-color="#ff0055" style="background:#ff0055;" title="Crimson Red"></button>
+                <button class="color-dot" data-color="#00f3ff" style="background:#00f3ff;" title="Neon Cyan"></button>
+                <button class="color-dot" data-color="#ffffff" style="background:#ffffff;" title="Snow White"></button>
+                <button class="color-dot" data-color="#334155" style="background:#334155;" title="Charcoal Gray"></button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="char-cards-list">

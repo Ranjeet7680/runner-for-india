@@ -55,6 +55,9 @@ export class InputController {
         this.emit('restart');
       } else if (code === 'Enter' || keyCode === 13 || keyCode === 23) {
         this.emit('select');
+      } else if (code === 'Backquote' || keyCode === 192) {
+        const dbg = document.getElementById('debug-hud-overlay');
+        if (dbg) dbg.style.display = (dbg.style.display === 'none' || dbg.style.display === '') ? 'flex' : 'none';
       }
     });
   }

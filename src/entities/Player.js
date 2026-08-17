@@ -265,22 +265,36 @@ export class Player {
     } else {
       // Default Boy Runner
       const skinMat = new THREE.MeshStandardMaterial({ color: 0xe0a880, roughness: 0.5 });
-      const jacketMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, roughness: 0.3 });
-      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.7 });
-      const shoeMat = new THREE.MeshStandardMaterial({ color: 0xff007f, roughness: 0.4 });
+      const jacketMat = new THREE.MeshStandardMaterial({ color: 0x00d2ff, roughness: 0.3, metalness: 0.2 });
+      const trimMat = new THREE.MeshBasicMaterial({ color: 0xff007f });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x11192e, roughness: 0.7 });
+      const shoeMat = new THREE.MeshStandardMaterial({ color: 0xff007f, roughness: 0.3 });
 
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.4), jacketMat);
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.8, 0.4), jacketMat);
       torso.position.y = 1.1;
       this.characterGroup.add(torso);
+
+      // Sci-fi Chest Badge
+      const badgeMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
+      const badge = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.3, 0.42), badgeMat);
+      badge.position.set(0, 1.15, 0.02);
+      this.characterGroup.add(badge);
 
       this.headGroup = new THREE.Group();
       this.headGroup.position.set(0, 1.7, 0);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.45, 0.42), skinMat);
       this.headGroup.add(head);
+
+      // Visor / Headband Accent
+      const visorGeo = new THREE.BoxGeometry(0.44, 0.12, 0.44);
+      const visor = new THREE.Mesh(visorGeo, trimMat);
+      visor.position.set(0, 0.08, 0.02);
+      this.headGroup.add(visor);
+
       this.characterGroup.add(this.headGroup);
 
-      this.leftArmPivot = this.createPivot(-0.45, 1.4, jacketMat);
-      this.rightArmPivot = this.createPivot(0.45, 1.4, jacketMat);
+      this.leftArmPivot = this.createPivot(-0.44, 1.4, jacketMat);
+      this.rightArmPivot = this.createPivot(0.44, 1.4, jacketMat);
       this.leftLegPivot = this.createPivot(-0.2, 0.7, pantsMat, shoeMat);
       this.rightLegPivot = this.createPivot(0.2, 0.7, pantsMat, shoeMat);
       this.characterGroup.add(this.leftArmPivot, this.rightArmPivot, this.leftLegPivot, this.rightLegPivot);
@@ -327,6 +341,14 @@ export class Player {
     this.shieldMesh.position.y = 1.0;
     this.shieldMesh.visible = false;
     this.mesh.add(this.shieldMesh);
+
+    // Soft Shadow Disk beneath feet
+    const shadowGeo = new THREE.CircleGeometry(0.7, 16);
+    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4 });
+    this.shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    this.shadowMesh.rotation.x = -Math.PI / 2;
+    this.shadowMesh.position.y = 0.02;
+    this.mesh.add(this.shadowMesh);
   }
 
   moveLeft() {

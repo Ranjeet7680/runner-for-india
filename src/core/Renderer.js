@@ -10,9 +10,9 @@ export class AppRenderer {
     this.isSmartTV = /TV|SmartTV|Tizen|WebOS|AndroidTV|NetCast|GoogleTV|AppleTV|BRAVIA/i.test(navigator.userAgent);
 
     // Deep Cyberpunk Space Sky & Volumetric Fog
-    this.skyColor = new THREE.Color(0x0a1428);
+    this.skyColor = new THREE.Color(0x060e20);
     this.scene.background = this.skyColor;
-    this.scene.fog = new THREE.FogExp2(0x0a1428, 0.0035);
+    this.scene.fog = new THREE.FogExp2(0x060e20, 0.0035);
 
     this.camera = new THREE.PerspectiveCamera(
       60,

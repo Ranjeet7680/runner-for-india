@@ -91,28 +91,28 @@ export class CityGenerator {
   setMap(mapType) {
     this.currentMap = mapType;
     if (mapType === 'DAY_METRO') {
-      this.skyColor.setHex(0x2a75d3);
-      this.scene.fog.color.setHex(0x2a75d3);
+      this.skyColor.setHex(0x1a5bb0);
+      this.scene.fog.color.setHex(0x1a5bb0);
       this.moonSphere.material.color.setHex(0xffea00);
       this.moonHalo.material.color.setHex(0xffaa00);
     } else if (mapType === 'NIGHT_METRO') {
-      this.skyColor.setHex(0x0c1a3a);
-      this.scene.fog.color.setHex(0x0c1a3a);
+      this.skyColor.setHex(0x060e20);
+      this.scene.fog.color.setHex(0x060e20);
       this.moonSphere.material.color.setHex(0x00ffff);
       this.moonHalo.material.color.setHex(0x00f3ff);
     } else if (mapType === 'MUMBAI_METRO') {
-      this.skyColor.setHex(0x092b66);
-      this.scene.fog.color.setHex(0x092b66);
-      this.moonSphere.material.color.setHex(0xff007f);
-      this.moonHalo.material.color.setHex(0xff007f);
+      this.skyColor.setHex(0x091e42);
+      this.scene.fog.color.setHex(0x091e42);
+      this.moonSphere.material.color.setHex(0x00e5ff);
+      this.moonHalo.material.color.setHex(0x00b0ff);
     } else if (mapType === 'DHANBAD_RAIL') {
       this.skyColor.setHex(0x2b1c10);
       this.scene.fog.color.setHex(0x2b1c10);
       this.moonSphere.material.color.setHex(0xff6600);
       this.moonHalo.material.color.setHex(0xffaa00);
     } else {
-      this.skyColor.setHex(0x0c1a3a);
-      this.scene.fog.color.setHex(0x0c1a3a);
+      this.skyColor.setHex(0x060e20);
+      this.scene.fog.color.setHex(0x060e20);
       this.moonSphere.material.color.setHex(0x00ffff);
       this.moonHalo.material.color.setHex(0x00f3ff);
     }
@@ -578,7 +578,7 @@ export class CityGenerator {
 
   createHyperloopTube(x, z) {
     const group = new THREE.Group();
-    group.position.set(x, 4.5, z);
+    group.position.set(x, 14.5, z);
 
     const tubeMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.25, wireframe: true });
     const tube = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 30, 16, 1, true), tubeMat);
@@ -594,9 +594,9 @@ export class CityGenerator {
       this.cycleTime += delta * 0.05;
       const phase = Math.sin(this.cycleTime);
 
-      const dayColor = new THREE.Color(0x2a75d3);
-      const nightColor = new THREE.Color(0x0c1a3a);
-      const sunsetColor = new THREE.Color(0xff007f);
+      const dayColor = new THREE.Color(0x1a5bb0);
+      const nightColor = new THREE.Color(0x060e20);
+      const sunsetColor = new THREE.Color(0x2b1040);
 
       if (phase > 0.3) {
         this.skyColor.lerpColors(sunsetColor, dayColor, (phase - 0.3) / 0.7);

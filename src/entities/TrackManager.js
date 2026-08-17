@@ -14,6 +14,8 @@ export class TrackManager {
     this.ballastGeo = new THREE.BoxGeometry(10.0, 0.4, this.chunkLength);
     this.catenaryPoleGeo = new THREE.CylinderGeometry(0.16, 0.22, 9.5, 8);
     this.catenaryBeamGeo = new THREE.BoxGeometry(12.5, 0.25, 0.25);
+    this.wallGeo = new THREE.BoxGeometry(0.4, 0.8, this.chunkLength);
+    this.wallNeonGeo = new THREE.BoxGeometry(0.15, 0.1, this.chunkLength);
 
     this.railMat = new THREE.MeshStandardMaterial({
       color: 0x00f3ff,
@@ -25,6 +27,8 @@ export class TrackManager {
 
     this.sleeperMat = new THREE.MeshStandardMaterial({ color: 0x3a2518, roughness: 0.8 });
     this.ballastMat = new THREE.MeshStandardMaterial({ color: 0x161e33, roughness: 0.9 });
+    this.wallMat = new THREE.MeshStandardMaterial({ color: 0x162036, roughness: 0.7 });
+    this.wallNeonMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
     
     this.poleMat = new THREE.MeshStandardMaterial({
       color: 0x00f3ff,
@@ -53,6 +57,23 @@ export class TrackManager {
     ballast.position.set(0, -0.2, 0);
     ballast.receiveShadow = true;
     chunkGroup.add(ballast);
+
+    // Side Retaining Walls with Glowing Neon Strips
+    const wallL = new THREE.Mesh(this.wallGeo, this.wallMat);
+    wallL.position.set(-5.1, 0.2, 0);
+    chunkGroup.add(wallL);
+
+    const wallNeonL = new THREE.Mesh(this.wallNeonGeo, this.wallNeonMat);
+    wallNeonL.position.set(-5.1, 0.62, 0);
+    chunkGroup.add(wallNeonL);
+
+    const wallR = new THREE.Mesh(this.wallGeo, this.wallMat);
+    wallR.position.set(5.1, 0.2, 0);
+    chunkGroup.add(wallR);
+
+    const wallNeonR = new THREE.Mesh(this.wallNeonGeo, this.wallNeonMat);
+    wallNeonR.position.set(5.1, 0.62, 0);
+    chunkGroup.add(wallNeonR);
 
     this.lanes.forEach(x => {
       const railL = new THREE.Mesh(this.railGeo, this.railMat);

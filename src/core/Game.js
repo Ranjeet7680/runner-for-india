@@ -366,7 +366,7 @@ export class Game {
     this.cityGenerator.update(this.player.position.z, delta);
     this.weatherSystem.update(this.player.position.z, delta);
 
-    this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta);
+    this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta, this.gameSpeed);
     this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);
     this.uiManager.updatePowerUpBadges(this.powerUpManager.activePowerups, this.powerUpManager.durations);
 

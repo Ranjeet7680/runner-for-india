@@ -35,7 +35,7 @@ export class CameraManager {
     this.camera.lookAt(this.currentLookAt);
   }
 
-  update(playerPos, playerLane, playerIsJumping, delta) {
+  update(playerPos, playerLane, playerIsJumping, delta, gameSpeed = 8.0) {
     const targetX = playerPos.x * 0.65;
     const targetY = Math.max(playerPos.y + 3.2, 3.2);
     const targetZ = playerPos.z + this.baseOffset.z;
@@ -60,7 +60,14 @@ export class CameraManager {
     this.currentPos.lerp(desiredPos, lerpFactor);
     this.currentLookAt.lerp(desiredLookAt, lerpFactor);
 
-    this.camera.up.set(0, 1, 0);
+    // Dynamic FOV scaling with speed
+    const targetFov = 60 + Math.min(22, (gameSpeed - 8.0) * 0.7);
+    this.camera.fov = THREE.MathUtils.lerp(this.camera.fov, targetFov, 0.1);
+    this.camera.updateProjectionMatrix();
+
+    // Subtle Roll Lean on Lane Change
+    const laneDelta = (targetX - this.currentPos.x);
+    this.camera.up.set(-laneDelta * 0.04, 1, 0).normalize();
     this.camera.position.copy(this.currentPos);
     this.camera.lookAt(this.currentLookAt);
   }

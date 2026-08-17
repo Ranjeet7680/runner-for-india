@@ -191,12 +191,22 @@ export class SoundEngine {
   playCoin() {
     if (this.isMuted || !this.ctx) return;
     this.ensureContext();
+    const now = Date.now();
+    if (now - (this.lastCoinTime || 0) < 500) {
+      this.coinStreak = Math.min((this.coinStreak || 0) + 1, 6);
+    } else {
+      this.coinStreak = 0;
+    }
+    this.lastCoinTime = now;
+
+    const pitchMult = 1.0 + (this.coinStreak * 0.08);
+
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
-    osc.frequency.setValueAtTime(1318.51, this.ctx.currentTime + 0.06); // E6
+    osc.frequency.setValueAtTime(987.77 * pitchMult, this.ctx.currentTime);
+    osc.frequency.setValueAtTime(1318.51 * pitchMult, this.ctx.currentTime + 0.06);
 
     gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);

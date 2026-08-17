@@ -113,17 +113,27 @@ export class UIManager {
     document.getElementById('btn-nav-referral')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-nav-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.showModal(this.modalSettings); });
 
-    // Universal Close Button Handlers
-    document.querySelectorAll('.close-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+    // Global Close Button Event Delegation (Bulletproof Mobile & Laptop Tap Interception)
+    const handleCloseClick = (e) => {
+      const targetBtn = e.target.closest('.close-btn');
+      if (targetBtn) {
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
         soundEngine.playClick();
         if (this.charPreview) this.charPreview.stop();
         this.closeAllModals();
         if (this.game.state !== 'PLAYING') {
           this.showScreen(this.screenWelcome);
         }
-      });
-    });
+      }
+    };
+
+    document.body.addEventListener('click', handleCloseClick, { capture: true });
+    document.body.addEventListener('pointerdown', (e) => {
+      if (e.target && e.target.closest && e.target.closest('.close-btn')) {
+        handleCloseClick(e);
+      }
+    }, { capture: true, passive: false });
 
     document.getElementById('btn-close-chars')?.addEventListener('click', () => {
       soundEngine.playClick();

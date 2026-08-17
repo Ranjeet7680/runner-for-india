@@ -49,13 +49,34 @@ export class CityGenerator {
 
     // Marble Texture (Taj Mahal / Victoria Memorial)
     const canvasMb = document.createElement('canvas');
-    canvasMb.width = 64; canvasMb.height = 64;
+    canvasMb.width = 256; canvasMb.height = 256;
     const ctxMb = canvasMb.getContext('2d');
-    ctxMb.fillStyle = '#f8fafc';
-    ctxMb.fillRect(0, 0, 64, 64);
-    ctxMb.fillStyle = '#e2e8f0';
-    ctxMb.fillRect(0, 32, 64, 2);
+    ctxMb.fillStyle = '#f1f5f9';
+    ctxMb.fillRect(0, 0, 256, 256);
+
+    ctxMb.strokeStyle = '#cbd5e1';
+    ctxMb.lineWidth = 3;
+    ctxMb.beginPath();
+    ctxMb.moveTo(10, 0); ctxMb.bezierCurveTo(40, 80, 80, 120, 140, 256);
+    ctxMb.moveTo(180, 0); ctxMb.bezierCurveTo(120, 90, 200, 180, 220, 256);
+    ctxMb.stroke();
+
+    for (let y = 30; y < 256; y += 80) {
+      for (let x = 20; x < 256; x += 60) {
+        ctxMb.fillStyle = '#1e293b';
+        ctxMb.beginPath();
+        ctxMb.arc(x + 20, y + 20, 15, Math.PI, 0);
+        ctxMb.rect(x + 5, y + 20, 30, 35);
+        ctxMb.fill();
+
+        ctxMb.lineWidth = 3;
+        ctxMb.strokeStyle = '#e2e8f0';
+        ctxMb.stroke();
+      }
+    }
     this.marbleTexture = new THREE.CanvasTexture(canvasMb);
+    this.marbleTexture.wrapS = THREE.RepeatWrapping;
+    this.marbleTexture.wrapT = THREE.RepeatWrapping;
 
     // Concrete Panel Texture (Bridge Pylons, Elevated Roads)
     const canvasCc = document.createElement('canvas');
@@ -403,23 +424,86 @@ export class CityGenerator {
   createTajMahalDome(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, map: this.marbleTexture });
-    const base = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), mat); base.position.y = 6;
-    const mainDome = new THREE.Mesh(new THREE.SphereGeometry(5, 16, 16), mat); mainDome.position.y = 17;
-    group.add(base, mainDome);
-    this.scene.add(group); this.landmarks.push(group);
+
+    const marbleMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.2,
+      metalness: 0.1,
+      map: this.marbleTexture
+    });
+
+    const goldMat = new THREE.MeshStandardMaterial({
+      color: 0xffd700,
+      metalness: 0.9,
+      roughness: 0.1,
+      emissive: 0xaa7700
+    });
+
+    // Main Podium Base with Arch Windows
+    const base = new THREE.Mesh(new THREE.BoxGeometry(18, 10, 18), marbleMat);
+    base.position.y = 5;
+    base.castShadow = true;
+    base.receiveShadow = true;
+    group.add(base);
+
+    // Main Central Onion Dome
+    const mainDome = new THREE.Mesh(new THREE.SphereGeometry(6, 24, 24), marbleMat);
+    mainDome.position.y = 16;
+    group.add(mainDome);
+
+    // Golden Spire Pinnacle
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.8, 4, 12), goldMat);
+    spire.position.y = 24;
+    group.add(spire);
+
+    // 4 Corner Minaret Towers
+    const minaretGeo = new THREE.CylinderGeometry(0.8, 1.2, 22, 12);
+    const cornerOffsets = [[-8.5, -8.5], [8.5, -8.5], [-8.5, 8.5], [8.5, 8.5]];
+    cornerOffsets.forEach(([cx, cz]) => {
+      const minaret = new THREE.Mesh(minaretGeo, marbleMat);
+      minaret.position.set(cx, 11, cz);
+      group.add(minaret);
+
+      const miniDome = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 12), marbleMat);
+      miniDome.position.set(cx, 22.5, cz);
+      group.add(miniDome);
+
+      const miniSpire = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.8, 8), goldMat);
+      miniSpire.position.set(cx, 24.5, cz);
+      group.add(miniSpire);
+    });
+
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createVaranasiGhats(x, z) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xa66d3b });
-    for (let step = 0; step < 5; step++) {
-      const stair = new THREE.Mesh(new THREE.BoxGeometry(12, 0.6, 20), mat);
-      stair.position.set(step * 1.2, step * 0.6, 0);
+
+    const stoneMat = new THREE.MeshStandardMaterial({
+      color: 0x8c5e38,
+      roughness: 0.8,
+      map: this.redSandstoneTexture
+    });
+
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8 });
+
+    for (let step = 0; step < 6; step++) {
+      const stair = new THREE.Mesh(new THREE.BoxGeometry(14, 0.8, 22 - step * 2.5), stoneMat);
+      stair.position.set(step * 1.5, step * 0.8, 0);
+      stair.castShadow = true;
+      stair.receiveShadow = true;
       group.add(stair);
+
+      if (step % 2 === 0) {
+        const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 3, 8), pillarMat);
+        pillar.position.set(step * 1.5 + 4, step * 0.8 + 1.8, 8);
+        group.add(pillar);
+      }
     }
-    this.scene.add(group); this.landmarks.push(group);
+    this.scene.add(group);
+    this.landmarks.push(group);
   }
 
   createCyberHubTower(x, z) {

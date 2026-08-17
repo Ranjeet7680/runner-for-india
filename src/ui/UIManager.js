@@ -113,12 +113,38 @@ export class UIManager {
     document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', toggleFS);
     document.getElementById('btn-hud-fullscreen')?.addEventListener('click', toggleFS);
 
-    // Welcome Buttons - Trigger Automatic Mobile Fullscreen on START RUN!
+    // Solo Run Button
     document.getElementById('btn-nav-start')?.addEventListener('click', () => {
       soundEngine.playClick();
       voiceSystem.speak('START');
+      this.game.isAiRaceMode = false;
       if (this.isMobileDevice) this.requestFullscreenAuto();
       this.game.startCountdownFlow();
+    });
+
+    // 2-Minute AI Computer Race Mode Button
+    document.getElementById('btn-nav-ai-race')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      voiceSystem.speak('START');
+      if (this.isMobileDevice) this.requestFullscreenAuto();
+      this.game.startAiRaceMode();
+    });
+
+    // FPP Camera FOV Slider
+    const fovSlider = document.getElementById('setting-fpp-fov');
+    const fovValText = document.getElementById('fpp-fov-val');
+
+    if (fovSlider && this.game.cameraManager) {
+      fovSlider.value = this.game.cameraManager.customFov || 75;
+      if (fovValText) fovValText.textContent = `${fovSlider.value}°`;
+    }
+
+    fovSlider?.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (fovValText) fovValText.textContent = `${val}°`;
+      if (this.game && this.game.cameraManager) {
+        this.game.cameraManager.setCustomFov(val);
+      }
     });
 
     document.getElementById('btn-nav-chars')?.addEventListener('click', () => { soundEngine.playClick(); this.openCharacterScreen(); });

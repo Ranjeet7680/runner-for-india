@@ -108,7 +108,10 @@
       </div>
 
       <div class="nav-menu-grid">
-        <button id="btn-nav-start" class="btn-primary glow-pulse">START RUN ➔</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <button id="btn-nav-start" class="btn-primary glow-pulse" style="padding:12px 10px; font-size:0.95rem;">SOLO RUN ➔</button>
+          <button id="btn-nav-ai-race" class="btn-primary" style="background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00f3ff 100%); padding:12px 10px; font-size:0.95rem;">🏎️ 2-MIN AI RACE 🤖</button>
+        </div>
         <div class="nav-sub-row">
           <button id="btn-nav-chars" class="btn-nav">🎭 CHARACTERS</button>
           <button id="btn-nav-maps" class="btn-nav">🗺️ MAPS</button>
@@ -389,6 +392,15 @@
       <!-- Active Powerups List -->
       <div id="hud-powerups-list" class="hud-powerups"></div>
 
+      <!-- 2-Minute AI Computer Race HUD Overlay -->
+      <div id="hud-ai-race-box" class="hud-card hidden" style="position:absolute; top:75px; left:50%; transform:translateX(-50%); background:rgba(10,20,48,0.92); border:2px solid var(--accent-pink); padding:6px 16px; border-radius:16px; pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:2px; box-shadow:0 0 25px rgba(255,0,127,0.6);">
+        <span style="font-family:var(--font-heading); font-size:0.7rem; color:var(--accent-pink); letter-spacing:1px; font-weight:900;">🏎️ 2-MIN AI COMPUTER RACE</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span id="ai-race-timer" style="font-family:var(--font-heading); font-size:1.3rem; font-weight:900; color:#ffffff;">02:00</span>
+          <span id="ai-race-lead" style="font-family:var(--font-heading); font-size:0.9rem; font-weight:800; color:var(--accent-green);">+0 m (LEAD)</span>
+        </div>
+      </div>
+
       <!-- Touch Control Buttons Overlay for Mobile -->
       <div class="mobile-touch-overlay pointer-auto">
         <button id="touch-btn-left" class="touch-btn touch-left">◀</button>
@@ -482,6 +494,18 @@
               <option value="CID_MYSTERY_THEME">CID MYSTERY THEME</option>
               <option value="SPEED_RUNNER_EDM">SPEED RUNNER EDM</option>
             </select>
+          </div>
+
+          <div class="setting-item" style="flex-direction:column; align-items:flex-start; gap:6px;">
+            <div class="setting-info" style="display:flex; justify-content:space-between; width:100%;">
+              <span class="setting-name">👁️ FPP MODE CAMERA FOV</span>
+              <span id="fpp-fov-val" style="color:var(--primary-cyan); font-weight:800;">75°</span>
+            </div>
+            <div style="display:flex; width:100%; align-items:center; gap:10px;">
+              <span style="font-size:0.75rem; color:var(--text-muted);">60°</span>
+              <input type="range" id="setting-fpp-fov" min="60" max="110" value="75" style="flex:1; accent-color:var(--primary-cyan);">
+              <span style="font-size:0.75rem; color:var(--text-muted);">110°</span>
+            </div>
           </div>
 
           <div class="setting-item" style="flex-direction:column; align-items:flex-start; gap:8px;">

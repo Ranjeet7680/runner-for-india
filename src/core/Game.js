@@ -9,6 +9,7 @@ import { ObstacleManager } from '../entities/ObstacleManager.js';
 import { PowerUpManager } from '../entities/PowerUpManager.js';
 import { CoinManager } from '../entities/CoinManager.js';
 import { PoliceNPCManager } from '../entities/PoliceNPCManager.js';
+import { AiBotRunner } from '../entities/AiBotRunner.js';
 import { StationLobbyManager } from '../entities/StationLobbyManager.js';
 import { CityGenerator } from '../environment/CityGenerator.js';
 import { WeatherSystem } from '../environment/WeatherSystem.js';
@@ -124,6 +125,18 @@ export class Game {
     }, 60);
   }
 
+  startAiRaceMode() {
+    this.isAiRaceMode = true;
+    this.aiRaceTimer = 120.0;
+    if (this.aiBot) this.aiBot.destroy();
+    this.aiBot = new AiBotRunner(this.scene);
+
+    const aiBox = document.getElementById('hud-ai-race-box');
+    if (aiBox) aiBox.classList.remove('hidden');
+
+    this.startCountdownFlow();
+  }
+
   startCountdownFlow() {
     this.resetGameState();
     this.state = 'COUNTDOWN';
@@ -184,6 +197,17 @@ export class Game {
     this.powerUpManager.reset();
     this.coinManager.reset();
     this.policeNPCManager.reset();
+
+    if (!this.isAiRaceMode) {
+      if (this.aiBot) {
+        this.aiBot.destroy();
+        this.aiBot = null;
+      }
+      const aiBox = document.getElementById('hud-ai-race-box');
+      if (aiBox) aiBox.classList.add('hidden');
+    } else if (this.aiBot) {
+      this.aiBot.reset();
+    }
   }
 
   spawnWorldAhead() {
@@ -371,6 +395,45 @@ export class Game {
       const multiplier = this.player.doubleScoreActive ? 2 : 1;
       this.scoreManager.addCoins(coinsGathered * multiplier);
       if (Math.random() < 0.15) voiceSystem.speak('COIN');
+    }
+
+    // 2-Minute AI Computer Race Loop
+    if (this.isAiRaceMode && this.aiBot) {
+      this.aiRaceTimer -= delta;
+      this.aiBot.update(this.gameSpeed, delta, this.player.position.z);
+
+      const leadMeters = Math.floor(this.player.position.z - this.aiBot.distance);
+      const timerEl = document.getElementById('ai-race-timer');
+      const leadEl = document.getElementById('ai-race-lead');
+
+      if (timerEl) {
+        const secs = Math.max(0, Math.ceil(this.aiRaceTimer));
+        const m = Math.floor(secs / 60).toString().padStart(2, '0');
+        const s = (secs % 60).toString().padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+      }
+
+      if (leadEl) {
+        if (leadMeters >= 0) {
+          leadEl.textContent = `+${leadMeters} m (PLAYER LEAD)`;
+          leadEl.style.color = 'var(--accent-green)';
+        } else {
+          leadEl.textContent = `${leadMeters} m (AI BOT LEAD)`;
+          leadEl.style.color = 'var(--accent-pink)';
+        }
+      }
+
+      if (this.aiRaceTimer <= 0) {
+        if (leadMeters >= 0) {
+          voiceSystem.speak('VICTORY');
+          progressManager.addCoins(1000);
+          alert('🎉 VICTORY! YOU BEAT THE AI COMPUTER RUNNER BOT IN THE 2-MINUTE RACE! (+1000 BONUS COINS)');
+        } else {
+          alert('🤖 AI COMPUTER RUNNER BOT WON THE 2-MINUTE RACE! TRY AGAIN!');
+        }
+        this.enterGameOverLobby();
+        return;
+      }
     }
 
     this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta, this.gameSpeed);

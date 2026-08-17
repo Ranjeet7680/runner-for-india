@@ -47,9 +47,9 @@ export class Game {
 
     // Game Loop States: 'LOADING', 'WELCOME', 'COUNTDOWN', 'PLAYING', 'PAUSED', 'REVIVE', 'GAMEOVER'
     this.state = 'LOADING';
-    this.baseSpeed = 8.0;
-    this.gameSpeed = 8.0;
-    this.maxSpeed = 38.0;
+    this.baseSpeed = 18.0;
+    this.gameSpeed = 18.0;
+    this.maxSpeed = 65.0;
     this.distanceTraveled = 0;
     this.clock = new THREE.Clock();
 
@@ -331,8 +331,8 @@ export class Game {
       return;
     }
 
-    // Automatic Continuous Running Acceleration (from 8.0 up to 38.0)
-    this.gameSpeed = Math.min(this.maxSpeed, this.baseSpeed + (this.distanceTraveled * 0.006));
+    // Automatic Continuous Running Acceleration (from 18.0 up to 65.0)
+    this.gameSpeed = Math.min(this.maxSpeed, this.baseSpeed + (this.distanceTraveled * 0.012));
     this.distanceTraveled += this.gameSpeed * delta;
 
     // Check Location Milestones for 108 procedural landmarks

@@ -81,6 +81,7 @@ export class SoundEngine {
   startMusic() {
     if (this.isMuted || !this.ctx || this.musicPlaying) return;
     this.ensureContext();
+    this.stopLobbyMusic();
     this.musicPlaying = true;
     this.playMusicLoop();
   }
@@ -88,6 +89,44 @@ export class SoundEngine {
   stopMusic() {
     this.musicPlaying = false;
     if (this.musicTimer) clearInterval(this.musicTimer);
+  }
+
+  startLobbyMusic() {
+    if (this.isMuted || !this.ctx || this.lobbyPlaying) return;
+    this.ensureContext();
+    this.stopMusic();
+    this.lobbyPlaying = true;
+    this.playLobbyLoop();
+  }
+
+  stopLobbyMusic() {
+    this.lobbyPlaying = false;
+    if (this.lobbyTimer) clearInterval(this.lobbyTimer);
+  }
+
+  playLobbyLoop() {
+    let index = 0;
+    const notes = [130.81, 164.81, 196.00, 261.63, 196.00, 164.81, 130.81, 110.00];
+    this.lobbyTimer = setInterval(() => {
+      if (!this.lobbyPlaying || this.isMuted || !this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      const freq = notes[index % notes.length];
+      index++;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.gainNodes.music || this.masterGain);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.35);
+    }, 280);
   }
 
   playMusicLoop() {

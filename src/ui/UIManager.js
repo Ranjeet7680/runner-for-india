@@ -360,6 +360,12 @@ export class UIManager {
       targetScreen.classList.add('active');
     }
 
+    if (targetScreen === this.screenWelcome || targetScreen === this.screenCharacters || targetScreen === this.screenMaps || targetScreen === this.screenMissions || targetScreen === this.screenRewards || targetScreen === this.screenAchievements) {
+      soundEngine.startLobbyMusic();
+    } else if (targetScreen === this.screenCountdown || targetScreen === this.screenHUD) {
+      soundEngine.stopLobbyMusic();
+    }
+
     this.updateProfileBadge();
   }
 

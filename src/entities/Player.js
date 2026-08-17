@@ -402,16 +402,19 @@ export class Player {
     // Advance forward along POSITIVE Z
     this.position.z = distanceZ;
 
-    // Snappy Snapping Lerp for Mobile Touch Latency (0.35 factor)
-    this.position.x = THREE.MathUtils.lerp(this.position.x, this.targetX, 0.35);
+    // Frame-rate independent lerp for smooth 144Hz/120Hz/60Hz movement
+    const lerpX = 1.0 - Math.exp(-24 * delta);
+    this.position.x = THREE.MathUtils.lerp(this.position.x, this.targetX, lerpX);
 
     // Smooth Bank Angle Lean during Lane Change
     const laneShiftDelta = (this.targetX - this.position.x);
-    this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -laneShiftDelta * 0.18, 0.22);
-    this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, laneShiftDelta * 0.1, 0.22);
+    const lerpBank = 1.0 - Math.exp(-16 * delta);
+    this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -laneShiftDelta * 0.18, lerpBank);
+    this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, laneShiftDelta * 0.1, lerpBank);
 
     if (this.isRocketFlying) {
-      this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, 0.12);
+      const lerpY = 1.0 - Math.exp(-10 * delta);
+      this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, lerpY);
       this.isGrounded = false;
     } else if (!this.isGrounded) {
       this.velocity.y += this.gravity * delta;

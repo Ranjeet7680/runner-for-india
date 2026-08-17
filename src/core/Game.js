@@ -308,7 +308,7 @@ export class Game {
   }
 
   update() {
-    const delta = Math.min(this.clock.getDelta(), 0.033);
+    const delta = Math.min(this.clock.getDelta(), 0.0166);
 
     // FPS Counter Update
     this.frameCount++;

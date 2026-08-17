@@ -109,6 +109,61 @@ export class CityGenerator {
     this.solarTexture = new THREE.CanvasTexture(canvasSp);
     this.solarTexture.wrapS = THREE.RepeatWrapping;
     this.solarTexture.wrapT = THREE.RepeatWrapping;
+
+    // AI Poster 1: NEXORA AI ROBOTICS
+    const canvasAi = document.createElement('canvas');
+    canvasAi.width = 256; canvasAi.height = 384;
+    const ctxAi = canvasAi.getContext('2d');
+    ctxAi.fillStyle = '#071026';
+    ctxAi.fillRect(0, 0, 256, 384);
+    ctxAi.strokeStyle = '#00f3ff';
+    ctxAi.lineWidth = 8;
+    ctxAi.strokeRect(8, 8, 240, 368);
+
+    ctxAi.strokeStyle = '#00f3ff';
+    ctxAi.lineWidth = 4;
+    ctxAi.beginPath(); ctxAi.arc(128, 140, 60, 0, Math.PI * 2); ctxAi.stroke();
+    ctxAi.fillStyle = '#ff007f';
+    ctxAi.beginPath(); ctxAi.arc(128, 140, 20, 0, Math.PI * 2); ctxAi.fill();
+
+    ctxAi.fillStyle = '#00f3ff';
+    ctxAi.font = '900 22px sans-serif';
+    ctxAi.textAlign = 'center';
+    ctxAi.fillText('NEXORA AI', 128, 240);
+    ctxAi.fillStyle = '#ffd700';
+    ctxAi.font = '900 16px sans-serif';
+    ctxAi.fillText('NEURAL ROBOTICS', 128, 280);
+    ctxAi.fillStyle = '#8a99ad';
+    ctxAi.font = '600 12px sans-serif';
+    ctxAi.fillText('FUTURE INTELLIGENCE', 128, 320);
+    this.aiPosterTexture = new THREE.CanvasTexture(canvasAi);
+
+    // AI Poster 2: CID DETECTIVE MOONLIGHT
+    const canvasCid = document.createElement('canvas');
+    canvasCid.width = 256; canvasCid.height = 384;
+    const ctxCid = canvasCid.getContext('2d');
+    ctxCid.fillStyle = '#140826';
+    ctxCid.fillRect(0, 0, 256, 384);
+    ctxCid.strokeStyle = '#ff007f';
+    ctxCid.lineWidth = 8;
+    ctxCid.strokeRect(8, 8, 240, 368);
+
+    ctxCid.fillStyle = '#ff007f';
+    ctxCid.font = '900 24px sans-serif';
+    ctxCid.textAlign = 'center';
+    ctxCid.fillText('CID DETECTIVE', 128, 80);
+    ctxCid.fillStyle = '#00f3ff';
+    ctxCid.font = '900 18px sans-serif';
+    ctxCid.fillText('MOONLIGHT METROPOLIS', 128, 120);
+
+    ctxCid.fillStyle = '#ffd700';
+    ctxCid.font = '900 50px sans-serif';
+    ctxCid.fillText('🕵️‍♂️', 128, 220);
+
+    ctxCid.fillStyle = '#ffffff';
+    ctxCid.font = '700 14px sans-serif';
+    ctxCid.fillText('SPECIAL INVESTIGATION', 128, 310);
+    this.cidDetectiveTexture = new THREE.CanvasTexture(canvasCid);
   }
 
   initCelestialSkyBody() {
@@ -196,6 +251,12 @@ export class CityGenerator {
     const sideRight = 18;
 
     const type = (this.landmarkCounter++) % 20;
+
+    if (this.landmarkCounter % 3 === 0) {
+      this.createAiPosterBillboard(sideLeft - 6, z + 10, 'AI');
+    } else if (this.landmarkCounter % 3 === 1) {
+      this.createAiPosterBillboard(sideRight + 6, z + 15, 'CID');
+    }
 
     switch (type) {
       case 0:
@@ -587,6 +648,32 @@ export class CityGenerator {
     const beam = new THREE.Mesh(new THREE.BoxGeometry(0.5, height, 0.5), neonMat);
     beam.position.set(6, height / 2, 6);
     group.add(beam);
+
+    this.scene.add(group);
+    this.landmarks.push(group);
+  }
+
+  createAiPosterBillboard(x, z, type = 'AI') {
+    const group = new THREE.Group();
+    group.position.set(x, 10, z);
+
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x11192e, metalness: 0.8 });
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(7.0, 10.0, 0.4), frameMat);
+    group.add(frame);
+
+    const tex = (type === 'CID') ? this.cidDetectiveTexture : this.aiPosterTexture;
+    const posterMat = new THREE.MeshBasicMaterial({ map: tex });
+    const poster = new THREE.Mesh(new THREE.BoxGeometry(6.6, 9.6, 0.44), posterMat);
+    group.add(poster);
+
+    const borderMat = new THREE.MeshBasicMaterial({ color: (type === 'CID' ? 0xff007f : 0x00f3ff) });
+    const borderTop = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.2, 0.5), borderMat);
+    borderTop.position.y = 5.1;
+    group.add(borderTop);
+
+    const borderBot = new THREE.Mesh(new THREE.BoxGeometry(7.2, 0.2, 0.5), borderMat);
+    borderBot.position.y = -5.1;
+    group.add(borderBot);
 
     this.scene.add(group);
     this.landmarks.push(group);

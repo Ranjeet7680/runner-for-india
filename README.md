@@ -8,9 +8,20 @@
 
 ## 🌟 Key Features
 
+### 🤖 Neural Adaptive AI Game Director
+- **Real-Time Skill Rating**: Tracks player reaction speeds, near-misses, coin capture rate, and jump/slide accuracy (0% to 100%).
+- **Dynamic Difficulty Modulation**: Dynamically scales speed, coin trail patterns, and obstacle frequency based on player skill.
+- **AI Tactical Advice & Commentary**: Live HUD toast guidance and CID voice callouts ("🤖 AI DIRECTOR: High-Speed Train Rake Ahead! Vault the Ramp!").
+- **Smart AI Competitor Bot**: Evasive AI bot runner in 2-Minute Race Mode with jumping, sliding, and pathfinding tactics.
+
+### 🎵 Enhanced Web Audio BGM & Spatial Sound Synthesis
+- **Biquad Filter Sweeps**: Low-pass filter sweeps ($1800\text{Hz} + \sin(t) \cdot 800\text{Hz}$, $Q = 3.5$) for authentic 80s Cyberpunk synthwave warmth.
+- **Harmonic Synth Pads**: Dual-oscillator chord pads playing root + 5th fifth intervals across all 4 music tracks (`CYBER_PUNK_SYNTH`, `INDIAN_METRO_BEAT`, `CID_MYSTERY_THEME`, `SPEED_RUNNER_EDM`).
+- **3D Spatial Doppler Horns**: 3-note locomotive chord with stereo panning and echo delay.
+
 ### 🎮 Game Modes
 - **Solo Run Mode**: Infinite endless runner mode to set high score records, collect coins, and complete daily quests.
-- **2-Minute AI Computer Race Mode**: 120-second head-to-head sprint against an AI Bot Runner with live lead distance HUD.
+- **2-Minute AI Computer Race Mode**: 120-second head-to-head sprint against a smart AI Bot Runner with live lead distance HUD.
 
 ### 🚆 Expanded Indian Railway & Multi-Coach Rakes
 - **Train Variety**: Goods Cargo (`MAAL`), Petroleum Tankers (`PETRO`), and Passenger Coaches (`COACH`).
@@ -59,7 +70,7 @@
 ## 🛠️ Built With
 
 - **Three.js**: WebGL rendering, custom shaders, and particle systems.
-- **Web Audio API**: Synthesized SFX, 4 music tracks, spatial 3D audio.
+- **Web Audio API**: Synthesized SFX, 4 music tracks, spatial 3D audio, biquad filter sweeps.
 - **Web Speech Synthesis**: Voice speech engine for CID detective dialogues in Hindi, English, and Bilingual modes.
 - **Vite**: Frontend bundler.
 

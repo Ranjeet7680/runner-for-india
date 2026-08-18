@@ -8,6 +8,12 @@
 
 ## 🌟 Key Features
 
+### 🔄 Multi-Stage Procedural Loading Screen Flow
+- **1st Loading Screen (Welcome Initializer)**: Web Audio, Three.js shaders, and CID voice synthesizer initialization ($0\% \rightarrow 100\%$).
+- **2nd Loading Screen (Pre-Gameplay Run Initializer)**: Spawning 3D train rakes, calibrating 120FPS tracks, and preparing countdown.
+- **3rd Loading Screen (Crash & Game Over Diagnostics)**: Triggered upon obstacle crash to compute high score records, XP rewards, and mission progress.
+- **4th Loading Screen (Lobby & World Regenerator)**: Triggered when restarting a run to reset track chunks, obstacles, and coin paths.
+
 ### 🤖 Neural Adaptive AI Game Director
 - **Real-Time Skill Rating**: Tracks player reaction speeds, near-misses, coin capture rate, and jump/slide accuracy (0% to 100%).
 - **Dynamic Difficulty Modulation**: Dynamically scales speed, coin trail patterns, and obstacle frequency based on player skill.

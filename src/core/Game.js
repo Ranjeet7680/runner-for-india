@@ -148,7 +148,10 @@ export class Game {
     }
     const aiBox = document.getElementById('hud-ai-race-box');
     if (aiBox) aiBox.classList.add('hidden');
-    this.startCountdownFlow();
+
+    this.uiManager.showSecondLoadingScreen(() => {
+      this.startCountdownFlow();
+    });
   }
 
   startAiRaceMode() {
@@ -160,7 +163,9 @@ export class Game {
     const aiBox = document.getElementById('hud-ai-race-box');
     if (aiBox) aiBox.classList.remove('hidden');
 
-    this.startCountdownFlow();
+    this.uiManager.showSecondLoadingScreen(() => {
+      this.startCountdownFlow();
+    });
   }
 
   startCountdownFlow() {
@@ -320,14 +325,16 @@ export class Game {
     missionManager.updateProgress('coins', coinsCollected);
     achievementManager.checkStats();
 
-    this.uiManager.showGameOverLobby(
-      finalScore,
-      this.distanceTraveled,
-      coinsCollected,
-      progressManager.highScore,
-      isNewRecord,
-      xpEarned
-    );
+    this.uiManager.showThirdLoadingScreen(() => {
+      this.uiManager.showGameOverLobby(
+        finalScore,
+        this.distanceTraveled,
+        coinsCollected,
+        progressManager.highScore,
+        isNewRecord,
+        xpEarned
+      );
+    });
   }
 
   startLoop() {

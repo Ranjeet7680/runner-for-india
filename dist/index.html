@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-CyOfxD-W.js"></script>
+  <script type="module" crossorigin src="/assets/index-Br4g8OjB.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-B-FAHzkR.css">
 </head>
 <body>
@@ -82,6 +82,54 @@
           <div class="progress-labels">
             <span id="loading-status-text">Initialising Metro Cities…</span>
             <span id="loading-percentage">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1B. SECOND LOADING SCREEN (PRE-GAMEPLAY RUN INITIALIZATION) -->
+    <div id="screen-loading-2" class="ui-screen hidden">
+      <div class="loading-content">
+        <div class="brand-badge"><span class="brand-dot"></span><span class="brand-text">STAGE 2 • METRO CITY & NEURAL TRACKS</span></div>
+        <h2 class="game-title" style="font-size: 2.2rem; color: var(--primary-cyan);">PREPARING RUN</h2>
+        <div class="game-subtitle" style="font-size: 1.0rem;">SPAWNING MULTI-COACH TRAIN RAKES</div>
+        <div class="progress-box" style="margin-top: 25px;">
+          <div class="progress-bar-bg"><div id="loading-2-progress-fill" class="progress-bar-fill" style="width: 0%;"></div></div>
+          <div class="progress-labels">
+            <span id="loading-2-status-text">Calibrating 120FPS Tracks…</span>
+            <span id="loading-2-percentage">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1C. THIRD LOADING SCREEN (CRASH & GAME OVER DIAGNOSTICS) -->
+    <div id="screen-loading-3" class="ui-screen hidden">
+      <div class="loading-content">
+        <div class="brand-badge"><span class="brand-dot" style="background: var(--accent-pink);"></span><span class="brand-text">STAGE 3 • CRASH DIAGNOSTICS</span></div>
+        <h2 class="game-title" style="font-size: 2.2rem; color: var(--accent-pink);">GAME OVER</h2>
+        <div class="game-subtitle" style="font-size: 1.0rem;">COMPUTING HIGH SCORE & XP REWARDS</div>
+        <div class="progress-box" style="margin-top: 25px;">
+          <div class="progress-bar-bg"><div id="loading-3-progress-fill" class="progress-bar-fill" style="width: 0%; background: var(--accent-pink);"></div></div>
+          <div class="progress-labels">
+            <span id="loading-3-status-text">Syncing High Score Record…</span>
+            <span id="loading-3-percentage">0%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1D. FOURTH LOADING SCREEN (RESTART & LOBBY SYNC) -->
+    <div id="screen-loading-4" class="ui-screen hidden">
+      <div class="loading-content">
+        <div class="brand-badge"><span class="brand-dot" style="background: var(--accent-gold);"></span><span class="brand-text">STAGE 4 • LOBBY & TRACK SYNC</span></div>
+        <h2 class="game-title" style="font-size: 2.2rem; color: var(--accent-gold);">REGENERATING WORLD</h2>
+        <div class="game-subtitle" style="font-size: 1.0rem;">PREPARING NEXT MISSION</div>
+        <div class="progress-box" style="margin-top: 25px;">
+          <div class="progress-bar-bg"><div id="loading-4-progress-fill" class="progress-bar-fill" style="width: 0%; background: var(--accent-gold);"></div></div>
+          <div class="progress-labels">
+            <span id="loading-4-status-text">Resetting Track Obstacles…</span>
+            <span id="loading-4-percentage">0%</span>
           </div>
         </div>
       </div>

@@ -13,6 +13,9 @@ export class UIManager {
 
     // Screens
     this.screenLoading = document.getElementById('screen-loading');
+    this.screenLoading2 = document.getElementById('screen-loading-2');
+    this.screenLoading3 = document.getElementById('screen-loading-3');
+    this.screenLoading4 = document.getElementById('screen-loading-4');
     this.screenWelcome = document.getElementById('screen-welcome');
     this.screenCharacters = document.getElementById('screen-characters');
     this.screenMaps = document.getElementById('screen-maps');
@@ -365,8 +368,10 @@ export class UIManager {
     document.getElementById('btn-go-again')?.addEventListener('click', () => {
       soundEngine.playClick();
       if (this.isMobileDevice) this.requestFullscreenAuto();
-      if (this.game.isAiRaceMode) this.game.startAiRaceMode();
-      else this.game.startSoloRun();
+      this.showFourthLoadingScreen(() => {
+        if (this.game.isAiRaceMode) this.game.startAiRaceMode();
+        else this.game.startSoloRun();
+      });
     });
     document.getElementById('btn-go-share')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-go-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
@@ -809,5 +814,77 @@ export class UIManager {
     }
 
     this.showModal(this.modalGameOver);
+  }
+
+  showSecondLoadingScreen(onComplete) {
+    this.showScreen(this.screenLoading2);
+    let p = 0;
+    const fill = document.getElementById('loading-2-progress-fill');
+    const pct = document.getElementById('loading-2-percentage');
+    const txt = document.getElementById('loading-2-status-text');
+
+    const interval = setInterval(() => {
+      p += 25;
+      if (fill) fill.style.width = `${p}%`;
+      if (pct) pct.textContent = `${p}%`;
+      if (txt) {
+        txt.textContent = p < 50 ? 'Spawning 3D Train Rakes…' : (p < 80 ? 'Calibrating Track Multi-Coaches…' : 'Ready to Run!');
+      }
+
+      if (p >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (onComplete) onComplete();
+        }, 250);
+      }
+    }, 120);
+  }
+
+  showThirdLoadingScreen(onComplete) {
+    this.showScreen(this.screenLoading3);
+    let p = 0;
+    const fill = document.getElementById('loading-3-progress-fill');
+    const pct = document.getElementById('loading-3-percentage');
+    const txt = document.getElementById('loading-3-status-text');
+
+    const interval = setInterval(() => {
+      p += 33;
+      if (fill) fill.style.width = `${p}%`;
+      if (pct) pct.textContent = `${p}%`;
+      if (txt) {
+        txt.textContent = p < 66 ? 'Analyzing Crash Diagnostics…' : 'Syncing High Score Record…';
+      }
+
+      if (p >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (onComplete) onComplete();
+        }, 200);
+      }
+    }, 100);
+  }
+
+  showFourthLoadingScreen(onComplete) {
+    this.showScreen(this.screenLoading4);
+    let p = 0;
+    const fill = document.getElementById('loading-4-progress-fill');
+    const pct = document.getElementById('loading-4-percentage');
+    const txt = document.getElementById('loading-4-status-text');
+
+    const interval = setInterval(() => {
+      p += 25;
+      if (fill) fill.style.width = `${p}%`;
+      if (pct) pct.textContent = `${p}%`;
+      if (txt) {
+        txt.textContent = p < 50 ? 'Regenerating Railway Tracks…' : 'Preparing Next Mission…';
+      }
+
+      if (p >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (onComplete) onComplete();
+        }, 200);
+      }
+    }, 110);
   }
 }

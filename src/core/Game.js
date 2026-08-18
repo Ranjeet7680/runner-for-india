@@ -411,7 +411,7 @@ export class Game {
     }
 
     // Triangle Train Ramp Climbing Check
-    const rampY = this.trainManager.getTrainRampHeight(this.player.position);
+    const rampY = this.trainManager.getTrainRampHeight(this.player.position, this.player.isJumping);
     if (rampY !== null) {
       this.player.setRampTargetY(rampY);
     } else {

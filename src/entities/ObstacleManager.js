@@ -180,7 +180,7 @@ export class ObstacleManager {
     for (let i = 0; i < this.obstacles.length; i++) {
       const obs = this.obstacles[i];
       if (obs.box.intersectsBox(playerBox)) {
-        if (obs.type === 'HIGH_BARRIER' && (isSliding || playerY <= 0.2)) {
+        if (obs.type === 'HIGH_BARRIER' && isSliding) {
           continue; // Slide safely under high barrier!
         }
         if ((obs.type === 'LOW_BARRIER' || obs.type === 'CONES') && (isJumping || playerY > 0.8)) {

@@ -283,8 +283,8 @@ export class CityGenerator {
   }
 
   spawnChunkLandmarks(z) {
-    const sideLeft = -18;
-    const sideRight = 18;
+    const sideLeft = -35;
+    const sideRight = 35;
 
     const type = (this.landmarkCounter++) % 20;
 
@@ -300,12 +300,12 @@ export class CityGenerator {
         this.createIndiaGateArch(sideRight, z);
         break;
       case 1:
-        this.createTajMahalDome(sideRight + 5, z);
+        this.createTajMahalDome(sideRight + 8, z);
         this.createVaranasiGhats(sideLeft, z);
         break;
       case 2:
         this.createCyberHubTower(sideLeft, z);
-        this.createMetroTunnelEntrance(0, z);
+        this.createSkyscraper(sideRight, z, 45, 0x00f3ff);
         break;
       case 3:
         this.createBridgePylon(sideLeft, z);
@@ -316,12 +316,12 @@ export class CityGenerator {
         this.createHowrahSteelTruss(sideRight, z);
         break;
       case 5:
-        this.createSnowMountainPeak(sideLeft, z);
-        this.createMountainMonastery(sideRight, z);
+        this.createSnowMountainPeak(sideLeft - 10, z);
+        this.createMountainMonastery(sideRight + 10, z);
         break;
       case 6:
         this.createPinkCityPalace(sideLeft, z);
-        this.createDesertDunes(sideRight, z);
+        this.createDesertDunes(sideRight + 10, z);
         break;
       case 7:
         this.createGoldenShrine(sideRight, z);
@@ -336,20 +336,20 @@ export class CityGenerator {
         this.createPalmHuts(sideRight, z);
         break;
       case 10:
-        this.createTokyoTower(sideRight + 6, z);
+        this.createTokyoTower(sideRight + 10, z);
         this.createSkyscraper(sideLeft, z, 30, 0xff007f);
         break;
       case 11:
-        this.createBurjTower(sideLeft - 4, z);
+        this.createBurjTower(sideLeft - 10, z);
         this.createSkyscraper(sideRight, z, 55, 0x00f3ff);
         break;
       case 12:
         this.createRobotFactory(sideLeft, z);
-        this.createHyperloopTube(0, z);
+        this.createSkyscraper(sideRight, z, 38, 0xffaa00);
         break;
       case 13:
-        this.createSpaceRocket(sideRight + 10, z);
-        this.createBillboard(0, z, 'SPACE CENTER');
+        this.createSpaceRocket(sideRight + 15, z);
+        this.createSkyscraper(sideLeft, z, 40, 0x00ff88);
         break;
       case 14:
         this.createSpaceDome(sideLeft, z);
@@ -364,16 +364,16 @@ export class CityGenerator {
         this.createChinatownArch(sideRight, z);
         break;
       case 17:
-        this.createWindTurbine(sideRight + 10, z);
+        this.createWindTurbine(sideRight + 15, z);
         this.createSolarPanels(sideLeft, z);
         break;
       case 18:
-        this.createStadiumArena(sideRight, z);
-        this.createBillboard(0, z, 'NEXORA GRAND PRIX');
+        this.createStadiumArena(sideRight + 10, z);
+        this.createSkyscraper(sideLeft, z, 48, 0x7928ca);
         break;
       default:
-        this.createNexoraTower(sideLeft - 6, z);
-        this.createHyperloopTube(0, z);
+        this.createNexoraTower(sideLeft - 10, z);
+        this.createSkyscraper(sideRight, z, 50, 0x00f3ff);
         break;
     }
 

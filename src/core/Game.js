@@ -494,7 +494,7 @@ export class Game {
   }
 
   checkCollisions() {
-    if (this.trainManager.checkCollision(this.player.box, this.player.position.y)) {
+    if (this.trainManager.checkCollision(this.player.box, this.player.position.y, this.player.position.z, this.player.position.x)) {
       voiceSystem.speak('TRAIN');
       this.handlePlayerCrash();
       return;

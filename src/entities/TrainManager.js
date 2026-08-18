@@ -215,13 +215,13 @@ export class TrainManager {
     hlRight.position.set(0.7, 1.2, frontZ);
     trainGroup.add(hlRight);
 
-    // Attach Triangle Ramp at front of train if stationary or randomly
-    const hasRamp = !isMoving || Math.random() < 0.6;
+    // Attach Triangle Ramp at front of all trains for smooth climbing
+    const hasRamp = true;
     let rampMesh = null;
-    const rampLength = 5.0;
+    const rampLength = 6.0;
     if (hasRamp) {
       rampMesh = new THREE.Mesh(this.rampGeo, this.rampMat);
-      rampMesh.position.set(0, 0, frontZ - rampLength);
+      rampMesh.position.set(0, 0, frontZ - (rampLength / 2));
       trainGroup.add(rampMesh);
     }
 
@@ -238,7 +238,7 @@ export class TrainManager {
       height: 3.2,
       depth: totalDepth,
       coachCount: numCoaches,
-      hasRamp: hasRamp,
+      hasRamp: true,
       rampLength: rampLength,
       hornPlayed: false
     };
@@ -286,22 +286,21 @@ export class TrainManager {
       const t = this.trains[i];
       const tx = t.mesh.position.x;
       const tz = t.mesh.position.z;
-      const halfW = t.width / 2 + 0.4;
+      const halfW = t.width / 2 + 0.6;
       const halfD = t.depth / 2;
 
       // Check if player is in same lane
       if (Math.abs(px - tx) <= halfW) {
-        // Front of train coordinate (where ramp is attached)
         const frontZ = tz - halfD;
 
         // Check if player is on the Triangle Ramp in front of train
-        if (t.hasRamp && pz >= (frontZ - t.rampLength) && pz <= frontZ) {
-          const progress = (pz - (frontZ - t.rampLength)) / t.rampLength;
-          return Math.max(0, Math.min(3.2, progress * 3.2));
+        if (pz >= (frontZ - 7.0) && pz <= frontZ) {
+          const progress = Math.max(0, Math.min(1.0, (pz - (frontZ - 7.0)) / 7.0));
+          return progress * 3.2;
         }
 
         // Check if player is running on top of train roof
-        if (pz >= frontZ && pz <= (tz + halfD)) {
+        if (pz >= frontZ && pz <= (tz + halfD + 2.0)) {
           return 3.2; // Roof height
         }
       }
@@ -309,12 +308,19 @@ export class TrainManager {
     return null;
   }
 
-  checkCollision(playerBox, playerY = 0) {
+  checkCollision(playerBox, playerY = 0, playerZ = 0, playerX = 0) {
     for (let i = 0; i < this.trains.length; i++) {
       const t = this.trains[i];
       if (t.box.intersectsBox(playerBox)) {
-        if (playerY >= 2.8) {
-          continue; // Player is climbing ramp or running/jumping on train roof!
+        const halfW = t.width / 2 + 0.6;
+        const halfD = t.depth / 2;
+        const frontZ = t.mesh.position.z - halfD;
+
+        // If player is in same lane and on/near ramp or roof, do NOT crash!
+        if (Math.abs(playerX - t.mesh.position.x) <= halfW) {
+          if (playerZ >= (frontZ - 7.0) || playerY >= 0.2) {
+            continue; // Climbing ramp or running on train roof - safe!
+          }
         }
         return true;
       }

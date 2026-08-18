@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <script type="module" crossorigin src="/assets/index-Bgm4dsbB.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BVsaGXCH.css">
+  <script type="module" crossorigin src="/assets/index-7rVEI9km.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B-FAHzkR.css">
 </head>
 <body>
   <!-- 3D Canvas -->
@@ -42,6 +42,12 @@
         <span class="toast-subtitle">ACHIEVEMENT UNLOCKED!</span>
         <span id="toast-title" class="toast-title">FIRST METRO RUN</span>
       </div>
+    </div>
+
+    <!-- GENERAL IN-GAME FLOATING TOAST NOTIFICATION -->
+    <div id="ui-general-toast" class="general-toast hidden">
+      <span id="gen-toast-icon" class="gen-toast-icon">✨</span>
+      <span id="gen-toast-title" class="gen-toast-title">NOTIFICATION</span>
     </div>
 
     <!-- 1. LOADING SCREEN -->
@@ -402,12 +408,26 @@
         </div>
       </div>
 
-      <!-- Touch Control Buttons Overlay for Mobile -->
-      <div class="mobile-touch-overlay pointer-auto">
-        <button id="touch-btn-left" class="touch-btn touch-left">◀</button>
-        <button id="touch-btn-up" class="touch-btn touch-up">▲</button>
-        <button id="touch-btn-down" class="touch-btn touch-down">▼</button>
-        <button id="touch-btn-right" class="touch-btn touch-right">▶</button>
+      <!-- Touch Control Buttons Overlay for Mobile (Dual-Thumb Ergonomic Layout) -->
+      <div id="mobile-touch-overlay" class="mobile-touch-overlay pointer-auto layout-split">
+        <div class="touch-zone touch-zone-left">
+          <button id="touch-btn-left" class="touch-btn touch-action-left" aria-label="Steer Left">◀</button>
+          <button id="touch-btn-right" class="touch-btn touch-action-right" aria-label="Steer Right">▶</button>
+        </div>
+        <div class="touch-zone touch-zone-center" style="display:flex; flex-direction:column; justify-content:flex-end; align-items:center; padding-bottom:15px; gap:8px;">
+          <!-- Emote Bar -->
+          <div class="hud-emotes-bar" style="display:flex; gap:6px; background:rgba(10,20,40,0.85); padding:4px 8px; border-radius:20px; border:1px solid var(--primary-cyan);">
+            <button id="btn-emote-dance" class="emote-btn" title="Dance Emote">💃</button>
+            <button id="btn-emote-victory" class="emote-btn" title="Victory Emote">🏆</button>
+            <button id="btn-emote-flip" class="emote-btn" title="Backflip Emote">🤸‍♂️</button>
+            <button id="btn-emote-salute" class="emote-btn" title="Salute Emote">🫡</button>
+          </div>
+          <button id="touch-btn-ability" class="touch-btn touch-action-ability" aria-label="Hero Ability" style="width:64px; height:64px; border-radius:50%; background:radial-gradient(circle, #00f3ff 0%, #7928ca 100%); border:3px solid #ffffff; font-size:1.5rem; box-shadow:0 0 20px #00f3ff; color:#fff; font-weight:900;">⚡</button>
+        </div>
+        <div class="touch-zone touch-zone-right">
+          <button id="touch-btn-up" class="touch-btn touch-action-up" aria-label="Jump">▲</button>
+          <button id="touch-btn-down" class="touch-btn touch-action-down" aria-label="Slide">▼</button>
+        </div>
       </div>
     </div>
 
@@ -458,6 +478,16 @@
           <div class="result-tile"><span class="lbl">DISTANCE</span><span id="go-distance" class="val">0 m</span></div>
           <div class="result-tile"><span class="lbl">COINS COLLECTED</span><span id="go-coins" class="val">0</span></div>
           <div class="result-tile"><span class="lbl">XP GAINED</span><span id="go-xp" class="val">+0 XP</span></div>
+        </div>
+        <!-- High Score Celebration Emotes Row -->
+        <div style="margin: 10px 0; text-align: center;">
+          <span style="font-size: 0.75rem; color: var(--primary-cyan); font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 4px;">🎉 CELEBRATE WITH EMOTES:</span>
+          <div style="display: flex; justify-content: center; gap: 8px;">
+            <button class="btn-secondary go-emote-btn" data-emote="DANCE" style="padding: 6px 12px; font-size: 1.1rem;" title="Dance Dance">💃 Dance</button>
+            <button class="btn-secondary go-emote-btn" data-emote="VICTORY" style="padding: 6px 12px; font-size: 1.1rem;" title="Victory Jump">🏆 Victory</button>
+            <button class="btn-secondary go-emote-btn" data-emote="FLIP" style="padding: 6px 12px; font-size: 1.1rem;" title="Backflip">🤸‍♂️ Flip</button>
+            <button class="btn-secondary go-emote-btn" data-emote="SALUTE" style="padding: 6px 12px; font-size: 1.1rem;" title="CID Salute">🫡 Salute</button>
+          </div>
         </div>
         <div class="modal-buttons">
           <button id="btn-go-again" class="btn-primary">RUN AGAIN ➔</button>

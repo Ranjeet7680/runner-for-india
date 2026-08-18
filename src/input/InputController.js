@@ -22,6 +22,14 @@ export class InputController {
     }
   }
 
+  triggerHaptic(pattern = 15) {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {}
+    }
+  }
+
   initOnce() {
     if (this.initialized) return;
     this.initialized = true;
@@ -29,6 +37,19 @@ export class InputController {
     this.initKeyboardAndSmartTVRemote();
     this.initTouchSwipes();
     this.initOnScreenMobileButtons();
+    this.initTouchRippleEffect();
+  }
+
+  initTouchRippleEffect() {
+    window.addEventListener('pointerdown', (e) => {
+      if (e.target && e.target.closest('button, input, select, .char-card, .map-card, .close-btn')) return;
+      const ripple = document.createElement('div');
+      ripple.className = 'touch-ripple-ring';
+      ripple.style.left = `${e.clientX}px`;
+      ripple.style.top = `${e.clientY}px`;
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 400);
+    }, { passive: true });
   }
 
   initKeyboardAndSmartTVRemote() {
@@ -42,13 +63,28 @@ export class InputController {
       }
 
       if (code === 'ArrowLeft' || code === 'KeyA' || keyCode === 37 || keyCode === 21) {
+        this.triggerHaptic(12);
         this.emit('left');
       } else if (code === 'ArrowRight' || code === 'KeyD' || keyCode === 39 || keyCode === 22) {
+        this.triggerHaptic(12);
         this.emit('right');
       } else if (code === 'ArrowUp' || code === 'KeyW' || code === 'Space' || keyCode === 38 || keyCode === 19 || keyCode === 32) {
+        this.triggerHaptic(20);
         this.emit('jump');
       } else if (code === 'ArrowDown' || code === 'KeyS' || keyCode === 40 || keyCode === 20) {
+        this.triggerHaptic(15);
         this.emit('slide');
+      } else if (code === 'KeyE' || code === 'ShiftLeft' || code === 'ShiftRight' || keyCode === 16 || keyCode === 69) {
+        this.triggerHaptic(25);
+        this.emit('ability');
+      } else if (code === 'Digit1' || code === 'KeyZ') {
+        this.emit('emote', 'DANCE');
+      } else if (code === 'Digit2' || code === 'KeyX') {
+        this.emit('emote', 'VICTORY');
+      } else if (code === 'Digit3' || code === 'KeyC') {
+        this.emit('emote', 'FLIP');
+      } else if (code === 'Digit4' || code === 'KeyV') {
+        this.emit('emote', 'SALUTE');
       } else if (code === 'KeyP' || code === 'Escape' || code === 'Backspace' || keyCode === 10009 || keyCode === 461 || keyCode === 27) {
         this.emit('pause');
       } else if (code === 'KeyR') {
@@ -64,6 +100,7 @@ export class InputController {
 
   initTouchSwipes() {
     const handleStart = (e) => {
+      if (window.game && window.game.state !== 'PLAYING') return;
       if (e.touches && e.touches.length > 0) {
         this.touchStartX = e.touches[0].clientX;
         this.touchStartY = e.touches[0].clientY;
@@ -72,6 +109,7 @@ export class InputController {
     };
 
     const handleMove = (e) => {
+      if (window.game && window.game.state !== 'PLAYING') return;
       if (this.swipeTriggered || !e.touches || e.touches.length === 0) return;
 
       const currentX = e.touches[0].clientX;
@@ -85,12 +123,18 @@ export class InputController {
 
       if (Math.max(absX, absY) >= this.minSwipeDistance) {
         if (absX > absY) {
+          this.triggerHaptic(12);
           if (deltaX > 0) this.emit('right');
           else this.emit('left');
           this.swipeTriggered = true;
         } else {
-          if (deltaY < 0) this.emit('jump');
-          else this.emit('slide');
+          if (deltaY < 0) {
+            this.triggerHaptic(20);
+            this.emit('jump');
+          } else {
+            this.triggerHaptic(15);
+            this.emit('slide');
+          }
           this.swipeTriggered = true;
         }
       }
@@ -106,30 +150,41 @@ export class InputController {
   }
 
   initOnScreenMobileButtons() {
+    const lastTriggerMap = new Map();
+
     const bindBtn = (id, eventName) => {
       const btn = document.getElementById(id);
       if (!btn || btn.dataset.bound) return;
       btn.dataset.bound = 'true';
 
-      let lastTrigger = 0;
       const handlePress = (e) => {
         const now = Date.now();
-        if (now - lastTrigger < 120) return;
-        lastTrigger = now;
+        const last = lastTriggerMap.get(id) || 0;
+        if (now - last < 90) return;
+        lastTriggerMap.set(id, now);
 
         if (e.cancelable) e.preventDefault();
         e.stopPropagation();
 
+        const hapDuration = eventName === 'jump' ? 20 : (eventName === 'slide' ? 15 : 12);
+        this.triggerHaptic(hapDuration);
+
         btn.classList.add('pressed');
-        setTimeout(() => btn.classList.remove('pressed'), 120);
         this.emit(eventName);
       };
 
-      if (window.PointerEvent) {
-        btn.addEventListener('pointerdown', handlePress, { passive: false });
-      } else {
-        btn.addEventListener('touchstart', handlePress, { passive: false });
-      }
+      const handleRelease = (e) => {
+        btn.classList.remove('pressed');
+      };
+
+      btn.addEventListener('pointerdown', handlePress, { passive: false });
+      btn.addEventListener('pointerup', handleRelease, { passive: true });
+      btn.addEventListener('pointercancel', handleRelease, { passive: true });
+      btn.addEventListener('pointerleave', handleRelease, { passive: true });
+
+      btn.addEventListener('touchstart', handlePress, { passive: false });
+      btn.addEventListener('touchend', handleRelease, { passive: true });
+      btn.addEventListener('touchcancel', handleRelease, { passive: true });
     };
 
     const setupAll = () => {
@@ -137,6 +192,8 @@ export class InputController {
       bindBtn('touch-btn-right', 'right');
       bindBtn('touch-btn-up', 'jump');
       bindBtn('touch-btn-down', 'slide');
+      bindBtn('touch-btn-ability', 'ability');
+      bindBtn('hud-btn-ability', 'ability');
     };
 
     if (document.readyState === 'loading') {

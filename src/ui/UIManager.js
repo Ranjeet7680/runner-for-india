@@ -96,13 +96,45 @@ export class UIManager {
       if (this.game && this.game.cameraManager) {
         const mode = this.game.cameraManager.cycleCameraMode();
         const modeNames = {
-          'CHASE': '🎬 ACTION CHASE CAM',
-          'LOW_RACE': '🏎️ LOW RACING CAM',
-          'FIRST_PERSON': '👁️ FIRST PERSON CAM',
-          'DRONE': '🛸 OVERHEAD DRONE CAM'
+          'CHASE': 'ACTION CHASE CAM',
+          'LOW_RACE': 'LOW RACING CAM',
+          'FIRST_PERSON': 'FIRST PERSON CAM',
+          'DRONE': 'OVERHEAD DRONE CAM'
         };
-        alert(modeNames[mode] || `Camera Mode: ${mode}`);
+        const icons = {
+          'CHASE': '🎬',
+          'LOW_RACE': '🏎️',
+          'FIRST_PERSON': '👁️',
+          'DRONE': '🛸'
+        };
+        this.showToast(modeNames[mode] || `Camera Mode: ${mode}`, icons[mode] || '🎥');
       }
+    });
+
+    // HUD Emote Buttons
+    ['dance', 'victory', 'flip', 'salute'].forEach(type => {
+      document.getElementById(`btn-emote-${type}`)?.addEventListener('click', (e) => {
+        soundEngine.playClick();
+        const emoteName = type.toUpperCase();
+        if (this.game && this.game.player) {
+          this.game.player.triggerEmote(emoteName);
+        }
+        const icons = { DANCE: '💃 DANCE', VICTORY: '🏆 VICTORY', FLIP: '🤸‍♂️ BACKFLIP', SALUTE: '🫡 CID SALUTE' };
+        this.showToast(`EMOTE: ${icons[emoteName] || emoteName}`, '✨');
+      });
+    });
+
+    // Game Over Lobby Emote Buttons
+    document.querySelectorAll('.go-emote-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const emoteType = btn.getAttribute('data-emote') || 'DANCE';
+        soundEngine.playClick();
+        if (this.game && this.game.player) {
+          this.game.player.triggerEmote(emoteType);
+        }
+        const icons = { DANCE: '💃 DANCE PARTY', VICTORY: '🏆 VICTORY JUMP', FLIP: '🤸‍♂️ BACKFLIP', SALUTE: '🫡 SALUTE' };
+        this.showToast(`Celebration: ${icons[emoteType] || emoteType}`, '🎉');
+      });
     });
 
     // Fullscreen Toggle Buttons
@@ -193,9 +225,9 @@ export class UIManager {
       const input = document.getElementById('setting-custom-song-url');
       if (input && input.value) {
         soundEngine.playCustomSongUrl(input.value.trim());
-        alert('🎵 Custom BGM Song URL loaded & playing in loop!');
+        this.showToast('Custom BGM Song URL loaded & playing!', '🎵');
       } else {
-        alert('Please enter a valid audio URL (e.g. https://example.com/song.mp3)');
+        this.showToast('Please enter a valid audio URL (MP3)!', '⚠️');
       }
     });
 
@@ -221,7 +253,7 @@ export class UIManager {
             this.charPreview.player.setCustomFaceImage(dataUrl);
           }
           if (btnRemoveFace) btnRemoveFace.style.display = 'block';
-          alert('📸 Custom Face Photo successfully applied to your character!');
+          this.showToast('Custom Face Photo applied to character!', '📸');
         };
         reader.readAsDataURL(file);
       }
@@ -232,7 +264,7 @@ export class UIManager {
       if (this.game.player) this.game.player.removeCustomFaceImage();
       if (this.charPreview && this.charPreview.player) this.charPreview.player.removeCustomFaceImage();
       btnRemoveFace.style.display = 'none';
-      alert('Custom face photo removed.');
+      this.showToast('Custom face photo removed.', '❌');
     });
 
     // Clothes / Jacket Color Swatches
@@ -271,7 +303,7 @@ export class UIManager {
       soundEngine.playClick();
       const link = progressManager.getReferralUrl();
       navigator.clipboard.writeText(link).then(() => {
-        alert('📋 Referral Link Copied to Clipboard!\n' + link);
+        this.showToast('Referral Link Copied to Clipboard!', '📋');
       }).catch(() => {
         prompt('Copy your referral link:', link);
       });
@@ -302,7 +334,11 @@ export class UIManager {
 
     // Pause Modal Buttons
     document.getElementById('btn-pause-resume')?.addEventListener('click', () => { soundEngine.playClick(); this.game.resumeGame(); });
-    document.getElementById('btn-pause-restart')?.addEventListener('click', () => { soundEngine.playClick(); this.game.startCountdownFlow(); });
+    document.getElementById('btn-pause-restart')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      if (this.game.isAiRaceMode) this.game.startAiRaceMode();
+      else this.game.startSoloRun();
+    });
     document.getElementById('btn-pause-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.showModal(this.modalSettings); });
     document.getElementById('btn-pause-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
 
@@ -313,7 +349,7 @@ export class UIManager {
         this.hideModal(this.modalRevive);
         this.game.revivePlayer();
       } else {
-        alert('No Revive Tokens available! Earn more from Daily Login & Referral Rewards.');
+        this.showToast('No Revive Tokens available! Earn from Rewards.', '🛡️');
         this.hideModal(this.modalRevive);
         this.game.enterGameOverLobby();
       }
@@ -329,7 +365,8 @@ export class UIManager {
     document.getElementById('btn-go-again')?.addEventListener('click', () => {
       soundEngine.playClick();
       if (this.isMobileDevice) this.requestFullscreenAuto();
-      this.game.startCountdownFlow();
+      if (this.game.isAiRaceMode) this.game.startAiRaceMode();
+      else this.game.startSoloRun();
     });
     document.getElementById('btn-go-share')?.addEventListener('click', () => { this.openReferralModal(); });
     document.getElementById('btn-go-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
@@ -385,8 +422,9 @@ export class UIManager {
           if (progressManager.unlockCharacter(charId, costs[charId] || 0)) {
             missionManager.updateProgress('char_unlock');
             this.openCharacterScreen();
+            this.showToast(`${charId} Unlocked!`, '🎉');
           } else {
-            alert(`Need ${costs[charId]} Coins to unlock ${charId}!`);
+            this.showToast(`Need ${costs[charId]} Coins for ${charId}!`, '🪙');
           }
         }
       }
@@ -478,6 +516,25 @@ export class UIManager {
       this.achievementToast.classList.remove('active');
       this.achievementToast.classList.add('hidden');
     }, 3200);
+  }
+
+  showToast(title, icon = '✨', duration = 3000) {
+    const toast = document.getElementById('ui-general-toast');
+    const toastTitle = document.getElementById('gen-toast-title');
+    const toastIcon = document.getElementById('gen-toast-icon');
+
+    if (!toast) return;
+    if (toastTitle) toastTitle.textContent = title;
+    if (toastIcon) toastIcon.textContent = icon;
+
+    toast.classList.remove('hidden');
+    toast.classList.add('active');
+
+    if (this._genToastTimer) clearTimeout(this._genToastTimer);
+    this._genToastTimer = setTimeout(() => {
+      toast.classList.remove('active');
+      toast.classList.add('hidden');
+    }, duration);
   }
 
   requestFullscreenAuto() {
@@ -740,8 +797,15 @@ export class UIManager {
 
     const banner = document.getElementById('high-score-banner');
     if (banner) {
-      if (isNewRecord) banner.classList.remove('hidden');
-      else banner.classList.add('hidden');
+      if (isNewRecord) {
+        banner.classList.remove('hidden');
+        if (this.game && this.game.player) {
+          this.game.player.triggerHighscoreCelebration();
+        }
+        this.showToast('🎉 NEW HIGH SCORE RECORD UNLOCKED!', '🏆', 5000);
+      } else {
+        banner.classList.add('hidden');
+      }
     }
 
     this.showModal(this.modalGameOver);

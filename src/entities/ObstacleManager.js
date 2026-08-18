@@ -98,6 +98,47 @@ export class ObstacleManager {
       width = 1.8;
       height = 0.8;
       centerY = 0.4;
+
+    } else if (type === 'ELECTRIC_LASER_GRID') {
+      // 1st Game Over Hazard: High-Voltage Laser Field
+      const pillarGeo = new THREE.CylinderGeometry(0.12, 0.14, 2.5, 8);
+      const pillarMat = new THREE.MeshStandardMaterial({ color: 0x223344, metalness: 0.8, roughness: 0.2 });
+      const pLeft = new THREE.Mesh(pillarGeo, pillarMat); pLeft.position.set(-1.1, 1.25, 0);
+      const pRight = new THREE.Mesh(pillarGeo, pillarMat); pRight.position.set(1.1, 1.25, 0);
+      group.add(pLeft, pRight);
+
+      // Glowing Cyan Laser Beams
+      const beamMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff });
+      for (let y = 0.5; y <= 2.1; y += 0.5) {
+        const laser = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8), beamMat);
+        laser.rotation.z = Math.PI / 2;
+        laser.position.set(0, y, 0);
+        group.add(laser);
+      }
+
+      width = 2.2;
+      height = 2.4;
+      centerY = 1.2;
+
+    } else if (type === 'EXPLOSIVE_HAZARD_BARREL') {
+      // 2nd Game Over Hazard: Red Explosive Petroleum Barrels
+      const barrelGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.1, 12);
+      const barrelMat = new THREE.MeshStandardMaterial({ color: 0xdd1100, roughness: 0.3, metalness: 0.7 });
+      const warningMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+
+      for (let offset of [-0.6, 0.6]) {
+        const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+        barrel.position.set(offset, 0.55, 0);
+        group.add(barrel);
+
+        const band = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.2, 12), warningMat);
+        band.position.set(offset, 0.55, 0);
+        group.add(band);
+      }
+
+      width = 1.9;
+      height = 1.2;
+      centerY = 0.6;
     }
 
     const box = new THREE.Box3();

@@ -39,13 +39,26 @@ export class Player {
     this.landingEffectTimer = 0;
     this.compressionScale = 1.0;
 
-    // Powerup Active States
+    // Powerup & Hero Ability Active States
     this.shieldActive = false;
     this.magnetActive = false;
     this.speedActive = false;
     this.doubleScoreActive = false;
     this.superJumpActive = false;
     this.rocketActive = false;
+
+    // Hero Active Ability System
+    this.abilityActive = false;
+    this.abilityTimer = 0;
+    this.abilityCooldown = 0;
+    this.abilityCooldownMax = 15.0;
+    this.rampTargetY = 0;
+
+    // Emotes & Celebration Animations
+    this.currentEmote = null;
+    this.emoteTimer = 0;
+    this.isCelebrating = false;
+    this.celebrationTimer = 0;
 
     this.mesh = new THREE.Group();
     this.buildCharacterMesh(this.characterType);
@@ -416,9 +429,79 @@ export class Player {
     this.rocketBoard.visible = active;
   }
 
+  triggerAbility() {
+    if (this.abilityCooldown > 0) return false;
+
+    this.abilityActive = true;
+    this.abilityTimer = 10.0; // Fixed 10.0 seconds duration!
+    this.abilityCooldown = this.abilityCooldownMax; // 15 seconds cooldown
+
+    this.magnetActive = true;
+    this.shieldActive = true;
+    this.shieldMesh.visible = true;
+
+    soundEngine.playPowerup();
+    soundEngine.playSpatialTrainHorn(this.position.x, this.position.z);
+    return true;
+  }
+
+  triggerEmote(type = 'DANCE') {
+    this.currentEmote = type;
+    this.emoteTimer = 2.8;
+    soundEngine.playClick();
+    this.triggerLandingDust();
+    return true;
+  }
+
+  triggerHighscoreCelebration() {
+    this.isCelebrating = true;
+    this.celebrationTimer = 4.5;
+    this.currentEmote = 'VICTORY';
+    this.emoteTimer = 4.5;
+    soundEngine.playPowerup();
+    this.triggerLandingDust();
+  }
+
+  setRampTargetY(targetY) {
+    this.rampTargetY = targetY;
+  }
+
   update(delta, gameSpeed, distanceZ = 0) {
     const gaitSpeed = (gameSpeed / 12) * 12;
     this.animTime += delta * gaitSpeed;
+
+    // Emote & Celebration timers update
+    if (this.emoteTimer > 0) {
+      this.emoteTimer -= delta;
+      if (this.emoteTimer <= 0) {
+        this.emoteTimer = 0;
+        this.currentEmote = null;
+      }
+    }
+
+    if (this.celebrationTimer > 0) {
+      this.celebrationTimer -= delta;
+      if (this.celebrationTimer <= 0) {
+        this.celebrationTimer = 0;
+        this.isCelebrating = false;
+      }
+    }
+
+    // Ability timers update
+    if (this.abilityActive) {
+      this.abilityTimer -= delta;
+      if (this.abilityTimer <= 0) {
+        this.abilityActive = false;
+        this.magnetActive = false;
+        this.shieldActive = false;
+        this.shieldMesh.visible = false;
+      }
+    }
+
+    if (this.abilityCooldown > 0) {
+      this.abilityCooldown -= delta;
+      if (this.abilityCooldown < 0) this.abilityCooldown = 0;
+    }
 
     // Advance forward along POSITIVE Z
     this.position.z = distanceZ;
@@ -437,6 +520,13 @@ export class Player {
       const lerpY = 1.0 - Math.exp(-10 * delta);
       this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, lerpY);
       this.isGrounded = false;
+    } else if (this.rampTargetY > 0) {
+      // Climbing train triangle ramp or running on train roof
+      const lerpRamp = 1.0 - Math.exp(-18 * delta);
+      this.position.y = THREE.MathUtils.lerp(this.position.y, this.rampTargetY, lerpRamp);
+      this.velocity.y = 0;
+      this.isGrounded = true;
+      this.isJumping = false;
     } else if (!this.isGrounded) {
       this.velocity.y += this.gravity * delta;
       this.position.y += this.velocity.y * delta;
@@ -474,43 +564,134 @@ export class Player {
 
   updateAnimations(gameSpeed) {
     if (this.coreReactor) {
-      this.coreReactor.scale.setScalar(1.0 + Math.sin(this.animTime * 4) * 0.25);
+      this.coreReactor.scale.setScalar(1.0 + Math.sin(this.animTime * 6) * 0.3);
     }
 
     if (this.isRocketFlying) {
-      this.characterGroup.rotation.x = -0.18;
+      const hover = Math.sin(this.animTime * 4) * 0.12;
+      this.characterGroup.position.y = hover;
+      this.characterGroup.rotation.x = -0.22;
+      this.characterGroup.rotation.z = Math.sin(this.animTime * 2) * 0.08;
       this.leftArmPivot.rotation.x = -Math.PI / 4;
       this.rightArmPivot.rotation.x = -Math.PI / 4;
+      this.leftLegPivot.rotation.x = 0.3;
+      this.rightLegPivot.rotation.x = 0.4;
       return;
     }
 
+    // Emotes & Celebration Poses
+    if (this.currentEmote || this.isCelebrating) {
+      const emote = this.currentEmote || 'VICTORY';
+      const t = this.animTime * 6;
+
+      if (emote === 'DANCE') {
+        // High Energy Hip-Hop Celebration Dance
+        this.characterGroup.position.y = Math.abs(Math.sin(t)) * 0.28;
+        this.characterGroup.rotation.y = Math.sin(t * 0.5) * 0.45;
+        this.characterGroup.rotation.z = Math.sin(t) * 0.18;
+        this.leftArmPivot.rotation.x = -Math.PI / 3 + Math.sin(t) * 0.7;
+        this.rightArmPivot.rotation.x = -Math.PI / 3 - Math.sin(t) * 0.7;
+        this.leftArmPivot.rotation.z = Math.cos(t) * 0.3;
+        this.rightArmPivot.rotation.z = -Math.cos(t) * 0.3;
+        this.leftLegPivot.rotation.x = Math.sin(t) * 0.6;
+        this.rightLegPivot.rotation.x = -Math.sin(t) * 0.6;
+        return;
+
+      } else if (emote === 'VICTORY') {
+        // High Score Victory Jump & Double Hand Flex
+        const jumpY = Math.abs(Math.sin(t * 0.7)) * 0.85;
+        this.characterGroup.position.y = jumpY;
+        this.characterGroup.rotation.y = Math.sin(t * 0.5) * 0.3;
+        this.leftArmPivot.rotation.x = -Math.PI * 0.9 + Math.sin(t * 2) * 0.25;
+        this.rightArmPivot.rotation.x = -Math.PI * 0.9 - Math.sin(t * 2) * 0.25;
+        this.leftArmPivot.rotation.z = 0.45;
+        this.rightArmPivot.rotation.z = -0.45;
+        this.leftLegPivot.rotation.x = -0.35;
+        this.rightLegPivot.rotation.x = 0.35;
+        return;
+
+      } else if (emote === 'FLIP') {
+        // Acrobatic 360 Spin Backflip
+        this.characterGroup.position.y = Math.sin(t) * 0.95;
+        this.characterGroup.rotation.x = -t * 1.8;
+        this.leftArmPivot.rotation.x = -Math.PI / 2;
+        this.rightArmPivot.rotation.x = -Math.PI / 2;
+        this.leftLegPivot.rotation.x = -0.8;
+        this.rightLegPivot.rotation.x = -0.8;
+        return;
+
+      } else if (emote === 'SALUTE') {
+        // CID Detective Victory Salute
+        this.characterGroup.position.y = 0.05;
+        this.characterGroup.rotation.y = 0.12;
+        this.rightArmPivot.rotation.x = -Math.PI * 0.85;
+        this.rightArmPivot.rotation.z = -Math.PI * 0.28;
+        this.leftArmPivot.rotation.x = 0.25;
+        this.leftLegPivot.rotation.x = 0;
+        this.rightLegPivot.rotation.x = 0;
+        return;
+      }
+    }
+
     if (this.isSliding) {
-      this.characterGroup.position.y = -0.42;
-      this.characterGroup.rotation.x = -Math.PI / 3;
+      // Athletic Ground Slide
+      this.characterGroup.position.y = -0.45;
+      this.characterGroup.rotation.x = -Math.PI / 2.8;
       this.leftArmPivot.rotation.x = -Math.PI / 2;
       this.rightArmPivot.rotation.x = -Math.PI / 2;
-      this.leftLegPivot.rotation.x = Math.PI / 4;
+      this.leftLegPivot.rotation.x = -Math.PI / 3;
       this.rightLegPivot.rotation.x = Math.PI / 4;
+      if (this.headGroup) this.headGroup.rotation.x = 0.3;
+
     } else if (this.isJumping) {
-      this.characterGroup.position.y = 0;
-      this.characterGroup.rotation.x = THREE.MathUtils.clamp(-this.velocity.y * 0.035, -0.45, 0.45);
-      this.leftArmPivot.rotation.x = -Math.PI / 2;
-      this.rightArmPivot.rotation.x = -Math.PI / 2;
-      this.leftLegPivot.rotation.x = -0.5;
-      this.rightLegPivot.rotation.x = 0.5;
+      // Dynamic Air Jump Arc
+      this.characterGroup.position.y = 0.05;
+      const jumpPitch = THREE.MathUtils.clamp(-this.velocity.y * 0.04, -0.5, 0.5);
+      this.characterGroup.rotation.x = jumpPitch;
+      this.leftArmPivot.rotation.x = -Math.PI / 2.2;
+      this.rightArmPivot.rotation.x = -Math.PI / 2.2;
+      this.leftArmPivot.rotation.z = 0.3;
+      this.rightArmPivot.rotation.z = -0.3;
+      this.leftLegPivot.rotation.x = -0.6;
+      this.rightLegPivot.rotation.x = 0.6;
+      if (this.headGroup) this.headGroup.rotation.x = -jumpPitch * 0.5;
+
     } else {
-      const bob = Math.abs(Math.sin(this.animTime * 2)) * 0.08;
+      // Fluid Athletic Running Stride
+      const runSpeedMultiplier = Math.min(1.8, Math.max(0.9, gameSpeed / 18.0));
+      const t = this.animTime * runSpeedMultiplier;
+
+      // Athletic Torso Bob & Spine Twist
+      const bob = Math.abs(Math.sin(t * 2)) * 0.12;
       this.characterGroup.position.y = bob;
-      this.characterGroup.rotation.x = 0.06;
+      this.characterGroup.rotation.x = 0.08;
+      this.characterGroup.rotation.y = Math.sin(t) * 0.12; // Torso Yaw Twist
+      this.characterGroup.rotation.z = Math.cos(t) * 0.06; // Shoulder Dip Roll
 
-      const swing = Math.sin(this.animTime) * 0.85;
-      this.leftArmPivot.rotation.x = swing;
-      this.rightArmPivot.rotation.x = -swing;
-      this.leftLegPivot.rotation.x = -swing;
-      this.rightLegPivot.rotation.x = swing;
+      // Alternating Elbow-Flexed Arm Swing
+      const armSwing = Math.sin(t) * 0.95;
+      this.leftArmPivot.rotation.x = armSwing;
+      this.rightArmPivot.rotation.x = -armSwing;
+      this.leftArmPivot.rotation.z = 0.12;
+      this.rightArmPivot.rotation.z = -0.12;
 
-      if (this.ponytail) this.ponytail.rotation.z = Math.sin(this.animTime) * 0.15;
-      if (this.tail) this.tail.rotation.y = Math.sin(this.animTime * 2) * 0.3;
+      // Stride Leg Flexion & Drive
+      const legSwing = Math.sin(t) * 0.9;
+      this.leftLegPivot.rotation.x = -legSwing;
+      this.rightLegPivot.rotation.x = legSwing;
+
+      // Dynamic Ponytail & Tail Spring Physics
+      if (this.ponytail) {
+        this.ponytail.rotation.z = Math.sin(t) * 0.25;
+        this.ponytail.rotation.x = 0.4 + Math.abs(Math.sin(t * 2)) * 0.2;
+      }
+      if (this.tail) {
+        this.tail.rotation.y = Math.sin(t * 2) * 0.4;
+        this.tail.rotation.z = Math.cos(t * 2) * 0.2;
+      }
+      if (this.headGroup) {
+        this.headGroup.rotation.x = -bob * 0.5;
+      }
     }
   }
 

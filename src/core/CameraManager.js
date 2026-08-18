@@ -98,9 +98,12 @@ export class CameraManager {
     this.currentPos.lerp(desiredPos, lerpFactor);
     this.currentLookAt.lerp(desiredLookAt, lerpFactor);
 
-    // Dynamic FOV Zoom scaling with speed
+    // Dynamic FOV Zoom scaling with speed & mobile portrait orientation
     const speedFovBoost = Math.min(22, (gameSpeed - 18.0) * 0.5);
-    const targetFov = fovBase + speedFovBoost;
+    const aspect = this.camera.aspect || 1.0;
+    const portraitFovBoost = aspect < 1.0 ? Math.min(22, (1.0 - aspect) * 30) : 0;
+    const targetFov = fovBase + speedFovBoost + portraitFovBoost;
+
     this.camera.fov = THREE.MathUtils.lerp(this.camera.fov, targetFov, 0.1);
     this.camera.updateProjectionMatrix();
 

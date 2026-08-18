@@ -71,13 +71,25 @@ export class Game {
   initInputs() {
     this.inputController.on('left', () => {
       if (this.state === 'PLAYING') {
-        this.player.moveLeft();
+        this.player.moveLeft(); // Left steering moves character Left
       }
     });
 
     this.inputController.on('right', () => {
       if (this.state === 'PLAYING') {
-        this.player.moveRight();
+        this.player.moveRight(); // Right steering moves character Right
+      }
+    });
+
+    this.inputController.on('ability', () => {
+      if (this.state === 'PLAYING') {
+        this.player.triggerAbility();
+      }
+    });
+
+    this.inputController.on('emote', (emoteType) => {
+      if (this.player) {
+        this.player.triggerEmote(emoteType || 'DANCE');
       }
     });
 
@@ -101,7 +113,8 @@ export class Game {
 
     this.inputController.on('restart', () => {
       if (this.state === 'GAMEOVER' || this.state === 'PAUSED') {
-        this.startCountdownFlow();
+        if (this.isAiRaceMode) this.startAiRaceMode();
+        else this.startSoloRun();
       }
     });
   }
@@ -123,6 +136,17 @@ export class Game {
         }, 200);
       }
     }, 60);
+  }
+
+  startSoloRun() {
+    this.isAiRaceMode = false;
+    if (this.aiBot) {
+      this.aiBot.destroy();
+      this.aiBot = null;
+    }
+    const aiBox = document.getElementById('hud-ai-race-box');
+    if (aiBox) aiBox.classList.add('hidden');
+    this.startCountdownFlow();
   }
 
   startAiRaceMode() {
@@ -216,16 +240,18 @@ export class Game {
       const rand = Math.random();
       const lane = Math.floor(Math.random() * 3); // 0, 1, 2
 
-      if (rand < 0.35) {
-        const types = ['LOW_BARRIER', 'HIGH_BARRIER', 'CONES'];
+      if (rand < 0.30) {
+        const types = ['LOW_BARRIER', 'HIGH_BARRIER', 'CONES', 'ELECTRIC_LASER_GRID', 'EXPLOSIVE_HAZARD_BARREL'];
         const type = types[Math.floor(Math.random() * types.length)];
         this.obstacleManager.createObstacle(type, lane, z);
-      } else if (rand < 0.65) {
-        const types = ['METRO', 'CARGO', 'EXPRESS'];
+      } else if (rand < 0.75) {
+        // Increased train quantity & multi-coach train types
+        const types = ['METRO', 'CARGO', 'MAAL', 'PETRO', 'COACH', 'EXPRESS'];
         const type = types[Math.floor(Math.random() * types.length)];
-        const isMoving = Math.random() < 0.4;
-        const speed = isMoving ? 10 + Math.random() * 8 : 0;
-        this.trainManager.createTrain(type, lane, z, isMoving, speed);
+        const isMoving = Math.random() < 0.35;
+        const speed = isMoving ? 8 + Math.random() * 8 : 0;
+        const coachCount = Math.random() < 0.5 ? 2 : 3; // 2 to 3 coach trains joined together!
+        this.trainManager.createTrain(type, lane, z, isMoving, speed, coachCount);
       }
 
       if (Math.random() < 0.7) {
@@ -249,7 +275,7 @@ export class Game {
         this.policeNPCManager.spawnPolice(sideX, z + 8, pType);
       }
 
-      this.nextSpawnZ += 28 + Math.random() * 12;
+      this.nextSpawnZ += 26 + Math.random() * 10;
     }
   }
 
@@ -373,6 +399,14 @@ export class Game {
       const name = names[milestone % names.length];
       this.showLocationBanner(name);
       soundEngine.playPowerup();
+    }
+
+    // Triangle Train Ramp Climbing Check
+    const rampY = this.trainManager.getTrainRampHeight(this.player.position);
+    if (rampY !== null) {
+      this.player.setRampTargetY(rampY);
+    } else {
+      this.player.setRampTargetY(0);
     }
 
     this.scoreManager.update(delta, this.gameSpeed, this.player.doubleScoreActive);

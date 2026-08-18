@@ -95,12 +95,24 @@ export class CoinManager {
   }
 
   spawnCoin(laneIndex, yPos, zPos) {
+    const group = new THREE.Group();
+    group.position.set(this.lanes[laneIndex], yPos, zPos);
+
     const mesh = new THREE.Mesh(this.coinGeo, this.coinMat);
     mesh.rotation.x = Math.PI / 2;
-    mesh.position.set(this.lanes[laneIndex], yPos, zPos);
+    mesh.castShadow = true;
+    group.add(mesh);
 
-    const coinObj = { mesh: mesh, lane: laneIndex, isCollected: false };
-    this.scene.add(mesh);
+    // Glowing Golden Aura Disc
+    const auraGeo = new THREE.CircleGeometry(0.5, 16);
+    const auraMat = new THREE.MeshBasicMaterial({ color: 0xffcc00, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+    const aura = new THREE.Mesh(auraGeo, auraMat);
+    aura.rotation.x = -Math.PI / 2;
+    aura.position.y = -0.3;
+    group.add(aura);
+
+    const coinObj = { mesh: group, coinMesh: mesh, lane: laneIndex, baseY: yPos, timeAcc: Math.random() * 10, isCollected: false };
+    this.scene.add(group);
     this.coins.push(coinObj);
   }
 
@@ -140,14 +152,16 @@ export class CoinManager {
 
     for (let i = this.coins.length - 1; i >= 0; i--) {
       const coin = this.coins[i];
-      coin.mesh.rotation.z += delta * 4;
+      coin.timeAcc += delta * 5;
+      coin.coinMesh.rotation.z += delta * 4;
+      coin.mesh.position.y = coin.baseY + Math.sin(coin.timeAcc) * 0.08;
 
       if (magnetActive) {
         const distToPlayer = coin.mesh.position.distanceTo(playerPos);
         if (distToPlayer < magnetRadius) {
           coin.mesh.position.lerp(
             new THREE.Vector3(playerPos.x, playerPos.y + 0.9, playerPos.z),
-            10.0 * delta
+            12.0 * delta
           );
         }
       }

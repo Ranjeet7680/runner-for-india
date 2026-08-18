@@ -30,12 +30,12 @@ export class PowerUpManager {
     };
 
     this.durations = {
-      AIR_ROCKET: 8.0,
+      AIR_ROCKET: 10.0,
       JUMP_SHOES: 10.0,
-      DOUBLE_COIN: 12.0,
-      SAFETY_BUBBLE: 1.0, // Lasts until hit or timer
-      MAGNET: 12.0,
-      SPEED_BOOST: 6.0
+      DOUBLE_COIN: 10.0,
+      SAFETY_BUBBLE: 10.0, // Fixed 10.0 seconds
+      MAGNET: 10.0,        // Fixed 10.0 seconds
+      SPEED_BOOST: 10.0
     };
 
     this.bubbleHealth = 0;
@@ -48,31 +48,43 @@ export class PowerUpManager {
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, 128, 128);
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(6, 6, 116, 116);
+    ctx.lineWidth = 8;
+    ctx.strokeRect(4, 4, 120, 120);
+    ctx.strokeStyle = '#00f3ff';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, 108, 108);
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 60px sans-serif';
+    ctx.font = '900 64px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#00f3ff';
+    ctx.shadowBlur = 10;
     ctx.fillText(symbol, 64, 64);
     return new THREE.CanvasTexture(canvas);
   }
 
   spawnPowerUp(type, laneIndex, zPos) {
     const group = new THREE.Group();
-    group.position.set(this.lanes[laneIndex], 1.2, zPos);
+    group.position.set(this.lanes[laneIndex], 1.3, zPos);
 
     const mat = this.materials[type] || this.materials.MAGNET;
     const mesh = new THREE.Mesh(this.boxGeo, mat);
     mesh.castShadow = true;
     group.add(mesh);
 
-    const ringGeo = new THREE.TorusGeometry(0.85, 0.06, 8, 24);
+    // Double Glowing Torus Rings for High Quality 3D Visuals
+    const ringGeo = new THREE.TorusGeometry(0.85, 0.07, 8, 24);
     const ringMat = new THREE.MeshBasicMaterial({ color: mat.color });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    group.add(ring);
+    const ring1 = new THREE.Mesh(ringGeo, ringMat);
+    group.add(ring1);
 
-    const pObj = { mesh: group, ring: ring, type: type, lane: laneIndex };
+    const ringGeo2 = new THREE.TorusGeometry(1.0, 0.04, 8, 24);
+    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.6 });
+    const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+    ring2.rotation.x = Math.PI / 2;
+    group.add(ring2);
+
+    const pObj = { mesh: group, ring: ring1, ring2: ring2, type: type, lane: laneIndex, baseZ: zPos, timeAcc: Math.random() * 10 };
     this.scene.add(group);
     this.powerups.push(pObj);
   }
@@ -80,8 +92,11 @@ export class PowerUpManager {
   update(playerPos, playerRef, delta) {
     for (let i = this.powerups.length - 1; i >= 0; i--) {
       const p = this.powerups[i];
+      p.timeAcc += delta * 4;
       p.mesh.rotation.y += delta * 3;
       p.ring.rotation.x += delta * 4;
+      if (p.ring2) p.ring2.rotation.y += delta * 2;
+      p.mesh.position.y = 1.3 + Math.sin(p.timeAcc) * 0.15;
 
       const dist = p.mesh.position.distanceTo(
         new THREE.Vector3(playerPos.x, playerPos.y + 0.9, playerPos.z)

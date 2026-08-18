@@ -1,5 +1,5 @@
 {
-  "name":"nexora-metro-runner",
+  "name": "nexora-metro-runner",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -9,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "three": "^0.160.0"
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/sandbox": "^3.0.0",
+    "three": "^0.160.0",
+    "workflow": "^4.8.3"
   },
   "devDependencies": {
     "vite": "^5.1.0"

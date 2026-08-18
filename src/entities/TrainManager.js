@@ -215,16 +215,21 @@ export class TrainManager {
     hlRight.position.set(0.7, 1.2, frontZ);
     trainGroup.add(hlRight);
 
-    // Attach Triangle Ramp at front of all trains for smooth climbing
-    const hasRamp = true;
-    let rampMesh = null;
-    const rampLength = 6.0;
-    if (hasRamp) {
-      rampMesh = new THREE.Mesh(this.rampGeo, this.rampMat);
-      rampMesh.position.set(0, 0, frontZ - (rampLength / 2));
-      trainGroup.add(rampMesh);
-    }
+    // Sleek low-profile aerodynamic bumper & glowing cyan ramp direction indicator
+    const bumperGeo = new THREE.BoxGeometry(2.3, 0.4, 0.8);
+    const bumperMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.8, roughness: 0.2 });
+    const bumper = new THREE.Mesh(bumperGeo, bumperMat);
+    bumper.position.set(0, 0.2, frontZ - 0.4);
+    trainGroup.add(bumper);
 
+    const arrowGeo = new THREE.PlaneGeometry(1.2, 2.5);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+    const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+    arrow.rotation.x = -Math.PI / 2;
+    arrow.position.set(0, 0.05, frontZ - 2.5);
+    trainGroup.add(arrow);
+
+    const rampLength = 6.0;
     const box = new THREE.Box3();
 
     const trainObj = {

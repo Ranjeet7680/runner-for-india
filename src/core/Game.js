@@ -21,6 +21,7 @@ import { voiceSystem } from '../audio/VoiceSystem.js';
 import { progressManager } from '../progression/ProgressManager.js';
 import { missionManager } from '../progression/MissionManager.js';
 import { achievementManager } from '../progression/AchievementManager.js';
+import { NeuralDirector } from '../ai/NeuralDirector.js';
 
 export class Game {
   constructor() {
@@ -44,6 +45,7 @@ export class Game {
 
     this.scoreManager = new ScoreManager();
     this.inputController = new InputController();
+    this.neuralDirector = new NeuralDirector(this);
     this.uiManager = new UIManager(this);
 
     // Game Loop States: 'LOADING', 'WELCOME', 'COUNTDOWN', 'PLAYING', 'PAUSED', 'REVIVE', 'GAMEOVER'
@@ -411,6 +413,7 @@ export class Game {
 
     this.scoreManager.update(delta, this.gameSpeed, this.player.doubleScoreActive);
     this.player.update(delta, this.gameSpeed, this.distanceTraveled);
+    this.neuralDirector.update(delta, this.distanceTraveled, this.gameSpeed);
 
     this.spawnWorldAhead();
 

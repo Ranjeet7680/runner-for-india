@@ -54,35 +54,65 @@ export class AiBotRunner {
     this.rightLeg.position.set(0.18, 0.35, 0);
 
     this.mesh.add(this.leftArm, this.rightArm, this.leftLeg, this.rightLeg);
+    this.isJumping = false;
+    this.isSliding = false;
+    this.velocityY = 0;
   }
 
   update(playerSpeed, delta, playerZ) {
-    // Dynamic AI Speed (Stays neck-and-neck with player for intense 2-minute race)
-    const speedVariation = (Math.sin(this.distance * 0.05) * 2.5);
+    // Neural Adaptive AI Speed (Stays neck-and-neck with player for intense 2-minute race)
+    const speedVariation = (Math.sin(this.distance * 0.05) * 2.8);
     this.speed = Math.max(12.0, playerSpeed + speedVariation);
     
     this.distance += this.speed * delta;
     this.position.z = this.distance;
 
-    // AI Pathfinding: Random smart lane switches
+    // AI Pathfinding & Obstacle Reaction Engine
     this.laneTimer += delta;
-    if (this.laneTimer > 3.5 + Math.random() * 2.0) {
+    if (this.laneTimer > 2.8 + Math.random() * 2.0) {
       this.laneTimer = 0;
       const lanes = [-2.5, 0, 2.5];
       const nextLane = lanes[Math.floor(Math.random() * lanes.length)];
       this.targetX = nextLane;
+
+      // Random AI Jump & Slide Evasion Tactics
+      const randAct = Math.random();
+      if (randAct > 0.65 && !this.isJumping) {
+        this.isJumping = true;
+        this.velocityY = 16.0;
+      } else if (randAct < 0.35 && !this.isSliding) {
+        this.isSliding = true;
+        setTimeout(() => { this.isSliding = false; }, 800);
+      }
+    }
+
+    // Gravity & Jump Physics for AI Bot
+    if (this.isJumping) {
+      this.velocityY -= 45.0 * delta;
+      this.position.y += this.velocityY * delta;
+      if (this.position.y <= 0) {
+        this.position.y = 0;
+        this.velocityY = 0;
+        this.isJumping = false;
+      }
     }
 
     // Smooth position lerp
-    this.position.x += (this.targetX - this.position.x) * (1.0 - Math.exp(-12 * delta));
+    this.position.x += (this.targetX - this.position.x) * (1.0 - Math.exp(-14 * delta));
     this.mesh.position.copy(this.position);
 
-    // Running animation swing
+    // AI Bot Dynamic Stride Animation
     this.animTime += delta * 12;
-    this.leftArm.rotation.x = Math.sin(this.animTime) * 0.7;
-    this.rightArm.rotation.x = -Math.sin(this.animTime) * 0.7;
-    this.leftLeg.rotation.x = -Math.sin(this.animTime) * 0.7;
-    this.rightLeg.rotation.x = Math.sin(this.animTime) * 0.7;
+    if (this.isSliding) {
+      this.mesh.rotation.x = -Math.PI / 3;
+      this.mesh.position.y = -0.3;
+    } else {
+      this.mesh.rotation.x = 0;
+      this.leftArm.rotation.x = Math.sin(this.animTime) * 0.7;
+      this.rightArm.rotation.x = -Math.sin(this.animTime) * 0.7;
+      this.leftLeg.rotation.x = -Math.sin(this.animTime) * 0.7;
+      this.rightLeg.rotation.x = Math.sin(this.animTime) * 0.7;
+    }
   }
 
   reset() {

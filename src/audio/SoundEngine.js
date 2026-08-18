@@ -168,25 +168,29 @@ export class SoundEngine {
   playMusicLoop() {
     let step = 0;
 
-    // Rich Cyberpunk / Synthwave Tracks
+    // High-Fidelity Cyberpunk / Synthwave Tracks with Full Harmonic Chords & Filter Sweeps
     const tracks = {
       CYBER_PUNK_SYNTH: {
         lead: [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 587.33, 523.25], // C5-C6
+        pad: [261.63, 329.63, 392.00, 523.25], // C4 Major Chord Pad
         bass: [130.81, 130.81, 146.83, 164.81, 130.81, 130.81, 110.00, 123.47], // C3-A2
         tempo: 135
       },
       INDIAN_METRO_BEAT: {
         lead: [587.33, 659.25, 783.99, 880.00, 1046.50, 880.00, 783.99, 659.25],
+        pad: [293.66, 349.23, 440.00, 587.33], // D Minor Chord Pad
         bass: [146.83, 146.83, 164.81, 196.00, 146.83, 146.83, 130.81, 146.83],
-        tempo: 145
+        tempo: 142
       },
       CID_MYSTERY_THEME: {
         lead: [440.00, 493.88, 523.25, 587.33, 659.25, 523.25, 493.88, 440.00],
+        pad: [220.00, 261.63, 329.63, 440.00], // A Minor Mystery Pad
         bass: [110.00, 110.00, 123.47, 130.81, 110.00, 110.00, 98.00, 110.00],
-        tempo: 140
+        tempo: 138
       },
       SPEED_RUNNER_EDM: {
         lead: [659.25, 783.99, 880.00, 1046.50, 1174.66, 1046.50, 880.00, 783.99],
+        pad: [329.63, 392.00, 493.88, 659.25], // E Minor EDM Pad
         bass: [164.81, 164.81, 196.00, 220.00, 164.81, 164.81, 146.83, 164.81],
         tempo: 125
       }
@@ -199,22 +203,53 @@ export class SoundEngine {
       const trk = tracks[this.currentTrack] || tracks.CYBER_PUNK_SYNTH;
       const idx = step % trk.lead.length;
 
-      // 1. Lead Melody Synthesizer
+      // 1. Filtered Lead Melody Synthesizer
       const leadOsc = this.ctx.createOscillator();
       const leadGain = this.ctx.createGain();
+      const leadFilter = this.ctx.createBiquadFilter();
+
       leadOsc.type = 'sawtooth';
       leadOsc.frequency.setValueAtTime(trk.lead[idx], this.ctx.currentTime);
 
-      leadGain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      leadFilter.type = 'lowpass';
+      leadFilter.frequency.setValueAtTime(1800 + Math.sin(step * 0.5) * 800, this.ctx.currentTime);
+      leadFilter.Q.setValueAtTime(3.5, this.ctx.currentTime);
+
+      leadGain.gain.setValueAtTime(0.07, this.ctx.currentTime);
       leadGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
 
-      leadOsc.connect(leadGain);
+      leadOsc.connect(leadFilter);
+      leadFilter.connect(leadGain);
       leadGain.connect(this.gainNodes.music || this.masterGain);
 
       leadOsc.start();
       leadOsc.stop(this.ctx.currentTime + 0.18);
 
-      // 2. Sub-Bass Pulse (every 2 steps)
+      // 2. Warm Synth Chord Pad (every 4 steps)
+      if (step % 4 === 0 && trk.pad) {
+        const padOsc1 = this.ctx.createOscillator();
+        const padOsc2 = this.ctx.createOscillator();
+        const padGain = this.ctx.createGain();
+        const padFreq = trk.pad[(step / 4) % trk.pad.length];
+
+        padOsc1.type = 'triangle';
+        padOsc2.type = 'sine';
+        padOsc1.frequency.setValueAtTime(padFreq, this.ctx.currentTime);
+        padOsc2.frequency.setValueAtTime(padFreq * 1.5, this.ctx.currentTime); // Perfect 5th
+
+        padGain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+        padGain.gain.exponentialRampToValueAtTime(0.002, this.ctx.currentTime + 0.6);
+
+        padOsc1.connect(padGain);
+        padOsc2.connect(padGain);
+        padGain.connect(this.gainNodes.music || this.masterGain);
+
+        padOsc1.start(); padOsc2.start();
+        padOsc1.stop(this.ctx.currentTime + 0.6);
+        padOsc2.stop(this.ctx.currentTime + 0.6);
+      }
+
+      // 3. Punchy Sub-Bass Pulse (every 2 steps)
       if (step % 2 === 0) {
         const bassOsc = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
@@ -231,12 +266,12 @@ export class SoundEngine {
         bassOsc.stop(this.ctx.currentTime + 0.25);
       }
 
-      // 3. Electronic Hi-Hat Rhythm Click
+      // 4. Electronic Hi-Hat & Percussion Rhythm Click
       const noiseGain = this.ctx.createGain();
       const noiseOsc = this.ctx.createOscillator();
       noiseOsc.type = 'triangle';
-      noiseOsc.frequency.setValueAtTime(step % 4 === 0 ? 3500 : 7000, this.ctx.currentTime);
-      noiseGain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+      noiseOsc.frequency.setValueAtTime(step % 4 === 0 ? 4500 : 8000, this.ctx.currentTime);
+      noiseGain.gain.setValueAtTime(0.035, this.ctx.currentTime);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
       noiseOsc.connect(noiseGain);
       noiseGain.connect(this.gainNodes.music || this.masterGain);

@@ -18,6 +18,8 @@
 
   <!-- UI Overlay -->
   <div id="ui-container">
+    <!-- FULLSCREEN IMPACT FLASH OVERLAY -->
+    <div id="impact-flash" class="impact-flash pointer-through"></div>
 
     <!-- DEVELOPER DEBUG HUD OVERLAY -->
     <div id="debug-hud-overlay" class="debug-hud-overlay pointer-through">
@@ -434,6 +436,10 @@
             <span id="hud-coins-val" class="hud-val">0</span>
           </div>
         </div>
+        <div class="hud-card hud-speed-card">
+          <span class="hud-label">SPEED</span>
+          <span id="hud-speed-val" class="hud-val" style="color:var(--primary-cyan); font-size:1rem;">18 <small style="font-size:0.6rem;">km/h</small></span>
+        </div>
         <div style="display: flex; gap: 6px;">
           <button id="btn-hud-camera" class="btn-secondary" style="width: 44px; height: 44px; padding:0; font-size:1.1rem;" title="Switch Camera View">🎥</button>
           <button id="btn-hud-daynight" class="btn-secondary" style="width: 44px; height: 44px; padding:0; font-size:1.2rem;">☀️</button>
@@ -515,20 +521,37 @@
 
     <!-- GAME OVER LOBBY MODAL -->
     <div id="modal-gameover" class="ui-modal hidden">
-      <div class="modal-card">
-        <h2 class="modal-title alert-red">RUN FINISHED</h2>
-        <p style="text-align:center; font-size:0.85rem; color:#8a99ad;">NEXORA CENTRAL LOBBY</p>
+      <div class="modal-card modal-gameover-card">
+        <div class="go-header-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <div>
+            <h2 class="modal-title alert-red" style="text-align:left; margin:0; font-size:1.4rem;">RUN FINISHED</h2>
+            <p style="font-size:0.75rem; color:#8a99ad; margin:0;">NEXORA METRO CENTRAL</p>
+          </div>
+          <div id="go-rank-badge" class="go-rank-badge" style="font-family:var(--font-heading); font-size:1.1rem; font-weight:900; background:linear-gradient(135deg, #ffd700, #ff007f); color:#fff; padding:4px 12px; border-radius:12px; border:1px solid #fff; box-shadow:0 0 15px rgba(255,215,0,0.6);">RANK S</div>
+        </div>
         <div class="modal-divider"></div>
         <div id="high-score-banner" class="high-score-banner hidden">🎉 NEW RECORD HIGH SCORE! 🎉</div>
         <div class="results-grid">
-          <div class="result-tile"><span class="lbl">FINAL SCORE</span><span id="go-score" class="val">0</span></div>
-          <div class="result-tile"><span class="lbl">DISTANCE</span><span id="go-distance" class="val">0 m</span></div>
-          <div class="result-tile"><span class="lbl">COINS COLLECTED</span><span id="go-coins" class="val">0</span></div>
-          <div class="result-tile"><span class="lbl">XP GAINED</span><span id="go-xp" class="val">+0 XP</span></div>
+          <div class="result-tile">
+            <span class="lbl">FINAL SCORE</span>
+            <span id="go-score" class="val" style="color:var(--primary-cyan);">0</span>
+          </div>
+          <div class="result-tile">
+            <span class="lbl">DISTANCE</span>
+            <span id="go-distance" class="val">0 m</span>
+          </div>
+          <div class="result-tile">
+            <span class="lbl">COINS COLLECTED</span>
+            <span id="go-coins" class="val" style="color:var(--accent-gold);">0</span>
+          </div>
+          <div class="result-tile">
+            <span class="lbl">XP GAINED</span>
+            <span id="go-xp" class="val" style="color:var(--accent-green);">+0 XP</span>
+          </div>
         </div>
         <!-- High Score Celebration Emotes Row -->
-        <div style="margin: 10px 0; text-align: center;">
-          <span style="font-size: 0.75rem; color: var(--primary-cyan); font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 4px;">🎉 CELEBRATE WITH EMOTES:</span>
+        <div style="margin: 8px 0; text-align: center;">
+          <span style="font-size: 0.72rem; color: var(--primary-cyan); font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 4px;">🎉 CELEBRATE WITH EMOTES:</span>
           <div style="display: flex; justify-content: center; gap: 8px;">
             <button class="btn-secondary go-emote-btn" data-emote="DANCE" style="padding: 6px 12px; font-size: 1.1rem;" title="Dance Dance">💃 Dance</button>
             <button class="btn-secondary go-emote-btn" data-emote="VICTORY" style="padding: 6px 12px; font-size: 1.1rem;" title="Victory Jump">🏆 Victory</button>
@@ -537,7 +560,7 @@
           </div>
         </div>
         <div class="modal-buttons">
-          <button id="btn-go-again" class="btn-primary">RUN AGAIN ➔</button>
+          <button id="btn-go-again" class="btn-primary" style="font-size:1.15rem; padding:14px;">⚡ RUN AGAIN ➔</button>
           <button id="btn-go-share" class="btn-secondary" style="border-color:var(--accent-gold); color:var(--accent-gold);">🔗 SHARE REFERRAL CODE</button>
           <button id="btn-go-main" class="btn-danger">MAIN MENU</button>
         </div>

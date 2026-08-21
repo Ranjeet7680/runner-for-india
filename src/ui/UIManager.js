@@ -367,14 +367,17 @@ export class UIManager {
     // Game Over Lobby Buttons
     document.getElementById('btn-go-again')?.addEventListener('click', () => {
       soundEngine.playClick();
+      this.closeAllModals();
       if (this.isMobileDevice) this.requestFullscreenAuto();
-      this.showFourthLoadingScreen(() => {
-        if (this.game.isAiRaceMode) this.game.startAiRaceMode();
-        else this.game.startSoloRun();
-      });
+      if (this.game.isAiRaceMode) this.game.startAiRaceMode();
+      else this.game.startSoloRun();
     });
     document.getElementById('btn-go-share')?.addEventListener('click', () => { this.openReferralModal(); });
-    document.getElementById('btn-go-main')?.addEventListener('click', () => { soundEngine.playClick(); this.showScreen(this.screenWelcome); });
+    document.getElementById('btn-go-main')?.addEventListener('click', () => {
+      soundEngine.playClick();
+      this.closeAllModals();
+      this.showScreen(this.screenWelcome);
+    });
 
     // Settings Modal Close
     document.getElementById('btn-close-settings')?.addEventListener('click', () => { soundEngine.playClick(); this.hideModal(this.modalSettings); });
@@ -749,7 +752,31 @@ export class UIManager {
     if (this.countdownSub) this.countdownSub.textContent = subText;
   }
 
-  updateHUD(score, distanceMeters, coins) {
+  triggerImpactFlash() {
+    const flash = document.getElementById('impact-flash');
+    if (flash) {
+      flash.classList.remove('active');
+      void flash.offsetWidth; // Force CSS reflow
+      flash.classList.add('active');
+    }
+  }
+
+  animateCounter(elementId, start, end, duration = 650) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const startTime = performance.now();
+    const update = (now) => {
+      const progress = Math.min(1, (now - startTime) / duration);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(start + (end - start) * ease);
+      el.textContent = current.toLocaleString();
+      if (progress < 1) requestAnimationFrame(update);
+      else el.textContent = end.toLocaleString();
+    };
+    requestAnimationFrame(update);
+  }
+
+  updateHUD(score, distanceMeters, coins, gameSpeed = 18.0) {
     if (this.hudScoreVal) this.hudScoreVal.textContent = score.toLocaleString();
     if (this.hudDistanceVal) {
       this.hudDistanceVal.textContent = distanceMeters >= 1000
@@ -757,6 +784,12 @@ export class UIManager {
         : `${Math.floor(distanceMeters)} m`;
     }
     if (this.hudCoinsVal) this.hudCoinsVal.textContent = coins.toString();
+
+    const speedEl = document.getElementById('hud-speed-val');
+    if (speedEl) {
+      const kmh = Math.round(gameSpeed * 3.6);
+      speedEl.innerHTML = `${kmh} <small style="font-size:0.6rem;">km/h</small>`;
+    }
   }
 
   updatePowerUpBadges(activePowerups, durations) {
@@ -795,10 +828,35 @@ export class UIManager {
   }
 
   showGameOverLobby(score, distance, coins, bestScore, isNewRecord, xpEarned) {
-    document.getElementById('go-score').textContent = score.toLocaleString();
-    document.getElementById('go-distance').textContent = distance >= 1000 ? `${(distance / 1000).toFixed(2)} KM` : `${Math.floor(distance)} m`;
-    document.getElementById('go-coins').textContent = coins.toString();
-    document.getElementById('go-xp').textContent = `+${xpEarned} XP`;
+    this.animateCounter('go-score', 0, score, 700);
+    this.animateCounter('go-coins', 0, coins, 600);
+
+    const distEl = document.getElementById('go-distance');
+    if (distEl) {
+      distEl.textContent = distance >= 1000 ? `${(distance / 1000).toFixed(2)} KM` : `${Math.floor(distance)} m`;
+    }
+
+    const xpEl = document.getElementById('go-xp');
+    if (xpEl) xpEl.textContent = `+${xpEarned} XP`;
+
+    // Dynamic Performance Rank Grade
+    const rankBadge = document.getElementById('go-rank-badge');
+    if (rankBadge) {
+      let rank = 'RANK C';
+      let grad = 'linear-gradient(135deg, #8a99ad, #4a5568)';
+      if (score >= 15000 || distance >= 1200) {
+        rank = 'RANK S 👑';
+        grad = 'linear-gradient(135deg, #ffd700, #ff007f)';
+      } else if (score >= 8000 || distance >= 600) {
+        rank = 'RANK A ⚡';
+        grad = 'linear-gradient(135deg, #00f3ff, #0066ff)';
+      } else if (score >= 3000 || distance >= 250) {
+        rank = 'RANK B 🔥';
+        grad = 'linear-gradient(135deg, #00ff88, #00aa44)';
+      }
+      rankBadge.textContent = rank;
+      rankBadge.style.background = grad;
+    }
 
     const banner = document.getElementById('high-score-banner');
     if (banner) {

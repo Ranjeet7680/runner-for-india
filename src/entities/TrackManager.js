@@ -151,6 +151,17 @@ export class TrackManager {
       signal2.position.set(2.5, 8.7, 0);
       gantryGroup.add(signal2);
 
+      // Overhead Power Wire Lines
+      const wireMat = new THREE.LineBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.7 });
+      [-2.5, 0, 2.5].forEach(wx => {
+        const wireGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(wx, 8.5, -this.chunkLength / 2),
+          new THREE.Vector3(wx, 8.5, this.chunkLength / 2)
+        ]);
+        const wire = new THREE.Line(wireGeo, wireMat);
+        gantryGroup.add(wire);
+      });
+
       chunkGroup.add(gantryGroup);
     }
 

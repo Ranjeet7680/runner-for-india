@@ -85,10 +85,13 @@ export class CameraManager {
       playerPos.z + lookOffset.z
     );
 
-    // Screen Shake Effect
+    // Screen Shake Effect (Position + Rotational Trauma)
+    let rollShake = 0;
     if (this.shakeIntensity > 0) {
-      desiredPos.x += (Math.random() - 0.5) * this.shakeIntensity;
-      desiredPos.y += (Math.random() - 0.5) * this.shakeIntensity;
+      desiredPos.x += (Math.random() - 0.5) * this.shakeIntensity * 1.5;
+      desiredPos.y += (Math.random() - 0.5) * this.shakeIntensity * 1.5;
+      desiredPos.z += (Math.random() - 0.5) * this.shakeIntensity * 0.8;
+      rollShake = (Math.random() - 0.5) * this.shakeIntensity * 0.08;
       this.shakeIntensity = Math.max(0, this.shakeIntensity - this.shakeDecay * delta);
     }
 
@@ -107,9 +110,9 @@ export class CameraManager {
     this.camera.fov = THREE.MathUtils.lerp(this.camera.fov, targetFov, 0.1);
     this.camera.updateProjectionMatrix();
 
-    // Subtle Roll Banking on Lane Change
+    // Subtle Roll Banking on Lane Change + Shake Trauma
     const laneDelta = (targetX - this.currentPos.x);
-    this.camera.up.set(-laneDelta * 0.03, 1, 0).normalize();
+    this.camera.up.set(-laneDelta * 0.03 + rollShake, 1, 0).normalize();
     this.camera.position.copy(this.currentPos);
     this.camera.lookAt(this.currentLookAt);
   }

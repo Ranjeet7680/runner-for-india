@@ -287,25 +287,35 @@ export class Game {
   }
 
   handlePlayerCrash() {
-    soundEngine.playCrash();
-    voiceSystem.speak('GAME_OVER');
+    if (this.state === 'CRASHING' || this.state === 'GAMEOVER' || this.state === 'REVIVE') return;
 
     if (this.player.shieldActive) {
       this.player.setPowerupVisual('SAFETY_BUBBLE', false);
       soundEngine.playPowerup();
+      this.cameraManager.triggerShake(0.6);
       return;
     }
 
-    if (progressManager.reviveTokens > 0) {
-      this.state = 'REVIVE';
-      this.uiManager.showReviveModal();
-    } else {
-      this.enterGameOverLobby();
-    }
+    this.state = 'CRASHING';
+    soundEngine.playCrash();
+    voiceSystem.speak('GAME_OVER');
+    this.player.triggerCrash();
+    this.cameraManager.triggerShake(1.4);
+    this.uiManager.triggerImpactFlash();
+
+    setTimeout(() => {
+      if (progressManager.reviveTokens > 0) {
+        this.state = 'REVIVE';
+        this.uiManager.showReviveModal();
+      } else {
+        this.enterGameOverLobby();
+      }
+    }, 650);
   }
 
   revivePlayer() {
     this.state = 'PLAYING';
+    this.player.isCrashing = false;
     this.player.setPowerupVisual('SAFETY_BUBBLE', true);
     setTimeout(() => this.player.setPowerupVisual('SAFETY_BUBBLE', false), 4000);
     this.uiManager.showScreen(this.uiManager.screenHUD);
@@ -325,16 +335,14 @@ export class Game {
     missionManager.updateProgress('coins', coinsCollected);
     achievementManager.checkStats();
 
-    this.uiManager.showThirdLoadingScreen(() => {
-      this.uiManager.showGameOverLobby(
-        finalScore,
-        this.distanceTraveled,
-        coinsCollected,
-        progressManager.highScore,
-        isNewRecord,
-        xpEarned
-      );
-    });
+    this.uiManager.showGameOverLobby(
+      finalScore,
+      this.distanceTraveled,
+      coinsCollected,
+      progressManager.highScore,
+      isNewRecord,
+      xpEarned
+    );
   }
 
   startLoop() {
@@ -385,6 +393,14 @@ export class Game {
       return;
     }
 
+    if (this.state === 'CRASHING') {
+      this.player.update(delta, 0, this.distanceTraveled);
+      this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta, 0);
+      this.appRenderer.updateAtmosphere(this.player.position, 0, delta);
+      this.updateDebugHUD();
+      return;
+    }
+
     if (this.state !== 'PLAYING') {
       this.updateDebugHUD();
       return;
@@ -429,6 +445,7 @@ export class Game {
     this.policeNPCManager.update(this.player.position, delta);
     this.cityGenerator.update(this.player.position.z, delta);
     this.weatherSystem.update(this.player.position.z, delta);
+    this.appRenderer.updateAtmosphere(this.player.position, this.gameSpeed, delta);
 
     const coinsGathered = this.coinManager.update(this.player.position, this.player.magnetActive, delta);
     if (coinsGathered > 0) {
@@ -478,7 +495,7 @@ export class Game {
     }
 
     this.cameraManager.update(this.player.position, this.player.lane, this.player.isJumping, delta, this.gameSpeed);
-    this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected);
+    this.uiManager.updateHUD(this.scoreManager.score, this.distanceTraveled, this.scoreManager.coinsCollected, this.gameSpeed);
     this.uiManager.updatePowerUpBadges(this.powerUpManager.activePowerups, this.powerUpManager.durations);
 
     // Debug System HUD Update

@@ -61,16 +61,25 @@ export class CoinManager {
   }
 
   initParticlePool() {
-    const count = 50;
+    const count = 80;
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      colors[i * 3] = 1.0;
+      colors[i * 3 + 1] = Math.random() > 0.3 ? 0.85 : 0.95;
+      colors[i * 3 + 2] = Math.random() > 0.5 ? 0.0 : 0.8;
+    }
+
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const mat = new THREE.PointsMaterial({
-      color: 0xffd700,
-      size: 0.3,
+      size: 0.45,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
       blending: THREE.AdditiveBlending
     });
 
@@ -85,13 +94,13 @@ export class CoinManager {
     const attr = this.sparkles.geometry.attributes.position;
     const arr = attr.array;
     for (let i = 0; i < arr.length / 3; i++) {
-      arr[i * 3] = (Math.random() - 0.5) * 1.5;
-      arr[i * 3 + 1] = (Math.random() - 0.5) * 1.5;
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 1.5;
+      arr[i * 3] = (Math.random() - 0.5) * 2.2;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 2.2;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 2.2;
     }
     attr.needsUpdate = true;
     this.sparkles.visible = true;
-    this.sparkleTimer = 0.3;
+    this.sparkleTimer = 0.45;
   }
 
   spawnCoin(laneIndex, yPos, zPos) {

@@ -215,6 +215,26 @@ export class TrainManager {
     hlRight.position.set(0.7, 1.2, frontZ);
     trainGroup.add(hlRight);
 
+    // Volumetric Headlight Light Cones
+    const beamGeo = new THREE.ConeGeometry(0.8, 8.0, 12, 1, true);
+    const beamMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const beamL = new THREE.Mesh(beamGeo, beamMat);
+    beamL.rotation.x = Math.PI / 2;
+    beamL.position.set(-0.7, 1.2, frontZ - 4.0);
+    trainGroup.add(beamL);
+
+    const beamR = new THREE.Mesh(beamGeo, beamMat);
+    beamR.rotation.x = Math.PI / 2;
+    beamR.position.set(0.7, 1.2, frontZ - 4.0);
+    trainGroup.add(beamR);
+
     // Sleek low-profile aerodynamic bumper & glowing cyan ramp direction indicator
     const bumperGeo = new THREE.BoxGeometry(2.3, 0.4, 0.8);
     const bumperMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.8, roughness: 0.2 });

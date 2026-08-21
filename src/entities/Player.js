@@ -60,10 +60,16 @@ export class Player {
     this.isCelebrating = false;
     this.celebrationTimer = 0;
 
+    // Crash & Knockdown Animation State
+    this.isCrashing = false;
+    this.crashTimer = 0;
+
     this.mesh = new THREE.Group();
     this.buildCharacterMesh(this.characterType);
     this.buildPowerUpAuras();
     this.initLandingParticles();
+    this.initCrashParticles();
+    this.initSlideSparks();
     this.scene.add(this.mesh);
   }
 
@@ -84,6 +90,82 @@ export class Player {
     this.landingParticles = new THREE.Points(geo, mat);
     this.landingParticles.visible = false;
     this.scene.add(this.landingParticles);
+  }
+
+  initCrashParticles() {
+    const count = 60;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 3;
+      pos[i * 3 + 1] = Math.random() * 2;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 3;
+
+      if (Math.random() > 0.4) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.2; colors[i * 3 + 2] = 0.1; // Red spark
+      } else {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 0.2; // Yellow spark
+      }
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const mat = new THREE.PointsMaterial({
+      size: 0.5,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.crashParticles = new THREE.Points(geo, mat);
+    this.crashParticles.visible = false;
+    this.scene.add(this.crashParticles);
+    this.crashParticleTimer = 0;
+  }
+
+  initSlideSparks() {
+    const count = 30;
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+    const mat = new THREE.PointsMaterial({
+      color: 0xffaa00,
+      size: 0.35,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.slideSparks = new THREE.Points(geo, mat);
+    this.slideSparks.visible = false;
+    this.scene.add(this.slideSparks);
+  }
+
+  triggerCrash() {
+    this.isCrashing = true;
+    this.crashTimer = 1.5;
+    this.velocity.set(0, 5.0, -12.0); // Knockback impulse
+    this.isGrounded = false;
+    this.compressionScale = 0.6;
+
+    if (this.crashParticles) {
+      this.crashParticles.position.copy(this.position);
+      const attr = this.crashParticles.geometry.attributes.position;
+      const arr = attr.array;
+      for (let i = 0; i < arr.length / 3; i++) {
+        arr[i * 3] = (Math.random() - 0.5) * 3.5;
+        arr[i * 3 + 1] = Math.random() * 2.5;
+        arr[i * 3 + 2] = (Math.random() - 0.5) * 3.5;
+      }
+      attr.needsUpdate = true;
+      this.crashParticles.visible = true;
+      this.crashParticleTimer = 0.8;
+    }
   }
 
   triggerLandingDust() {
@@ -516,7 +598,16 @@ export class Player {
     this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -laneShiftDelta * 0.18, lerpBank);
     this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, laneShiftDelta * 0.1, lerpBank);
 
-    if (this.isRocketFlying) {
+    if (this.isCrashing) {
+      this.crashTimer -= delta;
+      this.velocity.y += this.gravity * delta;
+      this.position.y += this.velocity.y * delta;
+      if (this.position.y <= 0) {
+        this.position.y = 0;
+        this.velocity.set(0, 0, 0);
+        this.isGrounded = true;
+      }
+    } else if (this.isRocketFlying) {
       const lerpY = 1.0 - Math.exp(-10 * delta);
       this.position.y = THREE.MathUtils.lerp(this.position.y, this.rocketTargetY, lerpY);
       this.isGrounded = false;
@@ -542,7 +633,29 @@ export class Player {
 
     if (this.isSliding) {
       this.slideTimer -= delta;
-      if (this.slideTimer <= 0) this.isSliding = false;
+      if (this.slideTimer <= 0) {
+        this.isSliding = false;
+        if (this.slideSparks) this.slideSparks.visible = false;
+      } else if (this.slideSparks) {
+        // Emit friction sparks behind shoes on track
+        this.slideSparks.position.set(this.position.x, 0.05, this.position.z - 0.6);
+        const attr = this.slideSparks.geometry.attributes.position;
+        const arr = attr.array;
+        for (let i = 0; i < arr.length / 3; i++) {
+          arr[i * 3] = (Math.random() - 0.5) * 0.8;
+          arr[i * 3 + 1] = Math.random() * 0.4;
+          arr[i * 3 + 2] = -Math.random() * 1.5;
+        }
+        attr.needsUpdate = true;
+        this.slideSparks.visible = true;
+      }
+    }
+
+    if (this.crashParticleTimer > 0) {
+      this.crashParticleTimer -= delta;
+      if (this.crashParticleTimer <= 0 && this.crashParticles) {
+        this.crashParticles.visible = false;
+      }
     }
 
     if (this.landingEffectTimer > 0) {
@@ -565,6 +678,20 @@ export class Player {
   updateAnimations(gameSpeed) {
     if (this.coreReactor) {
       this.coreReactor.scale.setScalar(1.0 + Math.sin(this.animTime * 6) * 0.3);
+    }
+
+    // Dramatic Crash Knockdown Tumble Animation
+    if (this.isCrashing) {
+      const t = Math.max(0, 1.5 - this.crashTimer);
+      this.characterGroup.position.y = -0.3;
+      this.characterGroup.rotation.x = Math.min(Math.PI / 2, t * 4.5); // Fall backwards onto back
+      this.characterGroup.rotation.z = Math.sin(t * 8) * 0.25; // Side wobble
+      this.leftArmPivot.rotation.x = -Math.PI * 0.85; // Arms flailing up
+      this.rightArmPivot.rotation.x = -Math.PI * 0.85;
+      this.leftLegPivot.rotation.x = 0.5;
+      this.rightLegPivot.rotation.x = 0.7;
+      if (this.headGroup) this.headGroup.rotation.x = -0.5;
+      return;
     }
 
     if (this.isRocketFlying) {
@@ -729,6 +856,8 @@ export class Player {
     this.isGrounded = true;
     this.isJumping = false;
     this.isSliding = false;
+    this.isCrashing = false;
+    this.crashTimer = 0;
     this.isRocketFlying = false;
     this.rocketBoard.visible = false;
     this.shieldActive = false;
@@ -737,6 +866,13 @@ export class Player {
     this.doubleScoreActive = false;
     this.speedActive = false;
     if (this.shieldMesh) this.shieldMesh.visible = false;
+    if (this.slideSparks) this.slideSparks.visible = false;
+    if (this.crashParticles) this.crashParticles.visible = false;
+    if (this.characterGroup) {
+      this.characterGroup.position.set(0, 0, 0);
+      this.characterGroup.rotation.set(0, 0, 0);
+    }
+    this.mesh.rotation.set(0, 0, 0);
     this.compressionScale = 1.0;
   }
 

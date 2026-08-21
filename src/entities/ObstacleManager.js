@@ -150,7 +150,8 @@ export class ObstacleManager {
       width: width,
       height: height,
       depth: depth,
-      centerY: centerY
+      centerY: centerY,
+      animTimer: Math.random() * 5
     };
 
     this.scene.add(group);
@@ -163,6 +164,17 @@ export class ObstacleManager {
 
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
       const obs = this.obstacles[i];
+      obs.animTimer += delta * 6;
+
+      if (obs.type === 'ELECTRIC_LASER_GRID') {
+        // Laser energy hum pulsation
+        const s = 1.0 + Math.sin(obs.animTimer * 4) * 0.15;
+        obs.mesh.scale.set(1.0, s, 1.0);
+      } else if (obs.type === 'EXPLOSIVE_HAZARD_BARREL') {
+        // Warning light pulse
+        const s = 1.0 + Math.sin(obs.animTimer * 3) * 0.05;
+        obs.mesh.scale.set(s, s, s);
+      }
 
       obs.box.setFromCenterAndSize(
         new THREE.Vector3(obs.mesh.position.x, obs.centerY, obs.mesh.position.z),

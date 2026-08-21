@@ -2,7 +2,9 @@
 
 **NEXORA METRO RUNNER V2.0** is a high-performance, 3D endless-runner web game built by **Nexora Team** using **Three.js**, **Web Audio API**, **Web Speech Synthesis**, and **Vite**.
 
-- **Official Company Website**: [https://nexora-financial-intelligence-reima.vercel.app/](https://nexora-financial-intelligence-reima.vercel.app/)
+- 📖 **Full Comprehensive Technical Wiki**: [Read WIKI.md](./WIKI.md)
+- 🌐 **Official Company Website**: [https://nexora-financial-intelligence-reima.vercel.app/](https://nexora-financial-intelligence-reima.vercel.app/)
+- 🎮 **Live Demo**: [https://nexora-financial-intelligence-reima.vercel.app/](https://nexora-financial-intelligence-reima.vercel.app/)
 
 ---
 
